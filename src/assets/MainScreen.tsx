@@ -16,7 +16,7 @@ const MainScreen: React.FC = () => {
         
         {/* 상단 헤더 */}
         <header className="main-header">
-          <img src={spaceIcon} alt="Profile" className="header-icon" />
+          <img src={spaceIcon} alt="Profidle" className="header-icon" />
           <h2 className="header-title">HOME</h2>
           <div className="notification-wrapper">
             <img src={notificationIcon} alt="Notification" className="header-icon" />
