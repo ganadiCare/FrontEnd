@@ -1,15 +1,21 @@
 import { useState } from 'react';
+
 import StartScreen from './assets/start';
 import LoginScreen from './assets/LoginScreen';
 import MainScreen from './assets/MainScreen';
+import LiveScreen from './assets/LiveScreen'
+
+import TempleteScreen from './assets/TempleteScreen';
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState('start');
+  const [currentScreen, setCurrentScreen] = useState('templete');
 
   return (
     <>
       {currentScreen === 'start' && (
-        <StartScreen onLoginClick={() => setCurrentScreen('login')} />
+        <StartScreen
+          onLoginClick={() => setCurrentScreen('login')}
+        />
       )}
 
       {currentScreen === 'login' && (
@@ -21,6 +27,14 @@ function App() {
 
       {currentScreen === 'main' && (
         <MainScreen />
+      )}
+
+      {currentScreen === 'live' && (
+        <LiveScreen />
+      )}
+
+      {currentScreen === 'templete' && (
+        <TempleteScreen />
       )}
     </>
   );
