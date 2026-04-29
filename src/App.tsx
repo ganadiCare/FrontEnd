@@ -10,6 +10,14 @@ import TempleteScreen from './assets/TempleteScreen';
 function App() {
   const [currentScreen, setCurrentScreen] = useState('templete');
 
+  const onHeaderClick = (state: string) => {
+    setCurrentScreen(state);
+  }
+
+  const onNavClick = (state: string) => {
+    setCurrentScreen(state);
+  }
+
   return (
     <>
       {currentScreen === 'start' && (
@@ -34,7 +42,10 @@ function App() {
       )}
 
       {currentScreen === 'templete' && (
-        <TempleteScreen />
+        <TempleteScreen
+          onHeaderClick={onHeaderClick}
+          onNavClick={onNavClick}
+        />
       )}
     </>
   );

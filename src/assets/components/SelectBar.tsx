@@ -1,5 +1,5 @@
 import React from 'react';
-import '../templete.css'
+import '../css/templete.css';
 
 interface SelectBarProps {
   options?: string[];

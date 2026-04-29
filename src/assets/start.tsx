@@ -1,5 +1,5 @@
 import React from 'react';
-import './start.css';
+import './css/start.css';
 import logoImage from './image_folder/Logo.png'; 
 
 interface StartScreenProps {

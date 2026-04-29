@@ -1,5 +1,5 @@
 import React from 'react';
-import './login.css';
+import './css/login.css';
 import backArrow from './image_folder/Back.png';
 
 interface LoginScreenProps {

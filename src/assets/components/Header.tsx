@@ -1,5 +1,5 @@
 import React from 'react';
-import '../templete.css';
+import '../css/templete.css';
 
 import spaceIcon from '../image_folder/User.png';
 import backArrow from '../image_folder/Back.png';
@@ -7,16 +7,16 @@ import notificationIcon from '../image_folder/Notification.png';
 
 interface HeaderProps {
   title?: string;
+  previousScreen: string;
   currentScreen: string;
 
-  onUserClick?: () => void;
-  onNotificationClick?: () => void;
+  onHeaderClick:(state: string) => void;
 }
 
 const Header: React.FC<HeaderProps> = (
   { 
-    title, currentScreen,
-    onNotificationClick, onUserClick
+    title, previousScreen, currentScreen,
+    onHeaderClick
   }) => {
   return (
     <header className="main-header">
@@ -25,14 +25,14 @@ const Header: React.FC<HeaderProps> = (
           src={backArrow} 
           alt="뒤로 가기" 
           className={['main'].includes(currentScreen)?'header-icon hide':'header-icon'}
-          onClick={history.back} 
+          onClick={() => onHeaderClick(previousScreen)}
         />
 
         <img
           src={spaceIcon}
           alt="Profile"
           className={['main'].includes(currentScreen)?'header-icon hide':'header-icon'}
-          onClick={onUserClick}
+          onClick={() => onHeaderClick('profile')}
         />
       </div>
 
@@ -41,10 +41,10 @@ const Header: React.FC<HeaderProps> = (
       <div className='icon-wrapper'>
         <div className='icon-wrapper'>
           <img
-              src={notificationIcon}
-              alt="Notification"
-              className={['main'].includes(currentScreen)?'header-icon hide':'header-icon'}
-              onClick={onNotificationClick}
+            src={notificationIcon}
+            alt="Notification"
+            className={['main'].includes(currentScreen)?'header-icon hide':'header-icon'}
+            onClick={() => onHeaderClick('notification')}
           />
           <span
             className={['main'].includes(currentScreen)?'badge hide':'badge'}
@@ -52,18 +52,13 @@ const Header: React.FC<HeaderProps> = (
             15
           </span>
         </div>
-        
+
         <img
-            src={notificationIcon}
-            alt="Notification"
-            className={['main'].includes(currentScreen)?'header-icon hide':'header-icon'}
-            onClick={onNotificationClick}
+          src={notificationIcon}
+          alt="icon"
+          className={['main'].includes(currentScreen)?'header-icon hide':'header-icon'}
+          onClick={() => onHeaderClick('notification')}
         />
-        <span
-          className={['main'].includes(currentScreen)?'badge hide':'badge'}
-        >
-          15
-        </span>
       </div>
     </header>
   );

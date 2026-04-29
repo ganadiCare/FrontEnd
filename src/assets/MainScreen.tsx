@@ -1,5 +1,5 @@
 import React from 'react';
-import './main.css';
+import './css/main.css';
 
 import spaceIcon from './image_folder/User.png';
 import notificationIcon from './image_folder/Notification.png';

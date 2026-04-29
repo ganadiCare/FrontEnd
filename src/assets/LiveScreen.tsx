@@ -1,5 +1,5 @@
 import React from 'react';
-import './main.css';
+import './css/templete.css';
 
 import backArrow from './image_folder/Back.png';
 import notificationIcon from './image_folder/Notification.png';

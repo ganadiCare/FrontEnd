@@ -1,0 +1,70 @@
+.ring-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ring-progress {
+    position: relative;
+    width: 56px;
+    height: 56px;
+}
+
+.ring-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,1) 60%, rgba(240,240,240,1) 100%);
+    box-shadow: inset 0px 0px 4px rgba(0,0,0,0.1);
+}
+
+.ring-outer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow: visible;
+}
+
+.ring-text {
+    margin: 4px;
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.bar-wrapper {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.bar-base {
+    padding: 1px 0px;
+    border: #0099ff solid 1px;
+    border-radius: 4px;
+    background-color: #FFFFFF;
+    display: block;
+    justify-content: center;
+    overflow: visible;
+}
+
+.bar-stamp{
+    text-anchor: middle;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: sans-serif;
+    display: block;
+    justify-content: center;
+    overflow: visible;
+}
