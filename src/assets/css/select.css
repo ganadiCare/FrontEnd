@@ -1,0 +1,36 @@
+.select-bar{
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+
+  width: auto;
+  height: 40px;
+  padding: 0px;
+  border-bottom: #000 solid 1px;
+}
+
+.select-box{
+  min-width: 80px;
+  padding: 0px 4px;
+  border: #aaa solid 1px;
+  border-radius: 4px;
+  appearance: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.select-box:hover{
+    border: #000 solid 1px;
+}
+
+.select-button{
+  padding: 0px 8px;
+  cursor: pointer;
+  transition: stroke 0.1s ease;
+}
+
+.select-button:active{
+  stroke: #0088e6;
+}

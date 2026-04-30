@@ -31,7 +31,7 @@ const Header: React.FC<HeaderProps> = (
         <img
           src={spaceIcon}
           alt="Profile"
-          className={['main'].includes(currentScreen)?'header-icon hide':'header-icon'}
+          className={['main','live'].includes(currentScreen)?'header-icon hide':'header-icon'}
           onClick={() => onHeaderClick('profile')}
         />
       </div>
@@ -39,26 +39,14 @@ const Header: React.FC<HeaderProps> = (
       <h2 className="header-title">{title}</h2>
 
       <div className='icon-wrapper'>
-        <div className='icon-wrapper'>
+        <div className='icon-wrapper' onClick={() => onHeaderClick('notification')}>
           <img
             src={notificationIcon}
             alt="Notification"
             className={['main'].includes(currentScreen)?'header-icon hide':'header-icon'}
-            onClick={() => onHeaderClick('notification')}
           />
-          <span
-            className={['main'].includes(currentScreen)?'badge hide':'badge'}
-          >
-            15
-          </span>
+          <span className={['main'].includes(currentScreen)?'badge hide':'badge'}>15</span>
         </div>
-
-        <img
-          src={notificationIcon}
-          alt="icon"
-          className={['main'].includes(currentScreen)?'header-icon hide':'header-icon'}
-          onClick={() => onHeaderClick('notification')}
-        />
       </div>
     </header>
   );

@@ -10,11 +10,7 @@ import TempleteScreen from './assets/TempleteScreen';
 function App() {
   const [currentScreen, setCurrentScreen] = useState('templete');
 
-  const onHeaderClick = (state: string) => {
-    setCurrentScreen(state);
-  }
-
-  const onNavClick = (state: string) => {
+  const onManuClick = (state: string) => {
     setCurrentScreen(state);
   }
 
@@ -38,13 +34,16 @@ function App() {
       )}
 
       {currentScreen === 'live' && (
-        <LiveScreen />
+        <LiveScreen 
+          onHeaderClick={onManuClick}
+          onNavClick={onManuClick}
+        />
       )}
 
       {currentScreen === 'templete' && (
         <TempleteScreen
-          onHeaderClick={onHeaderClick}
-          onNavClick={onNavClick}
+          onHeaderClick={onManuClick}
+          onNavClick={onManuClick}
         />
       )}
     </>

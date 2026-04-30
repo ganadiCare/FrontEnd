@@ -1,0 +1,24 @@
+.controller-wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.direction-controller{
+    display: flex;
+    justify-content: center;
+    overflow: visible;
+}
+
+.direction-part{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    cursor: pointer;
+    fill: #aaa;
+    transition: fill 0.1s ease;
+}
+
+.direction-part:active{
+    fill: #999;
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import './css/templete.css';
 
 import Header from './components/Header';
@@ -6,18 +6,24 @@ import Nav from './components/Nav';
 import SelectBar from './components/SelectBar';
 import RingGraph from './components/RingGraph';
 import BarGraph from './components/BarGraph';
+import VideoBox from './components/VideoBox';
+import Controller from './components/Controller';
 
 interface TempleteScreenProps {
   onMainClick?:() => void;
+  
   onHeaderClick:(state: string) => void;
   onNavClick:(state: string) => void;
 }
 
 const TempleteScreen: React.FC<TempleteScreenProps> = (
-  { 
-    onMainClick,
-    onHeaderClick, onNavClick
-  }) => {
+{ 
+  onMainClick,
+  onHeaderClick, onNavClick
+}) => {
+  const [direction, setDirection] = useState('center');
+  const [select, setSelect] = useState('test1');
+
   return (
     <div className="mobile-wrapper">
       <div className="app-container">
@@ -27,9 +33,13 @@ const TempleteScreen: React.FC<TempleteScreenProps> = (
           currentScreen='templete'
           title='TEMPLETE'
           onHeaderClick={onHeaderClick}
-        ></Header>
+        />
 
-        <SelectBar></SelectBar>
+        <SelectBar
+          options={['test1','test2','test3']}
+          selectedValue={select}
+          onSelectClick={setSelect}
+        />
 
         {/* 메인 콘텐츠 영역 : 내부 태그 전부 삭제 후 자유롭게 사용 */}
         <main className="main-content">
@@ -47,7 +57,7 @@ const TempleteScreen: React.FC<TempleteScreenProps> = (
               <p>+ Button</p>
             </button>
 
-            <p></p>
+            <p>current state: {direction}<br></br>current select: {select}</p>
 
             <span className='small-text'>test text</span>
 
@@ -55,14 +65,18 @@ const TempleteScreen: React.FC<TempleteScreenProps> = (
             <BarGraph values={[1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,3]}/>
             
           </section>
+
+          <VideoBox isThumbnail={true}></VideoBox>
           
           <hr className="main-divider" />
+
+          <Controller onDirectionClick={setDirection}/>
         </main>
 
         <Nav
           currentScreen='templete'
           onNavClick={onNavClick}
-        ></Nav>
+        />
 
       </div>
     </div>
