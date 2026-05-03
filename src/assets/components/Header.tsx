@@ -9,29 +9,35 @@ interface HeaderProps {
   title?: string;
   previousScreen: string;
   currentScreen: string;
+  visible?: boolean;
 
   onHeaderClick:(state: string) => void;
 }
 
 const Header: React.FC<HeaderProps> = (
   { 
-    title, previousScreen, currentScreen,
+    title, previousScreen, currentScreen, visible=true,
     onHeaderClick
   }) => {
+  const useBackButton = ['gallery', 'gallery-detail','live','dispenser','report'];
+  const useProfileButton = ['main'];
+  const useNotificationButton = ['main','gallery', 'gallery-detail','live','dispenser','report'];
+  
+
   return (
-    <header className="main-header">
+    <header className={visible ? "main-header" : "main-header hide"}>
       <div className='icon-wrapper'>
         <img 
           src={backArrow} 
           alt="뒤로 가기" 
-          className={['main'].includes(currentScreen)?'header-icon hide':'header-icon'}
+          className={useBackButton.includes(currentScreen)?'header-icon':'header-icon hide'}
           onClick={() => onHeaderClick(previousScreen)}
         />
 
         <img
           src={spaceIcon}
           alt="Profile"
-          className={['main','live'].includes(currentScreen)?'header-icon hide':'header-icon'}
+          className={useProfileButton.includes(currentScreen)?'header-icon':'header-icon hide'}
           onClick={() => onHeaderClick('profile')}
         />
       </div>
@@ -43,9 +49,9 @@ const Header: React.FC<HeaderProps> = (
           <img
             src={notificationIcon}
             alt="Notification"
-            className={['main'].includes(currentScreen)?'header-icon hide':'header-icon'}
+            className={useNotificationButton.includes(currentScreen)?'header-icon':'header-icon hide'}
           />
-          <span className={['main'].includes(currentScreen)?'badge hide':'badge'}>15</span>
+          <span className={useNotificationButton.includes(currentScreen)?'badge':'badge hide'}>15</span>
         </div>
       </div>
     </header>

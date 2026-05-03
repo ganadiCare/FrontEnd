@@ -10,18 +10,13 @@
     height: 56px;
 }
 
-.ring-inner {
+.ring-icon{
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 28px;
+    left: 28px;
     transform: translate(-50%, -50%);
     width: 24px;
     height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,1) 60%, rgba(240,240,240,1) 100%);
     box-shadow: inset 0px 0px 4px rgba(0,0,0,0.1);
 }
 

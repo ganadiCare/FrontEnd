@@ -9,17 +9,18 @@ import documentIcon from '../image_folder/Report.png';
 
 interface NavProps {
   currentScreen?: string;
+  visible?: boolean;
 
   onNavClick:(state: string) => void;
 }
 
 const Nav: React.FC<NavProps> = (
   { 
-    currentScreen,
+    currentScreen, visible=true,
     onNavClick
   }) => {
   return (
-    <nav className="bottom-nav">
+    <nav className={visible? "bottom-nav" : "bottom-nav hide"}>
       <div
         className={currentScreen=="main"?"nav-item active":"nav-item"}
         onClick={() => onNavClick('main')}
@@ -33,7 +34,7 @@ const Nav: React.FC<NavProps> = (
         onClick={() => onNavClick('gallery')}
       >
         <img src={folderIcon} alt="Gallery" className="nav-icon" />
-        <span>Gallary</span>
+        <span>Gallery</span>
       </div>
 
       <div

@@ -6,7 +6,7 @@ import Nav from './components/Nav';
 import SelectBar from './components/SelectBar';
 import RingGraph from './components/RingGraph';
 import BarGraph from './components/BarGraph';
-import VideoBox from './components/VideoBox';
+import LiveBox from './components/LiveBox';
 import Controller from './components/Controller';
 
 interface TempleteScreenProps {
@@ -21,6 +21,7 @@ const TempleteScreen: React.FC<TempleteScreenProps> = (
   onMainClick,
   onHeaderClick, onNavClick
 }) => {
+  const currentScreen = 'templete';
   const [direction, setDirection] = useState('center');
   const [select, setSelect] = useState('test1');
 
@@ -30,7 +31,7 @@ const TempleteScreen: React.FC<TempleteScreenProps> = (
         
         <Header
           previousScreen='login'
-          currentScreen='templete'
+          currentScreen={currentScreen}
           title='TEMPLETE'
           onHeaderClick={onHeaderClick}
         />
@@ -61,12 +62,12 @@ const TempleteScreen: React.FC<TempleteScreenProps> = (
 
             <span className='small-text'>test text</span>
 
-            <RingGraph currentValue={30} fullValue={100} graphName='TEXT' />
-            <BarGraph values={[1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,3,1,2,3]}/>
+            <RingGraph currentValue={30} fullValue={100} text='TEXT' />
+            <BarGraph values={[24,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]}/>
             
           </section>
 
-          <VideoBox isThumbnail={true}></VideoBox>
+          <LiveBox isLive ={true}/>
           
           <hr className="main-divider" />
 
@@ -74,7 +75,7 @@ const TempleteScreen: React.FC<TempleteScreenProps> = (
         </main>
 
         <Nav
-          currentScreen='templete'
+          currentScreen={currentScreen}
           onNavClick={onNavClick}
         />
 

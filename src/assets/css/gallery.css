@@ -1,0 +1,52 @@
+.thumbnail-wrapper{
+    width: 12%;
+    border: #fff solid 1px;
+    aspect-ratio: 1/1;
+    background-color: #aaa;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.thumbnail-image{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.thumbnail-check{
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    cursor: pointer;
+}
+
+.gallery-bar{
+    position: sticky;
+    bottom: 64px;
+    display: flex;
+    justify-content: space-between;
+    text-align: center;
+    align-items: center;
+    background-color: #0005;
+}
+
+.hide{
+  display: none;
+}
+
+.bar-icon-wrapper {
+  position: relative;
+  display: inline;
+  cursor: pointer;
+  padding: 12px 24px;
+}
+
+.bar-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}

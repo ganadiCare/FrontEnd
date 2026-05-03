@@ -1,32 +1,37 @@
-import React from 'react';
-import '../css/video.css';
+import React, {useState} from 'react';
+import '../css/live.css';
 
-import testVideo from '../image_folder/test.mp4';
-
-interface VideoBoxProps {
+interface LiveBoxProps {
   url?: string;
   nightVision?: boolean
-  isThumbnail?: boolean;
   isLive?: boolean;
-  onPlayClick?: void;
+  onPlayClick?:(state: string) => void;
 }
 
-const VideoBox: React.FC<VideoBoxProps> = (
+const LiveBox: React.FC<LiveBoxProps> = (
 {
-  url=testVideo, nightVision=false, isThumbnail=false, isLive=false,
+  url, nightVision=false, isLive=false,
   onPlayClick
 }) => {
+  const [liveOn, setLiveOn] = useState(false);
+  const clickPlayButton = () => {
+    if (isLive) {
+      setLiveOn(true);
+    } else {
+      onPlayClick?.('live');
+    }
+  }
+
   return (
-    <div className="video-wrapper">
-      <div className="video-player-box">
+    <div className="live-wrapper">
+      <div className="live-box">
         <video
-          className='video-viewer'
+          className='live-viewer'
           src={url}
-          controls={!(isThumbnail||isLive)}
         >
         해당 브라우저에서 재생 불가능</video>
 
-        <div className={(isThumbnail||isLive) ? 'video-control' : 'video-control hide'}>
+        <div className='live-control'>
           {/* 우측 상단 태양(밝기) 아이콘 */}
           <div className="brightness-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
@@ -39,10 +44,10 @@ const VideoBox: React.FC<VideoBoxProps> = (
           </div>
           {/* 중앙 재생 버튼 */}
           <div
-          className={isThumbnail ? 'play-button' :"play-button hide"}
-          onClick={() => onPlayClick}
+          className={!liveOn ? 'play-button' :"play-button hide"}
+          onClick={clickPlayButton}
           >
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinejoin="round">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinejoin="round" >
               <polygon points="5 3 19 12 5 21 5 3"></polygon>
             </svg>
           </div>
@@ -61,4 +66,4 @@ const VideoBox: React.FC<VideoBoxProps> = (
   );
 };
 
-export default VideoBox;
+export default LiveBox;

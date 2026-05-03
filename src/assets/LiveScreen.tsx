@@ -1,9 +1,11 @@
-import React from 'react';
+import React, {useState} from 'react';
 import './css/templete.css';
 
 import Header from './components/Header';
 import Nav from './components/Nav';
 import SelectBar from './components/SelectBar';
+import LiveBox from './components/LiveBox';
+import Controller from './components/Controller';
 
 interface TempleteScreenProps {
   onMainClick?:() => void;
@@ -15,28 +17,96 @@ interface TempleteScreenProps {
 const LiveScreen: React.FC<TempleteScreenProps> = ({
   onHeaderClick, onNavClick
 }) => {
+  const currentScreen = 'live';
+  const options = ['test1', 'test2', 'test3']
+
+  const [select, setSelect] = useState('test1');
+  const [controlBar, setControlBar] = useState(false);
+  const [control, setControl] = useState('control');
+  const [direction, setDirection] = useState('center');
+  
+  
+  const clickScreen = () =>{
+    setControlBar(!controlBar);
+    if (control=='control')
+      setControl('controller');
+  }
+
   return (
     <div className="mobile-wrapper">
       <div className="app-container">
         
         <Header
           previousScreen='main'
-          currentScreen='live'
+          currentScreen={currentScreen}
           title='CAMERA'
           onHeaderClick={onHeaderClick}
         ></Header>
 
-        <SelectBar></SelectBar>
+        <SelectBar
+          options={options}
+          selectedValue={select}
+          onSelectClick={setSelect}
+        />
 
-        {/* 메인 콘텐츠 영역 : 내부 태그 전부 삭제 후 자유롭게 사용 */}
-        <main className="main-content">
-          {/*섹션 템플릿*/}
-          <section className="main-section">
+        <main
+          className="main-content"
+          onClick={clickScreen}
+        >
+          <section className="full-section full">
+            <div onClick={(e) => e.stopPropagation()}><LiveBox isLive={true}/></div>
+            <p className='hide'>{direction}</p>
           </section>
         </main>
 
+        <section className='control-bar'>
+          <div className='control-menu'>
+            <div
+              className='control-menu-button'
+              onClick={()=>{setControlBar(true); setControl('controller');}}
+            >
+              <img className='.icon' src="" alt="icon" />
+            </div>
+            <div
+              className='control-menu-button'
+              onClick={()=>{setControlBar(true); setControl('button');}}
+            >
+              <img className='.icon' src="" alt="icon" />
+            </div>
+          </div>
+
+          <div className={controlBar && control=='controller' ? 'control-component' : 'control-component hide'}>
+            <Controller onDirectionClick={setDirection}/>
+            <button
+                className='small-button control-reset'
+              >초기화</button>
+          </div>
+          <div className={controlBar && control=='button' ? 'control-component' : 'control-component hide'}>
+            <div className='control-buttons'>
+              <button
+                className='medium-button'
+              >화면 녹화</button>
+              <button
+                className='medium-button'
+              >화면 캡처</button>
+              <button
+                className='medium-button'
+              >카메라 차단</button>
+              <button
+                className='medium-button'
+              >야간 모드</button>
+              <button
+                className='medium-button'
+              >스케줄 설정</button>
+              <button
+                className='medium-button'
+              >카메라 설정</button>
+            </div>
+          </div>
+        </section>
+
         <Nav
-          currentScreen='live'
+          currentScreen={currentScreen}
           onNavClick={onNavClick}
         ></Nav>
 
