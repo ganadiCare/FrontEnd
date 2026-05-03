@@ -52,6 +52,7 @@
   flex-direction: column;
   justify-content: center;
   padding: 0 32px;
+  margin-top: 70px;
 }
 
 .login-form {

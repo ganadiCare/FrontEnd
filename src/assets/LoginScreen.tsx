@@ -1,23 +1,19 @@
 import React from 'react';
 import './login.css';
 import backArrow from './image_folder/Back.png';
+import { useNavigate } from 'react-router-dom';
 
-interface LoginScreenProps {
-  onBackClick: () => void;
-  onLoginSuccess: () => void;
-}
-
-const LoginScreen: React.FC<LoginScreenProps> = ({ onBackClick, onLoginSuccess }) => {
+const LoginScreen: React.FC= () => {
+  let navigate = useNavigate()
   return (
-    <div className="mobile-wrapper">
-      <div className="app-container">
-        
+
+<div>        
         <header className="header-bar">
           <img 
             src={backArrow} 
             alt="뒤로 가기" 
             className="back-button"
-            onClick={onBackClick} 
+            onClick={()=>{navigate(-1)}} 
           />
           <h2>LOGIN</h2>
         </header>
@@ -54,7 +50,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onBackClick, onLoginSuccess }
             <button 
               type="button" 
               className="auth-button"
-              onClick={onLoginSuccess}
+              onClick={()=>{navigate('/main')}}
             >
               LOGIN
             </button>
@@ -65,7 +61,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onBackClick, onLoginSuccess }
         </div>
 
       </div>
-    </div>
+
   );
 };
 

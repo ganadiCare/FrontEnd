@@ -1,5 +1,7 @@
 import React from 'react';
-import './main.css';
+import './css/main.css';
+import Header from './contents/Header';
+import Bottom from './contents/Bottom';
 
 import spaceIcon from './image_folder/User.png';
 import notificationIcon from './image_folder/Notification.png';
@@ -11,18 +13,10 @@ import documentIcon from './image_folder/Report.png';
 
 const MainScreen: React.FC = () => {
   return (
-    <div className="mobile-wrapper">
-      <div className="app-container">
+    <div>
         
         {/* 상단 헤더 */}
-        <header className="main-header">
-          <img src={spaceIcon} alt="Profidle" className="header-icon" />
-          <h2 className="header-title">HOME</h2>
-          <div className="notification-wrapper">
-            <img src={notificationIcon} alt="Notification" className="header-icon" />
-            <span className="badge">15</span>
-          </div>
-        </header>
+        <Header/>
 
         {/* 스크롤 가능한 메인 콘텐츠 영역 */}
         <main className="main-content">
@@ -131,35 +125,16 @@ const MainScreen: React.FC = () => {
             </p>
             <button className="more-btn">+ 더보기</button>
           </section>
-
+          <h4>ㅎㅇ</h4>
+          <h4>ㅎㅇ</h4>
+          <h4>ㅎㅇ</h4>
+          <h4>ㅎㅇ</h4>
         </main>
 
         {/* 하단 네비게이션 바 */}
-        <nav className="bottom-nav">
-          <div className="nav-item active">
-            <img src={homeIcon} alt="Home" className="nav-icon" />
-            <span>Home</span>
-          </div>
-          <div className="nav-item">
-            <img src={folderIcon} alt="Gallery" className="nav-icon" />
-            <span>Gallay</span>
-          </div>
-          <div className="nav-item">
-            <img src={cameraIcon} alt="Live cam" className="nav-icon" />
-            <span>Live cam</span>
-          </div>
-          <div className="nav-item">
-            <img src={feedIcon} alt="Feed set" className="nav-icon" />
-            <span>Feed set</span>
-          </div>
-          <div className="nav-item">
-            <img src={documentIcon} alt="AI Report" className="nav-icon" />
-            <span>AI Report</span>
-          </div>
-        </nav>
+        <Bottom/>
 
       </div>
-    </div>
   );
 };
 

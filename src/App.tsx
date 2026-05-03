@@ -29,11 +29,10 @@ function App() {
       <div className='app-container'>
         <Routes>
           <Route path='/' element = {<StartScreen/>}></Route>
-          <Route path='/login' element = {<LoginScreen 
-          onBackClick={() => setCurrentScreen('start')} 
-           onLoginSuccess={() => setCurrentScreen('main')}
-          />}></Route>
+          <Route path='/login' element = {<LoginScreen/>}></Route>
+           <Route path='main' element = {<MainScreen/>}></Route>
         </Routes>
+       
         
       </div>
     </div>
