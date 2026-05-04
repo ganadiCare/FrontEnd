@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import './assets/css/app.css'
 
 import StartScreen from './assets/start';
 import LoginScreen from './assets/LoginScreen';
@@ -10,70 +11,20 @@ import LiveScreen from './assets/LiveScreen'
 import TempleteScreen from './assets/TempleteScreen';
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState('templete');
-  const [refresh, setRefresh] = useState(false);
-
-  const onManuClick = (state: string) => {
-    if (state === currentScreen) {
-      setRefresh(prev => !prev);
-    } else {
-      setCurrentScreen(state);
-    }
-  }
-
   return (
-    <>
-      {currentScreen === 'start' && (
-        <StartScreen
-          onLoginClick={() => setCurrentScreen('login')}
-        />
-      )}
-
-      {currentScreen === 'login' && (
-        <LoginScreen 
-          onBackClick={() => setCurrentScreen('start')} 
-          onLoginSuccess={() => setCurrentScreen('main')}
-        />
-      )}
-
-      {currentScreen === 'main' && (
-        <MainScreen
-          onHeaderClick={onManuClick}
-          onNavClick={onManuClick}
-          onPlayClick={onManuClick}
-        />
-      )}
-
-      {currentScreen === 'gallery' && (
-        <GalleryScreen
-          key={refresh.toString()}
-          onThumbnailClick={onManuClick}
-          onHeaderClick={onManuClick}
-          onNavClick={onManuClick}
-        />
-      )}
-
-      {currentScreen === 'gallery-detail' && (
-        <GalleryDetailScreen
-          onHeaderClick={onManuClick}
-          onNavClick={onManuClick}
-        />
-      )}
-
-      {currentScreen === 'live' && (
-        <LiveScreen 
-          onHeaderClick={onManuClick}
-          onNavClick={onManuClick}
-        />
-      )}
-
-      {currentScreen === 'templete' && (
-        <TempleteScreen
-          onHeaderClick={onManuClick}
-          onNavClick={onManuClick}
-        />
-      )}
-    </>
+    <div className = "mobile-wrapper">
+      <div className='app-container'>
+        <Routes>
+          <Route path='/' element = {<StartScreen/>}></Route>
+          <Route path='/login' element = {<LoginScreen/>}></Route>
+          <Route path='/main' element = {<MainScreen/>}></Route>
+          <Route path='/gallery' element = {<GalleryScreen/>}></Route>
+          <Route path='/gallery/detail' element = {<GalleryDetailScreen/>}></Route>
+          <Route path='/live' element = {<LiveScreen/>}></Route>
+          <Route path='/templete' element = {<TempleteScreen/>}></Route>
+        </Routes>
+      </div>
+    </div>
   );
 }
 

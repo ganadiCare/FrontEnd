@@ -46,6 +46,8 @@
 }
 
 .icon-wrapper {
+  min-width: 28px;
+  min-height: 28px;
   position: relative;
   display: inline;
   cursor: pointer;

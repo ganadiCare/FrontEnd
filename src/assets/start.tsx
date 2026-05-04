@@ -1,16 +1,18 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './css/start.css';
 import logoImage from './image_folder/Logo.png'; 
 
 interface StartScreenProps {
-  onLoginClick?: () => void;
-  onSignUpClick?: () => void;
+  date?: string;
 }
 
-const StartScreen: React.FC<StartScreenProps> = ({ onLoginClick, onSignUpClick }) => {
+const StartScreen: React.FC<StartScreenProps> = (
+  //{}
+) => {
+  const navigate = useNavigate()
   return (
-    <div className="mobile-wrapper">
-      
+    <>
       <div className="login-container">
         
         <div className="logo-section">
@@ -27,7 +29,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onLoginClick, onSignUpClick }
           <button 
             type="button" 
             className="auth-button"
-            onClick={onLoginClick}
+            onClick={()=>navigate('/login')}
           >
             E-Mail LOGIN
           </button>
@@ -41,14 +43,14 @@ const StartScreen: React.FC<StartScreenProps> = ({ onLoginClick, onSignUpClick }
           <button 
             type="button" 
             className="auth-button"
-            onClick={onSignUpClick}
+            onClick={()=>navigate('/signup')}
           >
             SIGN UP
           </button>
         </div>
 
       </div>
-    </div>
+    </>
   );
 };
 

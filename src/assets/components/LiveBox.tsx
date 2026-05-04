@@ -1,24 +1,24 @@
 import React, {useState} from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../css/live.css';
 
 interface LiveBoxProps {
   url?: string;
   nightVision?: boolean
   isLive?: boolean;
-  onPlayClick?:(state: string) => void;
 }
 
 const LiveBox: React.FC<LiveBoxProps> = (
 {
-  url, nightVision=false, isLive=false,
-  onPlayClick
+  url, nightVision=false, isLive=false
 }) => {
+  const navigate = useNavigate()
   const [liveOn, setLiveOn] = useState(false);
   const clickPlayButton = () => {
     if (isLive) {
       setLiveOn(true);
     } else {
-      onPlayClick?.('live');
+      navigate('/live');
     }
   }
 

@@ -1,18 +1,19 @@
 import React, {useState, useRef} from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../css/gallery.css';
 
 interface ThumbnailProps {
     url?: string;
     checkOn?: boolean;
-    onThumbnailClick:(state: string) => void;
     onThumbnailPress: (state: boolean) => void;
 }
 
 const Thumbnail: React.FC<ThumbnailProps> = (
 {
     url='', checkOn=false,
-    onThumbnailClick, onThumbnailPress
+    onThumbnailPress
 }) => {
+    const navigate = useNavigate()
     const [checked, setChecked] = useState(false);
     const timerRef = useRef<number | null>(null);
     const pressRef = useRef(false);
@@ -44,7 +45,7 @@ const Thumbnail: React.FC<ThumbnailProps> = (
         } else if (checkOn) {
             checkThumbnail();
         } else {
-           onThumbnailClick('gallery-detail');
+           navigate('/gallery/detail')
         }
     }
 

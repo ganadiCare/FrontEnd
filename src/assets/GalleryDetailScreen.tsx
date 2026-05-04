@@ -8,15 +8,11 @@ import GalleryBar from './components/GalleryBar';
 interface GalleryDetailScreenProps {
   url?: string;
   type?: string;
-  
-  onHeaderClick:(state: string) => void;
-  onNavClick:(state: string) => void;
 }
 
 const GalleryDetailScreen: React.FC<GalleryDetailScreenProps> = (
 { 
-  url='https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=150&q=80', type='png',
-  onHeaderClick, onNavClick
+  url='https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=150&q=80', type='png'
 }) => {
   const currentScreen = 'gallery-detail';
   const [useBar, setUseBar] = useState(true);
@@ -38,34 +34,26 @@ const GalleryDetailScreen: React.FC<GalleryDetailScreenProps> = (
   }
 
   return (
-    <div className="mobile-wrapper">
-      <div className="app-container">
-        
-        <Header
-          previousScreen='gallery'
-          currentScreen={currentScreen}
-          title='GALLERY'
-          visible={useBar}
-          onHeaderClick={onHeaderClick}
-        />
+    <>
+      <Header
+        title='GALLERY'
+        visible={useBar}
+      />
 
-        {/* 메인 콘텐츠 영역 */}
-        <main className="main-content">
-          <section className={useBar ? 'full-section' : 'full-section full'} onClick={clickScreen}>
-            <>{mediaTag(url, type)}</>
-          </section>
-        </main>
+      {/* 메인 콘텐츠 영역 */}
+      <main className="main-content">
+        <section className={useBar ? 'full-section' : 'full-section full'} onClick={clickScreen}>
+          <>{mediaTag(url, type)}</>
+        </section>
+      </main>
 
-        <GalleryBar visible={useBar}/>
+      <GalleryBar visible={useBar}/>
 
-        <Nav
-          currentScreen={currentScreen}
-          visible={useBar}
-          onNavClick={onNavClick}
-        />
-
-      </div>
-    </div>
+      <Nav
+        currentScreen={currentScreen}
+        visible={useBar}
+      />
+    </>
   );
 };
 

@@ -1,0 +1,21 @@
+/* 기본 컨테이너 유지 */
+.mobile-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 390px;
+  height: 844px;
+  max-height: 95vh;
+  background-color: #ffffff;
+  border: 1px solid #000000;
+  position: relative;
+  overflow: hidden; /* 앱 영역 밖으로 나가는 요소 숨김 */
+}
