@@ -7,13 +7,18 @@ import MainScreen from './assets/MainScreen';
 import GalleryScreen from './assets/GalleryScreen';
 import GalleryDetailScreen from './assets/GalleryDetailScreen';
 import LiveScreen from './assets/LiveScreen'
+import Notice from './assets/components/Notice';
 
 import TempleteScreen from './assets/TempleteScreen';
+import { useState } from 'react';
 
 function App() {
+  let [notice,setNotice] = useState(true);
   return (
     <div className = "mobile-wrapper">
       <div className='app-container'>
+
+        {notice ? <Notice setNotice = {setNotice}/> : null}
         <Routes>
           <Route path='/' element = {<StartScreen/>}></Route>
           <Route path='/login' element = {<LoginScreen/>}></Route>
