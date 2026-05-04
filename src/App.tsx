@@ -30,7 +30,7 @@ function App() {
         <Routes>
           <Route path='/' element = {<StartScreen/>}></Route>
           <Route path='/login' element = {<LoginScreen/>}></Route>
-           <Route path='main' element = {<MainScreen/>}></Route>
+          <Route path='main' element = {<MainScreen/>}></Route>
         </Routes>
        
         
