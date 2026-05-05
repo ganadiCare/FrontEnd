@@ -1,16 +1,9 @@
 import './../css/Notice.css'
-import Header from './Header';
-import NoticeContent from './NoticeContent';
 
-interface NoticeProps {
-    setNotice: (value: boolean) => void;
-}
+const NoticeContent: React.FC = () => {
 
-const Notice: React.FC<NoticeProps> = ({ setNotice }) => {
-    return (<div className='overlay1'>
-        <Header title='NOTICE' />
-        <div className='overlay2'>
-            <div className='info-window'>
+return(
+    <div className='info-window'>
                 {/* 상단: 날짜와 닫기 버튼 */}
                 <div className='window-header'>
                     <span className='date'>2025.02.08 12:00</span>
@@ -25,21 +18,7 @@ const Notice: React.FC<NoticeProps> = ({ setNotice }) => {
                     <p className='main-text'>TEXT</p>
                 </div>
             </div>
-            <NoticeContent/>
-            <NoticeContent/>
-            <NoticeContent/>
-            <NoticeContent/>
-            <NoticeContent/>
-
-        </div>
-        <button className='button-area'>
-            전체 삭제
-        </button>
-
-    </div>
-    )
-
+)
 }
 
-
-export default Notice;
+export default NoticeContent;

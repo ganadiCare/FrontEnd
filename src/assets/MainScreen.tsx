@@ -27,7 +27,7 @@ const MainScreen: React.FC<MainScreenProps> = (
       {/* 메인 콘텐츠 영역 */}
       <main className="main-content">
         {/* MY PET 섹션 */}
-        
+        <h1>테스트용</h1>
       </main>
 
       <Nav currentScreen={currentScreen} />
