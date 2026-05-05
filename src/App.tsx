@@ -10,15 +10,20 @@ import LiveScreen from './assets/LiveScreen'
 import Notice from './assets/components/Notice';
 
 import TempleteScreen from './assets/TempleteScreen';
-import { useState } from 'react';
+import { createContext, useState } from 'react';
+
+export let noticeContext = createContext<any>(null);
 
 function App() {
-  let [notice,setNotice] = useState(true);
+  let [notice,setNotice] = useState(false);
   return (
     <div className = "mobile-wrapper">
       <div className='app-container'>
 
+        <noticeContext.Provider value={{notice, setNotice}}>
         {notice ? <Notice setNotice = {setNotice}/> : null}
+        
+        
         <Routes>
           <Route path='/' element = {<StartScreen/>}></Route>
           <Route path='/login' element = {<LoginScreen/>}></Route>
@@ -28,6 +33,7 @@ function App() {
           <Route path='/live' element = {<LiveScreen/>}></Route>
           <Route path='/templete' element = {<TempleteScreen/>}></Route>
         </Routes>
+        </noticeContext.Provider>
       </div>
     </div>
   );
