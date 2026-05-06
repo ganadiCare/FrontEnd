@@ -7,6 +7,7 @@ import MainScreen from './assets/MainScreen';
 import GalleryScreen from './assets/GalleryScreen';
 import GalleryDetailScreen from './assets/GalleryDetailScreen';
 import LiveScreen from './assets/LiveScreen'
+import SignUp from './assets/SignUp';
 
 import TempleteScreen from './assets/TempleteScreen';
 
@@ -22,6 +23,7 @@ function App() {
           <Route path='/gallery/detail' element = {<GalleryDetailScreen/>}></Route>
           <Route path='/live' element = {<LiveScreen/>}></Route>
           <Route path='/templete' element = {<TempleteScreen/>}></Route>
+          <Route path='/signup' element = {<SignUp/>}></Route>
         </Routes>
       </div>
     </div>
