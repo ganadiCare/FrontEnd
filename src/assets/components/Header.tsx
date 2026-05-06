@@ -39,7 +39,10 @@ const Header: React.FC<HeaderProps> = (
           src={back} 
           alt="Back" 
           className={!useProfile?'header-icon':'header-icon hide'}
-          onClick={controlBackButton}
+          onClick={()=>{
+            controlBackButton;
+            setNotice(false);
+          }}
         />
 
         <img

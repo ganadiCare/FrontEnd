@@ -10,9 +10,6 @@ return(
                     <button className='close-btn'>&times;</button>
                 </div>
 
-                {/* 구분선 (CSS border로 처리해도 되지만 명시적으로 넣을 경우) */}
-                {/* <hr className='divider' /> */}
-
                 {/* 하단: 본문 텍스트 */}
                 <div className='window-content'>
                     <p className='main-text'>TEXT</p>

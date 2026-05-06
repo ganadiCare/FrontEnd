@@ -8,6 +8,7 @@ import GalleryScreen from './assets/GalleryScreen';
 import GalleryDetailScreen from './assets/GalleryDetailScreen';
 import LiveScreen from './assets/LiveScreen'
 import Notice from './assets/components/Notice';
+import FeedSet from './assets/FeedSet';
 
 import TempleteScreen from './assets/TempleteScreen';
 import { createContext, useState } from 'react';
@@ -32,6 +33,7 @@ function App() {
           <Route path='/gallery/detail' element = {<GalleryDetailScreen/>}></Route>
           <Route path='/live' element = {<LiveScreen/>}></Route>
           <Route path='/templete' element = {<TempleteScreen/>}></Route>
+          <Route path='/feed' element = {<FeedSet/>}></Route>
         </Routes>
         </noticeContext.Provider>
       </div>
