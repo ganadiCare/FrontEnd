@@ -19,7 +19,7 @@ function App() {
           <Route path='/login' element = {<LoginScreen/>}></Route>
           <Route path='/main' element = {<MainScreen/>}></Route>
           <Route path='/gallery' element = {<GalleryScreen/>}></Route>
-          <Route path='/gallery/detail' element = {<GalleryDetailScreen/>}></Route>
+          <Route path="/gallery/detail/:mediaId" element={<GalleryDetailScreen />} />
           <Route path='/live' element = {<LiveScreen/>}></Route>
           <Route path='/templete' element = {<TempleteScreen/>}></Route>
         </Routes>

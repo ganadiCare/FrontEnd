@@ -4,25 +4,52 @@ import './css/templete.css';
 
 import Header from './components/Header';
 import Nav from './components/Nav';
-import ProfileImage from './components/ProfileImage';
 import RingGraph from './components/RingGraph';
 import LiveBox from './components/LiveBox';
 
 import waterIcon from './image_folder/Water.png'
 
+interface Pet {
+  petId: number;
+  petName: string;
+  petImage: string;
+  species: string;
+  gender: string;
+  weight: number;
+  age: number;
+  birthday: string;
+}
+
+interface TodayReport {
+  move: number;
+  feed: number;
+  water: number;
+  aiSummation: string;
+}
+
+interface Streaming{
+  deviceId: number;
+  deviceName?: string;
+  url: string;
+  nightVision: boolean;
+}
+
+
 interface MainScreenProps {
-  data?:string;
+  pet?: Pet;
+  today?: TodayReport;
+  streaming?: Streaming;
 }
 
 const MainScreen: React.FC<MainScreenProps> = (
-  //{ }
+  {pet, today, streaming}
 ) => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const currentScreen = 'main';
 
   return (
     <>
-      <Header title='HOME' />
+      <Header title='HOME' useProfile={true}/>
 
       {/* 메인 콘텐츠 영역 */}
       <main className="main-content">
@@ -35,24 +62,30 @@ const MainScreen: React.FC<MainScreenProps> = (
           <div className="section-box row">
             {/* 프로필 이미지 & 이름 */}
             <div className="pet-profile">
-              <ProfileImage src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=150&q=80" />
-              <span className="large-text">MOCA</span>
+              <div className="profile-wrapper">
+                <img
+                    className="profile-image" 
+                    src={pet ? pet?.petImage : ''}
+                    alt="profile image"
+                />
+              </div>
+              <span className="medium-text">{pet ? pet?.petName : '???'}</span>
             </div>
             <RingGraph
-              currentValue={20}
+              currentValue={today?.move}
               fullValue={100}
-              text='1h 25m'
+              text={today ? `${today.move/60}분` : '...'}
             />
             <RingGraph
-              currentValue={60}
+              currentValue={today?.feed}
               fullValue={100}
-              text='60g'
+              text={today ? `${today.move/60}분` : '...'}
             />
             <RingGraph
               icon={waterIcon}
-              currentValue={30}
+              currentValue={today?.water}
               fullValue={100}
-              text='150ML'
+              text={today ? `${today.move/60}분` : '...'}
             />
           </div>
         </section>
@@ -60,22 +93,32 @@ const MainScreen: React.FC<MainScreenProps> = (
 
         {/* LIVE 섹션 */}
         <section className='main-section'>
-          <h3 className="section-heading">LIVE
+          <div className='heading-wrapper'>
+            <h3 className="section-heading">LIVE</h3>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="10" cy="10" r="5" fill="#f00"/>
+              <circle cx="10" cy="10" r="5" fill={streaming ? "#f00" : "#aaa"}/>
             </svg>
-          </h3>
+            <p className='message error'>카메라와 연결되지 않았습니다</p>
+          </div>
           <LiveBox isLive={false}/>
+          <p
+            className={!streaming ? "medium-text text-button" : "medium-text hide"}
+            onClick={()=>navigate('/camera/connect')}
+          >카메라 연결 →</p>
         </section>
         <hr className="main-divider" />
 
         {/* AI SUMMATION 섹션 */}
         <section className="main-section">
-          <h3 className="section-heading">AI SUMMATION</h3>
+          <h3 className="section-heading">AI 요약</h3>
           <p className="small-text">
-            모카는 오늘 <strong>7번의 음수(150ml)</strong>와 <strong>3번의 식사(60g)</strong>로 영양을 충분히 챙기고, 오후 2시경 가장 활발하게 움직이며 총 <strong>1시간 25분</strong> 동안 건강하고 활기찬 하루를 보냈습니다.
+            {today ? today.aiSummation : '...'}
           </p>
-          <button className="small-button" onClick={()=>navigate('/report')}>+ 더보기</button>
+
+          <button 
+            className={today ? "small-button" : "small-button hide"}
+            onClick={()=>navigate('/report')}
+          >+ 더보기</button>
         </section>
       </main>
 

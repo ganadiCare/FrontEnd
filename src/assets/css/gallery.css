@@ -21,12 +21,11 @@
     position: absolute;
     top: 2px;
     right: 2px;
-    cursor: pointer;
 }
 
 .gallery-bar{
     position: sticky;
-    bottom: 64px;
+    bottom: 70px;
     display: flex;
     justify-content: space-between;
     text-align: center;
@@ -34,19 +33,27 @@
     background-color: #0005;
 }
 
-.hide{
-  display: none;
+.bar-icon-wrapper {
+  width: 50%;
+  height: 50px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.bar-icon-wrapper {
-  position: relative;
-  display: inline;
-  cursor: pointer;
-  padding: 12px 24px;
+.bar-icon-wrapper:hover{
+  background-color: #0005;
 }
 
 .bar-icon {
   width: 28px;
   height: 28px;
   object-fit: contain;
+}
+
+.hide{
+  display: none;
 }
