@@ -239,7 +239,11 @@ const SignUp: React.FC = () => {
 
             {/* 하단 버튼 영역 */}
             <div className="button-section" style={{ textAlign: 'center', marginTop: '40px' }}>
-              <button className="next-button" onClick={handleNext}>
+              <button 
+                className="next-button" 
+                disabled={!email || emailError !== '' || !authCode || !password || passwordError !== '' || !confirmPassword || confirmPasswordError !== '' || !nickname}
+                /* 모든 필수 입력값이 채워지고, 에러 메시지가 없는 경우에만 버튼 활성화 */
+                onClick={handleNext}>
                 NEXT
               </button>
             </div>

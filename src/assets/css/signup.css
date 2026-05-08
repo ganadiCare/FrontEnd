@@ -46,7 +46,7 @@
 }
 
 .step.active {
-  background-color: #0088e6; 
+  background-color: #71D0FF; 
   width: 20px;
   height: 20px;
   font-size: 12px;
@@ -161,6 +161,15 @@
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+}
+
+.next-button:disabled {
+  background-color: #d9d9d9; 
+  color: #888888;
+}
+
+.next-button:disabled:active {
+  background-color: #d9d9d9 !important; 
 }
 
 .next-button:active {

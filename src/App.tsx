@@ -8,7 +8,8 @@ import GalleryScreen from './assets/GalleryScreen';
 import GalleryDetailScreen from './assets/GalleryDetailScreen';
 import LiveScreen from './assets/LiveScreen'
 import SignUp from './assets/SignUp';
-
+import SignUpStep2 from './assets/SignUpStep2.tsx'; 
+import SignUpStep3 from './assets/SignUpStep3.tsx';
 import TempleteScreen from './assets/TempleteScreen';
 
 function App() {
@@ -24,6 +25,8 @@ function App() {
           <Route path='/live' element = {<LiveScreen/>}></Route>
           <Route path='/templete' element = {<TempleteScreen/>}></Route>
           <Route path='/signup' element = {<SignUp/>}></Route>
+          <Route path='/signup-step2' element = {<SignUpStep2/>}></Route>
+          <Route path='/signup-step3' element = {<SignUpStep3/>}></Route>
         </Routes>
       </div>
     </div>

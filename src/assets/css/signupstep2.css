@@ -1,0 +1,173 @@
+.signup-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 412px;
+  height: 100vh;
+  overflow: hidden; 
+  background-color: #ffffff;
+  padding: 30px 20px;
+  box-sizing: border-box;
+}
+
+.signup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.signup-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #000;
+}
+
+.step-indicator {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.step {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #d9d9d9;
+}
+
+.step.active {
+  background-color: #4DB8FF;
+  width: 20px;
+  height: 20px;
+}
+
+.title-line {
+  border: 0;
+  height: 1px;
+  background-color: #000;
+  margin: 4px 0 25px 0;
+}
+
+
+.section-subtitle {
+  font-size: 16px;
+  font-weight: bold;
+  color: #000;
+  margin: 0 0 12px 0;
+}
+
+.required {
+  color: #ff0000;
+  margin-left: 4px;
+}
+
+
+.input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.input-box {
+  flex: 1;
+}
+
+.input-box input {
+  width: 100%;
+  height: 40px;
+  padding: 0 15px;
+  border: 1px solid #000;
+  border-radius: 8px;
+  font-size: 13px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.input-box input::placeholder {
+  color: #aaa;
+}
+
+.register-btn {
+  height: 36px;
+  padding: 0 25px;
+  background-color: #0099FF;
+  color: #fff;
+  border: none;
+  border-radius: 18px; 
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.register-btn:active {
+  background-color: #007ACC;
+}
+
+
+.divider-line {
+  border: 0;
+  height: 1px;
+  background-color: #000;
+  margin: 30px 0;
+}
+
+.device-item-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #000;
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin-bottom: 10px;
+}
+
+.device-info-text {
+  font-size: 13px;
+  font-weight: bold;
+  color: #000;
+}
+
+
+.close-icon-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #000;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+
+.button-section {
+  margin-top: auto; 
+  padding-bottom: 20px;
+}
+
+.next-button {
+  width: 100%;
+  height: 55px;
+  background-color: #0099FF;
+  color: #fff;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.next-button:disabled {
+  background-color: #d9d9d9;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ff0000;
+  font-size: 11px;
+  margin-top: 5px;
+}
+
+.error-border {
+  border-color: #ff0000 !important;
+}
+
