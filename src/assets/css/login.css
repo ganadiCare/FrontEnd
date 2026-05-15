@@ -20,14 +20,17 @@
 }
 
 .header-bar {
-  position: relative;
-  width: 100%;
-  padding: 20px 0;
+position: relative;
+  width: 412px;         /* 👈 가로 크기 지정 */
+  height: 50px;         /* 👈 세로 크기 지정 */
+  margin: 0 auto;       /* 중앙 정렬 */
+  padding: 0;           /* 기존의 위아래 패딩은 제거 (높이를 고정했으므로) */
   text-align: center;
   border-bottom: 1px solid #000000;
   display: flex;
-  align-items: center;
+  align-items: center;  /* 세로축 중앙 정렬 */
   justify-content: center;
+  box-sizing: border-box; /* 테두리 두께가 높이에 포함되도록 설정 */
 }
 
 .back-button {
@@ -116,22 +119,6 @@
   font-family: sans-serif;
 }
 
-.auth-button {
-  width: 100%;
-  padding: 16px 0;
-  background-color: #0099FF;
-  color: #ffffff;
-  border: none;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  letter-spacing: 0.5px;
-  transition: background-color 0.2s ease;
-}
-
-.auth-button:hover {
-  background-color: #0088e6;
-}
 
 .bottom-link {
   text-align: center;
@@ -140,4 +127,8 @@
   color: #b0b0b0;
   text-decoration: none;
   font-family: sans-serif;
+}
+
+.login-form .nav-button {
+  align-self: center;
 }

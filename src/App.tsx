@@ -11,6 +11,7 @@ import SignUp from './assets/SignUp';
 import SignUpStep2 from './assets/SignUpStep2.tsx'; 
 import SignUpStep3 from './assets/SignUpStep3.tsx';
 import TempleteScreen from './assets/TempleteScreen';
+import AiReport from './assets/AiReport.tsx';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path='/signup' element = {<SignUp/>}></Route>
           <Route path='/signup-step2' element = {<SignUpStep2/>}></Route>
           <Route path='/signup-step3' element = {<SignUpStep3/>}></Route>
+          <Route path='/report' element = {<AiReport/>}></Route>
         </Routes>
       </div>
     </div>

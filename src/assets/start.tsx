@@ -1,16 +1,14 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import './css/start.css';
 import logoImage from './image_folder/Logo.png'; 
+import NavigationButton from './components/NavigationButton';
 
 interface StartScreenProps {
   date?: string;
 }
 
-const StartScreen: React.FC<StartScreenProps> = (
-  //{}
-) => {
-  const navigate = useNavigate()
+const StartScreen: React.FC<StartScreenProps> = () => {
+
   return (
     <>
       <div className="login-container">
@@ -24,15 +22,14 @@ const StartScreen: React.FC<StartScreenProps> = (
           <h1 className="brand-title">TEAM. animal daisuki</h1>
         </div>
 
-        {/* 로그인 버튼 */}
+        {/* 로그인 & 회원가입 버튼 영역 */}
         <div className="form-section">
-          <button 
-            type="button" 
-            className="auth-button"
-            onClick={()=>navigate('/login')}
-          >
-            E-Mail LOGIN
-          </button>
+          
+          {/* ★ 2. 첫 번째 버튼: E-Mail LOGIN */}
+          <NavigationButton 
+            text="E-Mail LOGIN" 
+            navigateTo="/login" 
+          />
           
           <div className="divider">
             <span className="line"></span>
@@ -40,13 +37,12 @@ const StartScreen: React.FC<StartScreenProps> = (
             <span className="line"></span>
           </div>
           
-          <button 
-            type="button" 
-            className="auth-button"
-            onClick={()=>navigate('/signup')}
-          >
-            SIGN UP
-          </button>
+          {/* ★ 3. 두 번째 버튼: SIGN UP */}
+          <NavigationButton 
+            text="SIGN UP" 
+            navigateTo="/signup" 
+          />
+
         </div>
 
       </div>
