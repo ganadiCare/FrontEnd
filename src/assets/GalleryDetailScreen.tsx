@@ -62,7 +62,7 @@ const GalleryDetailScreen: React.FC<GalleryDetailScreenProps> = (
         visible={useBar}
       />
       {/* 메인 콘텐츠 영역 */}
-      <main className="main-content">
+      <main className="main-content full">
         <section className={useBar ? 'full-section' : 'full-section full'} onClick={clickScreen}>
           <>{mediaTag(media?.url, media?.type)}</>
         </section>

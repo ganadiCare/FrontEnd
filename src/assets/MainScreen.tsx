@@ -27,22 +27,29 @@ interface TodayReport {
   aiSummation: string;
 }
 
-interface Streaming{
+interface CamInfo{
   deviceId: number;
-  deviceName?: string;
-  url: string;
-  nightVision: boolean;
+  deviceName: string;
+  code?: string;
+  url?: string;
+  isMain?: boolean;
+
+  resolution?: string;
+  motionSensitive?: number;
+
+  nightVision?: string;
+  private?: boolean;
 }
 
 
 interface MainScreenProps {
   pet?: Pet;
   today?: TodayReport;
-  streaming?: Streaming;
+  camInfo?: CamInfo;
 }
 
 const MainScreen: React.FC<MainScreenProps> = (
-  {pet, today, streaming}
+  {pet, today, camInfo}
 ) => {
   const navigate = useNavigate();
   const currentScreen = 'main';
@@ -96,13 +103,13 @@ const MainScreen: React.FC<MainScreenProps> = (
           <div className='heading-wrapper'>
             <h3 className="section-heading">LIVE</h3>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="10" cy="10" r="5" fill={streaming ? "#f00" : "#aaa"}/>
+              <circle cx="10" cy="10" r="5" fill={camInfo ? "#f00" : "#aaa"}/>
             </svg>
             <p className='message error'>카메라와 연결되지 않았습니다</p>
           </div>
           <LiveBox isLive={false}/>
           <p
-            className={!streaming ? "medium-text text-button" : "medium-text hide"}
+            className={!camInfo ? "medium-text text-button" : "medium-text hide"}
             onClick={()=>navigate('/camera/connect')}
           >카메라 연결 →</p>
         </section>

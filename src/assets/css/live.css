@@ -8,23 +8,27 @@
     align-items: center;
 }
 
+.live-box.full{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 85vh;
+    height: 58vw;
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
 .live-viewer{
     width: 100%;
     position: relative;
     justify-content: center;
     align-items: center;
+    user-select: none;
 }
 
 .live-control{
     width: 100%;
     height: 100%;
     position: absolute;
-}
-
-.brightness-icon {
-    position: absolute;
-    top: 12px;
-    right: 12px;
 }
 
 .live-button {
@@ -42,6 +46,12 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+}
+
+.brightness-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
 }
 
 .full-icon{

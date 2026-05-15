@@ -19,18 +19,25 @@
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-}
-
-.select-box:hover{
-    border: #000 solid 1px;
+  user-select: none;
+  outline: none;
 }
 
 .select-button{
   padding: 0px 8px;
   cursor: pointer;
+  stroke: #aaa;
   transition: stroke 0.1s ease;
 }
 
-.select-button:active{
+.select-button.active{
+  stroke: #0099ff;
+}
+
+.select-button.active:hover{
   stroke: #0088e6;
+}
+
+.hide{
+  display: none;
 }
