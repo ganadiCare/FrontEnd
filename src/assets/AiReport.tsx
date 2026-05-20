@@ -4,25 +4,36 @@ import './css/aireport.css';
 
 import Header from './components/Header';
 import Nav from './components/Nav';
+import DatePicker from './components/DatePicker';
+import BarGraph from './components/BarGraph';
 
 const Report: React.FC = () => {
   const currentScreen = 'report';
   const [memo, setMemo] = useState('');
   
   // 날짜 상태 관리 (기본값 설정)
-  const [selectedDate, setSelectedDate] = useState('2025-02-08');
+  const [selectedDate, setSelectedDate] = useState('2026-05-10');
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // 시간대별 활동량 (단위: 분, 최대 60)
+  const activityData = [60,0,0,0,0,0,10,15,30,50,35,40,20,45,60,55,30,20,15,25,10,0,0,0];
+  const foodData     = [0,0,0,0,0,0,0,30,0,0,0,45,0,0,0,40,0,0,0,20,0,0,0,0];
+  const waterData    = [0,0,0,0,0,0,15,0,20,0,10,0,25,0,10,0,20,15,0,10,0,0,0,0];
 
   // ✍️ 날짜 이동 핸들러 (하루 전, 하루 후 계산)
   const handleDateChange = (offset: number) => {
     const currentDate = new Date(selectedDate);
     currentDate.setDate(currentDate.getDate() + offset);
-    
+
     // 다시 YYYY-MM-DD 포맷으로 변경
     const yyyy = currentDate.getFullYear();
     const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
     const dd = String(currentDate.getDate()).padStart(2, '0');
-    
-    setSelectedDate(`${yyyy}-${mm}-${dd}`);
+    const next = `${yyyy}-${mm}-${dd}`;
+
+    if (next > today) return;
+    setSelectedDate(next);
   };
 
   return (
@@ -44,21 +55,7 @@ const Report: React.FC = () => {
           {'>'}
         </button>
         
-        {/* 달력 클릭 기능 래퍼 */}
-        <div className="calendar-icon-wrapper">
-          <input 
-            type="date" 
-            className="hidden-date-picker"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-          />
-          <svg className="calendar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="16" y1="2" x2="16" y2="6"></line>
-            <line x1="8" y1="2" x2="8" y2="6"></line>
-            <line x1="3" y1="10" x2="21" y2="10"></line>
-          </svg>
-        </div>
+        <DatePicker selectedDate={selectedDate} onChange={setSelectedDate} maxDate={today} />
       </div>
 
       <main className="main-content">
@@ -78,6 +75,56 @@ const Report: React.FC = () => {
               
               <p>종합 의견 전반적으로 모카는 식사와 활동의 균형이 완벽하게 잡힌 '활기찬 하루'를 보냈습니다. 충분한 영양 섭취와 적절한 운동량이 조화를 이루고 있어 건강 상태가 매우 양호한 것으로 판단됩니다. 내일도 모카가 오늘처럼 밝고 건강한 컨디션을 유지할 수 있도록 따뜻한 케어를 부탁드립니다!</p>
             </div>
+          </div>
+        </section>
+
+        {/* GRAPH 섹션 */}
+        <section className="main-section">
+          <div className="report-box">
+            <h2 className="report-box-title">GRAPH</h2>
+
+            <div className="graph-row">
+              <span className="graph-label">ACTIVITY</span>
+              <BarGraph values={activityData} />
+            </div>
+
+            <div className="graph-row">
+              <span className="graph-label">FOOD</span>
+              <BarGraph values={foodData} />
+            </div>
+
+            <div className="graph-row">
+              <span className="graph-label">WATER</span>
+              <BarGraph values={waterData} />
+            </div>
+          </div>
+        </section>
+
+        {/* DESCRIPTION 섹션 */}
+        <section className="main-section">
+          <div className="report-box">
+            <h2 className="report-box-title">DESCRIPTION</h2>
+
+            <div className="desc-group">
+              <p className="desc-category">ACTIVATION</p>
+              <p className="desc-item">ACTIVATE TIME : 02 : 08</p>
+            </div>
+
+            <div className="desc-group">
+              <p className="desc-category">FOOD</p>
+              <p className="desc-item">FEEDING : 60g</p>
+              <p className="desc-item">INTAKE : 50g</p>
+              <p className="desc-item">LEFTOVERS : 10g</p>
+            </div>
+
+            <div className="desc-group">
+              <p className="desc-category">WATER</p>
+              <p className="desc-item">WATERING : 200ml</p>
+              <p className="desc-item">INTAKE : 150ml</p>
+              <p className="desc-item">LEFTOVERS : 50ml</p>
+            </div>
+
+            <button className="ai-report-btn">AI 분석 보러가기</button>
           </div>
         </section>
 

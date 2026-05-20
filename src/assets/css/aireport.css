@@ -103,6 +103,64 @@
   text-align: justify;
 }
 
+/* --- GRAPH 섹션 --- */
+.graph-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.graph-row:last-child {
+  margin-bottom: 0;
+}
+
+.graph-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: #000;
+}
+
+/* --- DESCRIPTION 섹션 --- */
+.desc-group {
+  margin-bottom: 14px;
+}
+
+.desc-group:last-of-type {
+  margin-bottom: 20px;
+}
+
+.desc-category {
+  font-size: 14px;
+  font-weight: 800;
+  margin: 0 0 6px 0;
+  color: #000;
+}
+
+.desc-item {
+  font-size: 13px;
+  font-weight: 400;
+  margin: 0 0 3px 12px;
+  color: #333;
+}
+
+.ai-report-btn {
+  align-self: flex-start;
+  background-color: #0099FF;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ai-report-btn:active {
+  background-color: #007acc;
+}
+
+/* --- MEMO --- */
 .report-memo-input {
   width: 100%;
   min-height: 200px;

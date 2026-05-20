@@ -54,6 +54,13 @@
   font-weight: 500;
 }
 
+.success-txt {
+  color: #0099FF;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
 /* 하단 버튼 영역을 바닥에 붙이기 */
 .signup-footer {
   margin-top: 40px; /* 입력창과 최소 간격 */

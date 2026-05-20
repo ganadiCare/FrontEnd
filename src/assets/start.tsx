@@ -25,7 +25,7 @@ const StartScreen: React.FC<StartScreenProps> = () => {
         {/* 로그인 & 회원가입 버튼 영역 */}
         <div className="form-section">
           
-          {/* ★ 2. 첫 번째 버튼: E-Mail LOGIN */}
+          {/* 로그인 버튼 */}
           <NavigationButton 
             text="E-Mail LOGIN" 
             navigateTo="/login" 
@@ -37,7 +37,7 @@ const StartScreen: React.FC<StartScreenProps> = () => {
             <span className="line"></span>
           </div>
           
-          {/* ★ 3. 두 번째 버튼: SIGN UP */}
+          {/* 회원가입 버튼 */}
           <NavigationButton 
             text="SIGN UP" 
             navigateTo="/signup" 

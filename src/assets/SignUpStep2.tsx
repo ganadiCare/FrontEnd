@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './css/signupStep2.css';
 
 import Header from './components/Header';
@@ -13,6 +13,8 @@ interface Device {
 
 const SignUpStep2: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { nickname = '', email = '', password = '' } = (location.state as { nickname?: string; email?: string; password?: string }) ?? {};
 
   // 1. 상태 관리 (원래 코드 로직 반영)
   const [nicknameInput, setNicknameInput] = useState('');
@@ -147,10 +149,18 @@ const SignUpStep2: React.FC = () => {
         
       </div>
       <div className="signup-footer">
-          <NavigationButton 
+          <NavigationButton
             text="NEXT"
-            onClick={() => navigate('/signup-step3')}
-            disabled={cameraList.length === 0} // 카메라가 최소 하나는 있어야 함
+            onClick={() => navigate('/signup-step3', {
+              state: {
+                nickname,
+                email,
+                password,
+                cameraCode: cameraList[0]?.code ?? '',
+                dispenserCode: dispenserList[0]?.code ?? '',
+              }
+            })}
+            disabled={cameraList.length === 0}
           />
         </div>
     </div>

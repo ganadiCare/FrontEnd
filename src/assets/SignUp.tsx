@@ -13,12 +13,14 @@ const SignUp: React.FC = () => {
   // Custom Hook에서 모든 데이터와 로직을 가져옵니다.
   const {
     email, authCode, password, confirmPassword, nickname,
-    emailError, passwordError, confirmPasswordError, isAuthSent,
+    emailError, authCodeError, passwordError, confirmPasswordError,
+    isAuthSent, isVerified, isSending, isVerifying,
     setEmail, setAuthCode, setPassword, setConfirmPassword, setNickname,
     setEmailError, setPasswordError, setConfirmPasswordError,
-    validateEmail, handleSendAuthCode, validatePassword, validateConfirmPassword,
-    handleAutoFill,isNextDisabled
-  } = useSignupForm(navigate);
+    validateEmail, handleSendAuthCode, handleVerifyCode,
+    validatePassword, validateConfirmPassword,
+    handleAutoFill, isNextDisabled,
+  } = useSignupForm();
 
   return (
     <div className="signup-wrapper">
@@ -53,20 +55,25 @@ const SignUp: React.FC = () => {
               onChange={setEmail}
               onClear={() => { setEmail(''); setEmailError(''); }}
               onBlur={validateEmail}
-              sideButtonText="인증하기"
+              sideButtonText={isSending ? '발송중...' : '인증하기'}
               onSideButtonClick={handleSendAuthCode}
               className={emailError ? 'error' : ''}
             />
             {emailError && <p className="error-txt">{emailError}</p>}
-            
+
             <div style={{ marginTop: '8px' }}>
-              <Inputbox 
+              <Inputbox
                 placeholder="인증 번호를 입력해 주세요"
                 value={authCode}
                 onChange={setAuthCode}
-                disabled={!isAuthSent}
+                disabled={!isAuthSent || isVerified}
+                sideButtonText={isVerifying ? '확인중...' : '확인'}
+                onSideButtonClick={handleVerifyCode}
+                className={authCodeError ? 'error' : isVerified ? 'success' : ''}
               />
             </div>
+            {authCodeError && <p className="error-txt">{authCodeError}</p>}
+            {isVerified && <p className="success-txt">인증이 완료되었습니다.</p>}
           </div>
 
           {/* 비밀번호 섹션 */}
@@ -111,10 +118,10 @@ const SignUp: React.FC = () => {
 
         {/* 2. 하단 고정 버튼 영역 */}
         <div className="signup-footer">
-          <NavigationButton 
+          <NavigationButton
             text="NEXT"
-            onClick={() => navigate('/signup-step2')}
-            disabled={isNextDisabled} // 모든 필드가 채워지고 에러가 없을 때만 활성화
+            onClick={() => navigate('/signup-step2', { state: { nickname, email, password } })}
+            disabled={isNextDisabled}
           />
         </div>
       </div>

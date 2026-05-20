@@ -57,7 +57,8 @@
 
 .side-button {
   height: 100%;
-  padding: 0 16px;
+  width: 80px;
+  padding: 0;
   border: 1px solid #000000;
   border-radius: 8px;
   background-color: #ffffff;
