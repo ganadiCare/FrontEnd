@@ -10,14 +10,21 @@ import LiveScreen from './assets/LiveScreen'
 import Notice from './assets/components/Notice';
 import FeedSet from './assets/FeedSet';
 
-
 import TempleteScreen from './assets/TempleteScreen';
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
+import { fetchInitialData } from './assets/service/ApiGet';
 
 export let noticeContext = createContext<any>(null);
 
 function App() {
   let [notice,setNotice] = useState(false);
+
+ useEffect(()=>{
+  fetchInitialData()
+  .then((res)=>{console.log('받음 ',res)})
+  .catch((err)=>{console.log('못받음 ',err)})
+ },[])
+  
   return (
     <div className = "mobile-wrapper">
       <div className='app-container'>

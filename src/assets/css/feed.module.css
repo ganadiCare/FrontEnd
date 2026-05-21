@@ -209,9 +209,13 @@
 }
 
 .oneColume h4{
-  font-weight: 500;
-  font-size: 500;
+  font-style: bold;
 }
+
+.oneColume button{
+  margin-bottom: 20px;
+}
+
 
 .line{
   
@@ -219,3 +223,18 @@
   background-color: #000000;
 }
 
+.list{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid black; /* 두께, 스타일, 색상 */
+  padding-bottom: 1px;           /* 글자와 밑줄 사이의 간격 조절 */
+  width: 90%;                   /* 너비가 꽉 차야 끝까지 그어집니다 */
+  margin: 0 auto;
+  margin-bottom: 10px;
+}
+
+.list p {
+  margin: 0; /* p태그의 기본 여백 제거 */
+}

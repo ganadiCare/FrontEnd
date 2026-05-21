@@ -8,6 +8,7 @@ import Noreserve from "./components/Noreserve";
 import Schedule from "./components/Schedule";
 import 'bootstrap/dist/css/bootstrap.min.css'; // 스타일 임포트
 import { Dropdown } from 'react-bootstrap';    // 컴포넌트 임포트
+import { useSelector } from "react-redux";
 
 interface FeedSetProps {
   data?: string;
@@ -15,7 +16,11 @@ interface FeedSetProps {
 
 const FeedSet: React.FC = () => {
   const currentScreen = 'feed';
-  const [state, setState] = useState('schedule');
+  const [state, setState] = useState('set');
+
+  let a = useSelector((state) => { return state } )
+  console.log(a)
+
   return (<>
     <Header
       title='DISPENSER'
@@ -34,7 +39,7 @@ const FeedSet: React.FC = () => {
       <div className={styles.overlay}>
         {state=='None'&&<Noreserve></Noreserve>}
         {state=='set'&&<FeedWindow setState = {setState}></FeedWindow>}
-        {state=='setting'&&<FeedSetting></FeedSetting>}
+        {state=='setting'&&<FeedSetting setState = {setState}></FeedSetting>}
         {state=='schedule'&&<Schedule></Schedule>}
         
         
