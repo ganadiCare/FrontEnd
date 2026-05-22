@@ -18,6 +18,7 @@ const FeedSet: React.FC = () => {
   const currentScreen = 'feed';
   const [state, setState] = useState('set');
 
+  //리덕스테스트
   let a = useSelector((state) => { return state } )
   console.log(a)
 
