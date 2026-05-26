@@ -6,6 +6,7 @@ import FeedWindow from "./components/FeedWindow";
 import FeedSetting from "./components/FeedSetting";
 import Noreserve from "./components/Noreserve";
 import Schedule from "./components/Schedule";
+import NoDispenser from "./components/NoDispenser";
 import 'bootstrap/dist/css/bootstrap.min.css'; // 스타일 임포트
 import { Dropdown } from 'react-bootstrap';    // 컴포넌트 임포트
 import { useSelector } from "react-redux";
@@ -19,13 +20,19 @@ const FeedSet: React.FC = () => {
   const [state, setState] = useState('set');
 
   //리덕스테스트
-  let a = useSelector((state) => { return state } )
-  console.log(a)
+  let a = useSelector((state:any) =>  state.camSlice )
+  console.log(a.feeding)
+
+  //디스펜서연결용 임시변수
+  let online = true
 
   return (<>
     <Header
       title='DISPENSER'
     />
+    {
+      online && 
+    
     <div className={styles.dispenser}>
       <div className={styles.title}>
         <div className="dropdown">
@@ -49,6 +56,8 @@ const FeedSet: React.FC = () => {
 
 
     </div>
+}
+  {!online  && <NoDispenser></NoDispenser>}
 
 
     <Nav currentScreen={currentScreen} />

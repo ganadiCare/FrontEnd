@@ -13,15 +13,25 @@ import FeedSet from './assets/FeedSet';
 import TempleteScreen from './assets/TempleteScreen';
 import { createContext, useEffect, useState } from 'react';
 import { fetchInitialData } from './assets/service/ApiGet';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCamslice } from './data/store';
 
 export let noticeContext = createContext<any>(null);
 
 function App() {
+  const dispatch = useDispatch();
+  const CamData = useSelector((state:any) => state.camSlice);
+
   let [notice,setNotice] = useState(false);
 
  useEffect(()=>{
   fetchInitialData()
-  .then((res)=>{console.log('받음 ',res)})
+  .then((res)=>{
+    if(res){
+    dispatch(setCamslice(res));
+    console.log(CamData, '리덕스로 전달받음')
+    }
+  })
   .catch((err)=>{console.log('못받음 ',err)})
  },[])
   
