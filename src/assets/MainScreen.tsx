@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import type { components } from './service/api';
+import { initAccessToken, getPets, getReports, getCameras } from './service/ApiGet';
 import './css/templete.css';
 
 import Header from './components/Header';
@@ -7,52 +9,47 @@ import Nav from './components/Nav';
 import RingGraph from './components/RingGraph';
 import LiveBox from './components/LiveBox';
 
-import waterIcon from './image_folder/Water.png'
+import waterIcon from './image_folder/Water.png';
 
-interface Pet {
-  petId: number;
-  petName: string;
-  petImage: string;
-  species: string;
-  gender: string;
-  weight: number;
-  age: number;
-  birthday: string;
-}
+type PetData = components['schemas']['PetDTO'];
+type ReportData = components['schemas']['ReportDTO'];
+type CameraData = components['schemas']['CameraDTO'];
 
-interface TodayReport {
-  move: number;
-  feed: number;
-  water: number;
-  aiSummation: string;
-}
-
-interface CamInfo{
-  deviceId: number;
-  deviceName: string;
-  code?: string;
-  url?: string;
-  isMain?: boolean;
-
-  resolution?: string;
-  motionSensitive?: number;
-
-  nightVision?: string;
-  private?: boolean;
-}
-
-
-interface MainScreenProps {
-  pet?: Pet;
-  today?: TodayReport;
-  camInfo?: CamInfo;
-}
-
-const MainScreen: React.FC<MainScreenProps> = (
-  {pet, today, camInfo}
-) => {
+const MainScreen: React.FC = () => {
   const navigate = useNavigate();
   const currentScreen = 'main';
+
+  const [pet, setPet] = useState<PetData | undefined>(undefined);
+  const [report, setReport] = useState<ReportData | undefined>(undefined);
+  const [camera, setCamera] = useState<CameraData | undefined>(undefined);
+
+  useEffect(() => {
+    const fetchScreen = async () => {
+      try {
+        await initAccessToken();
+        const petData = await getPets().catch(err => {
+          console.error('Pet 로딩 실패:', err);
+          return null;
+        });
+        const reportData = await getReports().catch(err => {
+          console.error('Report 로딩 실패:', err);
+          return null;
+        });
+        const cameraData = await getCameras().catch(err => {
+          console.error('Camera 로딩 실패:', err);
+          return null;
+        });
+
+        if(petData && petData.isSuccess) setPet(petData.result);
+        if (reportData && reportData.isSuccess) setReport(reportData.result);
+        if (cameraData && cameraData.isSuccess) setCamera(cameraData.result);
+
+      } catch (error) {
+        console.error('데이터 로딩 오류: ', error);
+      }
+    };
+    fetchScreen();
+  }, []);
 
   return (
     <>
@@ -72,27 +69,27 @@ const MainScreen: React.FC<MainScreenProps> = (
               <div className="profile-wrapper">
                 <img
                     className="profile-image" 
-                    src={pet ? pet?.petImage : ''}
+                    src={''}
                     alt="profile image"
                 />
               </div>
-              <span className="medium-text">{pet ? pet?.petName : '???'}</span>
+              <span className="medium-text">{pet?.name ?? '???'}</span>
             </div>
             <RingGraph
-              currentValue={today?.move}
+              currentValue={report?.feeding?.totalAmount}
               fullValue={100}
-              text={today ? `${today.move/60}분` : '...'}
+              text={report ? `${report?.feeding?.totalAmount}g` : '...'}
             />
             <RingGraph
-              currentValue={today?.feed}
+              currentValue={report?.feeding?.totalAmount}
               fullValue={100}
-              text={today ? `${today.move/60}분` : '...'}
+              text={report ? `${report?.feeding?.totalAmount}g` : '...'}
             />
             <RingGraph
+              currentValue={report?.watering?.totalAmount}
+              fullValue={100}
+              text={report ? `${report?.watering?.totalAmount ?? 0}g` : '...'}
               icon={waterIcon}
-              currentValue={today?.water}
-              fullValue={100}
-              text={today ? `${today.move/60}분` : '...'}
             />
           </div>
         </section>
@@ -103,13 +100,14 @@ const MainScreen: React.FC<MainScreenProps> = (
           <div className='heading-wrapper'>
             <h3 className="section-heading">LIVE</h3>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="10" cy="10" r="5" fill={camInfo ? "#f00" : "#aaa"}/>
+              <circle cx="10" cy="10" r="5" fill={camera ? "#f00" : "#aaa"}/>
             </svg>
-            <p className='message error'>카메라와 연결되지 않았습니다</p>
+            <p className={camera ? 'message hide' : 'message error'}
+            >카메라와 연결되지 않았습니다</p>
           </div>
           <LiveBox isLive={false}/>
           <p
-            className={!camInfo ? "medium-text text-button" : "medium-text hide"}
+            className={!camera ? "medium-text text-button" : "medium-text hide"}
             onClick={()=>navigate('/camera/connect')}
           >카메라 연결 →</p>
         </section>
@@ -119,11 +117,11 @@ const MainScreen: React.FC<MainScreenProps> = (
         <section className="main-section">
           <h3 className="section-heading">AI 요약</h3>
           <p className="small-text">
-            {today ? today.aiSummation : '...'}
+            {report ? report.aiSummary : '...'}
           </p>
 
           <button 
-            className={today ? "small-button" : "small-button hide"}
+            className={report ? "small-button" : "small-button hide"}
             onClick={()=>navigate('/report')}
           >+ 더보기</button>
         </section>

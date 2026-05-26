@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
 import './css/templete.css';
 
 import Header from './components/Header';
@@ -29,6 +30,9 @@ const CameraScreen: React.FC<CameraScreenProps> = (
   const navigate = useNavigate();
   const currentScreen = 'camera';
   const [select, setSelect] = useState(camList?.[0]);
+  const [deviceName, setDeviceName] = useState('');
+  const [nameError, setNameError] = useState('');
+  
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -42,8 +46,25 @@ const CameraScreen: React.FC<CameraScreenProps> = (
     });
   };
 
+  const changeName = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setDeviceName(e.target.value);
+  }
+
+  const saveName = () => {
+    if (!deviceName.trim()) {
+      setNameError('이름을 입력해주세요');
+      return;
+    }
+    else{
+      setNameError('')
+      toast('저장되었습니다.');
+      return;
+    }
+  }
+
   return (
     <>
+      <ToastContainer/>
       <Header title='CAMERA'/>
 
       <main className="main-content">
@@ -68,12 +89,21 @@ const CameraScreen: React.FC<CameraScreenProps> = (
           <form className='input-form' action="">
             <div className='input-box column'>
               <label className='input-label'>기기 이름
-                <input className='text-input'
-                type="text"
-                value={''}
-                placeholder='카메라 이름'
-                />
+                <div className='input-box row'>
+                  <input className='text-input'
+                    type="text"
+                    value={deviceName}
+                    placeholder='카메라 이름'
+                    onChange={changeName}
+                  />
+                  <button
+                    type='button'
+                    className='small-button'
+                    onClick={()=>saveName()}
+                  >저장</button>
+                </div>
               </label>
+              <p className='message error'>{nameError}</p>
             </div>
 
             <div className='input-box row'>
@@ -106,10 +136,10 @@ const CameraScreen: React.FC<CameraScreenProps> = (
 
             <div className='input-box column'>
               <button type="button" className='medium-button'
-              onClick={()=>navigate('./camera/schedule')}
+              onClick={()=>navigate('/camera/schedule')}
               >녹화 스케줄</button>
               <button type="button" className='medium-button'
-              onClick={()=>navigate('./camera/connect')}
+              onClick={()=>navigate('/camera/connect')}
               >기기 관리</button>
             </div>
           </form>

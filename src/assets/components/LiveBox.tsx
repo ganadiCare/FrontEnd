@@ -81,10 +81,10 @@ const LiveBox: React.FC<LiveBoxProps> = (
         >
         {
           isFull
-          ?<svg width="38" height="38" viewBox="0 0 38 38" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          ?<svg width="38" height="38" viewBox="0 0 38 38" fill="none" stroke="#fff" stroke-width="2" strokeLinecap="round" stroke-linejoin="round">
           <path d="M13.9502 6.19995V10.85C13.9502 12.562 12.5623 13.95 10.8502 13.95H6.2002"/><path d="M23.25 31L23.25 26.35C23.25 24.6379 24.6379 23.25 26.35 23.25L31 23.25"/><path d="M31 13.95L26.35 13.95C24.6379 13.95 23.25 12.562 23.25 10.85L23.25 6.19995"/><path d="M6.2002 23.25L10.8502 23.25C12.5623 23.25 13.9502 24.6379 13.9502 26.35L13.9502 31"/>
           </svg>
-          :<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" stroke-linecap="round">
+          :<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round">
           <path d="M4 9L4 6C4 4.89543 4.89543 4 6 4L9 4"/><path d="M20 15V18C20 19.1046 19.1046 20 18 20H15"/><path d="M15 4L18 4C19.1046 4 20 4.89543 20 6L20 9"/><path d="M9 20L6 20C4.89543 20 4 19.1046 4 18L4 15"/>
           </svg>
         }

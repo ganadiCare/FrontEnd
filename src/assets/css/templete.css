@@ -232,13 +232,18 @@
   color: #999;
 }
 
+.message.success{
+  color: #0f0;
+}
+
 .message.error{
   color: #f00;
 }
 
 /* 입력 관련 */
 .input-form {
-  padding: 0px 20px;
+  width: auto;
+  padding: 0px 12px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -246,6 +251,7 @@
 }
 
 .input-box{
+  width: auto;
   padding: 8px 0px;
   display: flex;
   gap: 4px 12px;
@@ -283,7 +289,7 @@
 
 .text-input{
   display: block;
-  width: 100%;
+  width: auto;
   height: 40px;
   padding: 0 16px;
   margin: 4px 0px;
@@ -295,7 +301,7 @@
 
 .number-input{
   display: block;
-  width: 100%;
+  width: auto;
   height: 40px;
   padding: 0 16px;
   margin: 4px 0px;
@@ -360,6 +366,24 @@
   border-color: #0099FF;
 }
 
+.time-input{
+  padding: 8px 8px;
+  margin: 4px 20px;
+  border: 1px solid #aaa;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.time-input:hover{
+  border-color: #0099FF;
+}
+
 .toggle-input {
   display: none;
 }
@@ -420,7 +444,6 @@
 }
 
 /* 갤러리 관련 */
-
 .gallery-grid{
   width: 100%;
   display: flex;
@@ -523,12 +546,58 @@
   color: #ffffff;
   font-size: 12px;
   font-weight: bold;
-  transition: background-color 0.2s ease;
+  transition: opacity 0.2s ease;
   cursor: pointer;
 }
 
 .full-button:hover{
   opacity: 0.5;
+}
+
+/* 리스트 관련 */
+.list-box{
+  width: auto;
+  height: 20px;
+  padding: 8px 0px;
+  margin: 0px 12px;
+  border-bottom: #aaa 1px solid;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.list-box.left{
+  gap: 20px;
+  justify-content: start;
+}
+
+.list-box.center{
+  justify-content: space-between;
+}
+
+.list-option{
+  width: auto;
+  min-width: 30%;
+  gap: 10px;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.list-content{
+  width: auto;
+  min-width: 50%;
+}
+
+.list-remove{
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.list-remove:hover{
+  filter: invert(48%) sepia(80%) saturate(2852%) hue-rotate(191deg) brightness(101%) contrast(104%);
 }
 
 /* 팝업 메시지창 관련 */

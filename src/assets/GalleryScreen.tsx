@@ -17,7 +17,7 @@ interface GalleryScreenProps {
 }
 
 const GalleryScreen: React.FC<GalleryScreenProps> = (
-  {mediaList=[{mediaId:1, url:'', createAt:''}]}
+  {mediaList}
 ) => {
   const currentScreen = 'gallery';
   const [checkOn, setCheckOn] = useState(false);

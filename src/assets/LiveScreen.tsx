@@ -13,15 +13,15 @@ import Camera from './image_folder/Camera.png'
 interface CamInfo{
   deviceId: number;
   deviceName: string;
-  code: string;
-  url: string;
-  isMain: boolean;
+  code?: string;
+  url?: string;
+  isMain?: boolean;
 
-  resolution: string;
-  motionSensitive: number;
+  resolution?: string;
+  motionSensitive?: number;
 
-  nightVision: string;
-  private: boolean;
+  nightVision?: string;
+  private?: boolean;
 }
 
 interface LiveScreenProps {

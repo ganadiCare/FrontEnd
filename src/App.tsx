@@ -9,6 +9,8 @@ import GalleryScreen from './assets/GalleryScreen';
 import GalleryDetailScreen from './assets/GalleryDetailScreen';
 import LiveScreen from './assets/LiveScreen'
 import CameraScreen from './assets/CameraScreen';
+import CameraScheduleScreen from './assets/CameraScheduleScreen';
+import CameraConnectScreen from './assets/CameraConnectScreen';
 
 import TempleteScreen from './assets/TempleteScreen';
 
@@ -28,6 +30,8 @@ function App() {
 
           <Route path='/live' element = {<LiveScreen/>}></Route>
           <Route path='/camera' element = {<CameraScreen/>}></Route>
+          <Route path='/camera/schedule' element = {<CameraScheduleScreen/>}></Route>
+          <Route path='/camera/connect' element = {<CameraConnectScreen/>}></Route>
 
           <Route path='/templete' element = {<TempleteScreen/>}></Route>
         </Routes>
