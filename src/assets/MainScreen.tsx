@@ -8,6 +8,7 @@ import Header from './components/Header';
 import Nav from './components/Nav';
 import RingGraph from './components/RingGraph';
 import LiveBox from './components/LiveBox';
+import Loading from './components/Loading';
 
 import waterIcon from './image_folder/Water.png';
 
@@ -19,12 +20,14 @@ const MainScreen: React.FC = () => {
   const navigate = useNavigate();
   const currentScreen = 'main';
 
+  const [loading, setLoading] = useState(true);
   const [pet, setPet] = useState<PetData | undefined>(undefined);
   const [report, setReport] = useState<ReportData | undefined>(undefined);
   const [camera, setCamera] = useState<CameraData | undefined>(undefined);
 
   useEffect(() => {
     const fetchScreen = async () => {
+      setLoading(true);
       try {
         await initAccessToken();
         const petData = await getPets().catch(err => {
@@ -47,6 +50,7 @@ const MainScreen: React.FC = () => {
       } catch (error) {
         console.error('데이터 로딩 오류: ', error);
       }
+      setLoading(false);
     };
     fetchScreen();
   }, []);
@@ -125,6 +129,7 @@ const MainScreen: React.FC = () => {
             onClick={()=>navigate('/report')}
           >+ 더보기</button>
         </section>
+        <Loading visible={loading}/>
       </main>
 
       <Nav currentScreen={currentScreen} />

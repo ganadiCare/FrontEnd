@@ -7,12 +7,14 @@ import './css/templete.css';
 import Header from './components/Header';
 import Nav from './components/Nav';
 import Popup from './components/Popup';
+import Loading from './components/Loading';
 
 type ProfileData = components['schemas']['ProfileDTO'];
 type PetData = components['schemas']['PetDTO'];
 
 const ProfileScreen: React.FC = () => {
   const currentScreen = 'profile';
+  const [loading, setLoading] = useState(true);
 
   const [profile, setProfile] = useState<ProfileData | undefined>(undefined);
   const [pet, setPet] = useState<PetData | undefined>(undefined);
@@ -22,6 +24,7 @@ const ProfileScreen: React.FC = () => {
 
   useEffect(() => {
       const fetchScreen = async () => {
+        setLoading(true);
         try {
           await initAccessToken();
           const petData = await getPets().catch(err => {
@@ -39,6 +42,7 @@ const ProfileScreen: React.FC = () => {
         } catch (error) {
           console.error('데이터 로딩 오류: ', error);
         }
+        setLoading(false);
       };
       fetchScreen();
     }, []);
@@ -316,6 +320,7 @@ const ProfileScreen: React.FC = () => {
             </div>
           </form>
         </section>
+        <Loading visible={loading}/>
       </main>
 
       <Popup

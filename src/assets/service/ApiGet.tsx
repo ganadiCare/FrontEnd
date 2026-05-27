@@ -81,7 +81,7 @@ export async function initAccessToken() {
 export async function getProfile() {
     console.log('Profile 데이터를 가져오는 중...');
     try {
-        const response = await api.get('/api/v1/pets');
+        const response = await api.get('/api/v1/members/profile');
         console.log('Profile 데이터 가져오기 성공', response.data);
         return response.data;
     } catch (error) {
