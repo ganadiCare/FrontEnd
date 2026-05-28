@@ -9,6 +9,8 @@ import Nav from './components/Nav';
 import Popup from './components/Popup';
 import Loading from './components/Loading';
 
+import defaultProfile from './image_folder/DefaultProfile.png'
+
 type ProfileData = components['schemas']['ProfileDTO'];
 type PetData = components['schemas']['PetDTO'];
 
@@ -20,6 +22,8 @@ const ProfileScreen: React.FC = () => {
   const [pet, setPet] = useState<PetData | undefined>(undefined);
   
   const [petNameError, setPetNameError] = useState('');
+  const [petAgeError, setPetAgeError] = useState('');
+  const [petWeightError, setPetWeightError] = useState('');
   //const [userNameError, setUserNameError] = useState('');
 
   useEffect(() => {
@@ -96,14 +100,36 @@ const ProfileScreen: React.FC = () => {
       setPetNameError('');
     }
 
+    if (!pet?.age) {
+      setPetAgeError('나이를 입력해주세요.');
+      check = false;
+    } else if(pet?.age<0) {
+      setPetAgeError('나이는 음수일 수 없습니다.');
+      check = false;
+    } else {
+      setPetAgeError('')
+    }
+
+    if (!pet?.weight) {
+      setPetWeightError('체중을 입력해주세요.');
+      check = false;
+    } else if (pet?.weight<=0) {
+      setPetWeightError('체중은 0 이상이여야 합니다.');
+      check = false;
+    } else {
+      setPetWeightError('')
+    }
+
     if (check) {
-      toast('저장되었습니다.');
       try {
+        setLoading(true);
         await updatePets(pet);
+        setLoading(false);
         toast('반려동물 정보가 저장되었습니다.');
       } catch (error) {
         console.error(error);
-        toast.error('정보 저장 중 오류가 발생했습니다.');
+        setLoading(false);
+        toast.error('저장 중 오류가 발생했습니다.');
       }
     }
     return;
@@ -137,7 +163,7 @@ const ProfileScreen: React.FC = () => {
               <div className="profile-wrapper">
                 <img
                     className="profile-image" 
-                    src={''}
+                    src={defaultProfile}
                     alt="profile image"
                 />
               </div>
@@ -194,27 +220,33 @@ const ProfileScreen: React.FC = () => {
             </div>
 
             <div className='input-box column'>
-              <label className='input-label'>나이
+              <label className='input-label'>나이</label>
+              <div className='input-box row'>
                 <input className='number-input'
-                type='number'
-                name="age"
-                value={pet?.age}
-                placeholder='반려동물 나이'
-                onChange={changePet}
+                  type='number'
+                  name="age"
+                  value={pet?.age}
+                  placeholder='반려동물 나이'
+                  onChange={changePet}
                 />
-              </label>
+                <p className='medium-text'>살</p>
+              </div>
+              <p className='message error'>{petAgeError}</p>
             </div>
 
             <div className='input-box column'>
-              <label className='input-label'>체중
+              <label className='input-label'>체중</label>
+              <div className='input-box row'>
                 <input className='number-input'
-                type='number'
-                name="weight"
-                value={pet?.weight}
-                placeholder='kg 단위로 입력 (ex. 5.2)'
-                onChange={changePet}
+                  type='number'
+                  name="weight"
+                  value={pet?.weight}
+                  placeholder='kg 단위로 입력 (ex. 5.2)'
+                  onChange={changePet}
                 />
-              </label>
+                <p className='medium-text'>kg</p>
+              </div>
+              <p className='message error'>{petWeightError}</p>
             </div>
 
             <div className='input-box column'>

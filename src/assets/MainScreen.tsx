@@ -10,6 +10,9 @@ import RingGraph from './components/RingGraph';
 import LiveBox from './components/LiveBox';
 import Loading from './components/Loading';
 
+import defaultProfile from './image_folder/DefaultProfile.png'
+import acivityIcon from './image_folder/Activity.png'
+import feedIcon from './image_folder/Feed.png'
 import waterIcon from './image_folder/Water.png';
 
 type PetData = components['schemas']['PetDTO'];
@@ -73,7 +76,7 @@ const MainScreen: React.FC = () => {
               <div className="profile-wrapper">
                 <img
                     className="profile-image" 
-                    src={''}
+                    src={defaultProfile}
                     alt="profile image"
                 />
               </div>
@@ -82,17 +85,19 @@ const MainScreen: React.FC = () => {
             <RingGraph
               currentValue={report?.feeding?.totalAmount}
               fullValue={100}
-              text={report ? `${report?.feeding?.totalAmount}g` : '...'}
+              text={report ? `${report?.feeding?.totalAmount}분` : '...'}
+              icon={acivityIcon}
             />
             <RingGraph
               currentValue={report?.feeding?.totalAmount}
               fullValue={100}
               text={report ? `${report?.feeding?.totalAmount}g` : '...'}
+              icon={feedIcon}
             />
             <RingGraph
               currentValue={report?.watering?.totalAmount}
               fullValue={100}
-              text={report ? `${report?.watering?.totalAmount ?? 0}g` : '...'}
+              text={report ? `${report?.watering?.totalAmount}ml` : '...'}
               icon={waterIcon}
             />
           </div>
