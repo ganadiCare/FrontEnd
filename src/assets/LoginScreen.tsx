@@ -34,7 +34,7 @@ const LoginScreen: React.FC = () => {
         }
         navigate('/main');
       } else {
-        setError(res.message || '아이디 또는 비밀번호가 일치하지 않습니다.');
+        setError('아이디 또는 비밀번호가 일치하지 않습니다.');
       }
     } catch {
       setError('서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
@@ -77,7 +77,7 @@ const LoginScreen: React.FC = () => {
             />
           </div>
 
-          {error && <p style={{ color: '#e53935', fontSize: '12px', margin: '4px 0 0' }}>{error}</p>}
+          {error && <p style={{ color: '#e53935', fontSize: '12px', margin: '-20px 0 12px' }}>{error}</p>}
 
           <div className="form-options">
             <label className="remember-me">

@@ -47,6 +47,14 @@
   font-weight: 700;
 }
 
+.input-suffix {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px;
+  color: #888;
+  white-space: nowrap;
+  margin-left: 4px;
+}
+
 .clear-icon {
   cursor: pointer;
   display: flex;

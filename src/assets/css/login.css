@@ -86,7 +86,7 @@ position: relative;
 }
 
 .input-group input::placeholder {
-  color: #000000;
+  color: #b0b0b0;
 }
 
 .form-options {

@@ -13,6 +13,7 @@ interface InputboxProps {
   type?: string;           // 👈 추가: password 등을 처리하기 위함
   className?: string;      // 👈 추가: 에러 시 빨간 테두리 클래스 등을 받기 위함
   disabled?: boolean;      // 👈 추가: 입력창 비활성화 여부
+  suffix?: string;         // 입력값 뒤에 표시할 단위 텍스트 (예: kg)
 }
 
 const Inputbox: React.FC<InputboxProps> = ({
@@ -25,7 +26,8 @@ const Inputbox: React.FC<InputboxProps> = ({
   onSideButtonClick,
   type = "text", // 기본값은 text
   className = "",
-  disabled = false
+  disabled = false,
+  suffix,
 }) => {
   return (
     // 2. 전달받은 className을 컨테이너에 적용합니다.
@@ -41,6 +43,10 @@ const Inputbox: React.FC<InputboxProps> = ({
           disabled={disabled} // 👈 disabled 적용
         />
         
+        {suffix && value && (
+          <span className="input-suffix">{suffix}</span>
+        )}
+
         {value && onClear && !disabled && (
           <div className="clear-icon" onClick={onClear}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

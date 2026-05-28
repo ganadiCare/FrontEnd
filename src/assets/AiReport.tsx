@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './css/templete.css';
 import './css/aireport.css';
 
@@ -6,93 +6,172 @@ import Header from './components/Header';
 import Nav from './components/Nav';
 import DatePicker from './components/DatePicker';
 import BarGraph from './components/BarGraph';
+import { getReport, createReport, updateMemo } from '../api/report';
+import type { ReportResult } from '../api/report';
+
+// 24시간 분량의 빈 배열 (그래프 기본값 — 데이터 없을 때 0으로 채움)
+const EMPTY_24 = Array(24).fill(0);
+
+// 급식/급수 로그 배열을 시간대별(0~23시) 합산 배열로 변환
+// "HH:MM:SS" 또는 "YYYY-MM-DDTHH:MM:SS" 두 형식 모두 처리
+const logsToHourly = (logs: { time: string; amount: number }[]): number[] => {
+  const hourly = [...EMPTY_24];
+  logs.forEach(({ time, amount }) => {
+    const timePart = time.includes('T') ? time.split('T')[1] : time;
+    const hour = parseInt(timePart.split(':')[0], 10);
+    if (!isNaN(hour) && hour >= 0 && hour < 24) hourly[hour] += amount;
+  });
+  return hourly;
+};
 
 const Report: React.FC = () => {
   const currentScreen = 'report';
-  const [memo, setMemo] = useState('');
-  
-  // 날짜 상태 관리 (기본값 설정)
-  const [selectedDate, setSelectedDate] = useState('2026-05-10');
+  const today = new Date().toISOString().split('T')[0]; // 오늘 날짜 (미래 선택 방지 기준)
 
-  const today = new Date().toISOString().split('T')[0];
+  // ─── 상태 정의 ────────────────────────────────────────────────────────────
+  const [selectedDate, setSelectedDate] = useState(today);       // 조회 중인 날짜
+  const [report, setReport] = useState<ReportResult | null>(null); // 서버에서 받은 리포트 데이터
+  const [memo, setMemo] = useState('');                          // 메모 입력값
+  const [isLoading, setIsLoading] = useState(false);             // 리포트 조회 로딩
+  const [isGenerating, setIsGenerating] = useState(false);       // AI 리포트 생성 로딩
+  const [isSavingMemo, setIsSavingMemo] = useState(false);       // 메모 저장 로딩
 
-  // 시간대별 활동량 (단위: 분, 최대 60)
-  const activityData = [60,0,0,0,0,0,10,15,30,50,35,40,20,45,60,55,30,20,15,25,10,0,0,0];
-  const foodData     = [0,0,0,0,0,0,0,30,0,0,0,45,0,0,0,40,0,0,0,20,0,0,0,0];
-  const waterData    = [0,0,0,0,0,0,15,0,20,0,10,0,25,0,10,0,20,15,0,10,0,0,0,0];
+  // ─── 리포트 조회 ──────────────────────────────────────────────────────────
+  // useCallback으로 메모이제이션하여 useEffect 의존성 배열에서 무한 루프 방지
+  const fetchReport = useCallback(async (date: string) => {
+    setIsLoading(true);
+    try {
+      const res = await getReport(date);
+      if (res.isSuccess) {
+        setReport(res.result);
+        setMemo(res.result.memo ?? ''); // 메모 없으면 빈 문자열
+      } else {
+        setReport(null);
+      }
+    } catch {
+      setReport(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  // ✍️ 날짜 이동 핸들러 (하루 전, 하루 후 계산)
+  // ─── AI 리포트 생성 ───────────────────────────────────────────────────────
+  // 해당 날짜 데이터가 없을 때 버튼을 눌러 새로 생성 요청
+  const handleGenerateReport = async () => {
+    setIsGenerating(true);
+    try {
+      const res = await createReport(selectedDate);
+      if (res.isSuccess) {
+        setReport(res.result);
+        setMemo(res.result.memo ?? '');
+      } else {
+        alert(res.message || '리포트 생성에 실패했습니다.');
+      }
+    } catch {
+      alert('서버 연결에 실패했습니다.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // 날짜가 바뀔 때마다 해당 날짜의 리포트를 자동으로 다시 조회
+  useEffect(() => {
+    fetchReport(selectedDate);
+  }, [selectedDate, fetchReport]);
+
+  // ─── 날짜 이동 (<, > 버튼) ────────────────────────────────────────────────
+  // offset: -1이면 하루 전, +1이면 하루 후 / 오늘 이후로는 이동 불가
   const handleDateChange = (offset: number) => {
-    const currentDate = new Date(selectedDate);
-    currentDate.setDate(currentDate.getDate() + offset);
-
-    // 다시 YYYY-MM-DD 포맷으로 변경
-    const yyyy = currentDate.getFullYear();
-    const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
-    const dd = String(currentDate.getDate()).padStart(2, '0');
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() + offset);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
     const next = `${yyyy}-${mm}-${dd}`;
-
-    if (next > today) return;
+    if (next > today) return; // 미래 날짜 이동 차단
     setSelectedDate(next);
   };
+
+  // ─── 메모 저장 ────────────────────────────────────────────────────────────
+  // 리포트 ID를 기준으로 메모만 별도 업데이트
+  const handleSaveMemo = async () => {
+    if (!report) return;
+    setIsSavingMemo(true);
+    try {
+      const res = await updateMemo(report.reportId, memo);
+      if (!res.isSuccess) alert(res.message || '메모 저장에 실패했습니다.');
+    } catch {
+      alert('서버 연결에 실패했습니다.');
+    } finally {
+      setIsSavingMemo(false);
+    }
+  };
+
+  // ─── 그래프용 시간대별 데이터 변환 ───────────────────────────────────────
+  // 리포트가 없으면 EMPTY_24(전부 0)를 사용하여 빈 그래프 표시
+  const foodData = report
+    ? logsToHourly(report.feeding.logs.map(l => ({ time: l.feedTime, amount: l.amount })))
+    : EMPTY_24;
+
+  const waterData = report
+    ? logsToHourly(report.watering.logs.map(l => ({ time: l.wateringTime, amount: l.amount })))
+    : EMPTY_24;
+
+  // 활동량: 별도 센서 API 연동 전까지 빈 데이터
+  const activityData = EMPTY_24;
 
   return (
     <>
       <Header title="REPORT" useNotification={true} />
 
-      {/* 날짜 선택 바 */}
+      {/* 날짜 선택 바: < 이전 날 / 날짜 표시 / 다음 날 > + 달력 아이콘 */}
       <div className="report-date-bar">
-        {/* 왼쪽 화살표: 하루 전 (-1) */}
-        <button className="date-arrow-btn" onClick={() => handleDateChange(-1)}>
-          {'<'}
-        </button>
-        
-        {/* 선택된 날짜의 하이픈(-)을 점(.)으로 바꿔서 표시 */}
+        <button className="date-arrow-btn" onClick={() => handleDateChange(-1)}>{'<'}</button>
         <span className="date-text">{selectedDate.replace(/-/g, '.')}</span>
-        
-        {/* 오른쪽 화살표: 하루 후 (+1) */}
-        <button className="date-arrow-btn" onClick={() => handleDateChange(1)}>
-          {'>'}
-        </button>
-        
+        <button className="date-arrow-btn" onClick={() => handleDateChange(1)}>{'>'}</button>
         <DatePicker selectedDate={selectedDate} onChange={setSelectedDate} maxDate={today} />
       </div>
 
       <main className="main-content">
-        
-        {/* TODAY SUMMATION 섹션 */}
+
+        {/* TODAY SUMMATION: 로딩 / AI 요약 / 리포트 없음(생성 버튼) 세 가지 상태 분기 */}
         <section className="main-section">
           <div className="report-box">
             <h2 className="report-box-title">TODAY SUMMATION</h2>
-            <p className="report-sub-title">🐾 모카의 오늘의 건강 및 활동 요약 리포트</p>
-            
-            <div className="report-body-text">
-              <p>오늘 하루 모카는 체계적인 영양 관리와 활발한 신체 활동을 통해 매우 건강하고 이상적인 하루를 보냈습니다. 기록된 데이터를 바탕으로 분석한 오늘의 주요 요약은 다음과 같습니다.</p>
-              
-              <p>1. 영양 및 수분 섭취 분석 모카는 오늘 총 3회의 규칙적인 식사를 통해 60g의 영양을 보충하며 안정적인 에너지원을 확보했습니다. 또한, 7번에 걸친 세심한 음수를 통해 총 150ml의 수분량을 기록했습니다.<br/>이는 체내 수분 밸런스를 안정적으로 유지하고 신진대사를 원활하게 돕는 아주 긍정적인 지표입니다.</p>
-              
-              <p>2. 활동 패턴 및 에너지 레벨 가장 활발한 움직임을 보인 시간대는 오후 2시경으로 나타났으며, 하루 중 에너지가 가장 집중되는 시간대를 아주 활동적으로 보냈습니다. 오늘 기록된 총 활동 시간 1시간 25분은 모카의 건강과 활력을 유지하고 스트레스를 해소하기에 충분한 수치입니다.</p>
-              
-              <p>종합 의견 전반적으로 모카는 식사와 활동의 균형이 완벽하게 잡힌 '활기찬 하루'를 보냈습니다. 충분한 영양 섭취와 적절한 운동량이 조화를 이루고 있어 건강 상태가 매우 양호한 것으로 판단됩니다. 내일도 모카가 오늘처럼 밝고 건강한 컨디션을 유지할 수 있도록 따뜻한 케어를 부탁드립니다!</p>
-            </div>
+            {isLoading ? (
+              <p className="report-body-text">리포트를 불러오는 중...</p>
+            ) : report ? (
+              // pre-wrap: AI 요약의 줄바꿈(\n)을 그대로 렌더링
+              <p className="report-body-text" style={{ whiteSpace: 'pre-wrap' }}>
+                {report.aiSummary}
+              </p>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '16px 0' }}>
+                <p className="report-body-text" style={{ marginBottom: '12px' }}>해당 날짜의 리포트가 없습니다.</p>
+                <button
+                  className="ai-report-btn"
+                  onClick={handleGenerateReport}
+                  disabled={isGenerating}
+                >
+                  {isGenerating ? '생성 중...' : '리포트 생성'}
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
-        {/* GRAPH 섹션 */}
+        {/* GRAPH: 활동량·급식·급수를 시간대별 막대그래프로 표시 */}
         <section className="main-section">
           <div className="report-box">
             <h2 className="report-box-title">GRAPH</h2>
-
             <div className="graph-row">
               <span className="graph-label">ACTIVITY</span>
               <BarGraph values={activityData} />
             </div>
-
             <div className="graph-row">
               <span className="graph-label">FOOD</span>
               <BarGraph values={foodData} />
             </div>
-
             <div className="graph-row">
               <span className="graph-label">WATER</span>
               <BarGraph values={waterData} />
@@ -100,7 +179,7 @@ const Report: React.FC = () => {
           </div>
         </section>
 
-        {/* DESCRIPTION 섹션 */}
+        {/* DESCRIPTION: 수치 요약 — 리포트 없으면 '-' 표시 */}
         <section className="main-section">
           <div className="report-box">
             <h2 className="report-box-title">DESCRIPTION</h2>
@@ -112,23 +191,23 @@ const Report: React.FC = () => {
 
             <div className="desc-group">
               <p className="desc-category">FOOD</p>
-              <p className="desc-item">FEEDING : 60g</p>
-              <p className="desc-item">INTAKE : 50g</p>
-              <p className="desc-item">LEFTOVERS : 10g</p>
+              <p className="desc-item">FEEDING : {report ? `${report.feeding.totalAmount}g` : '-'}</p>
+              <p className="desc-item">COUNT : {report ? `${report.feeding.totalCount}회` : '-'}</p>
+              <p className="desc-item">LEFTOVERS : {report ? `${report.feeding.leftovers}g` : '-'}</p>
             </div>
 
             <div className="desc-group">
               <p className="desc-category">WATER</p>
-              <p className="desc-item">WATERING : 200ml</p>
-              <p className="desc-item">INTAKE : 150ml</p>
-              <p className="desc-item">LEFTOVERS : 50ml</p>
+              <p className="desc-item">WATERING : {report ? `${report.watering.totalAmount}ml` : '-'}</p>
+              <p className="desc-item">COUNT : {report ? `${report.watering.totalCount}회` : '-'}</p>
+              <p className="desc-item">LEFTOVERS : {report ? `${report.watering.leftovers}ml` : '-'}</p>
             </div>
 
             <button className="ai-report-btn">AI 분석 보러가기</button>
           </div>
         </section>
 
-        {/* MEMO 섹션 */}
+        {/* MEMO: 리포트가 있을 때만 입력·저장 가능 */}
         <section className="main-section" style={{ marginBottom: '30px' }}>
           <div className="report-box">
             <h2 className="report-box-title">MEMO</h2>
@@ -136,13 +215,21 @@ const Report: React.FC = () => {
               className="report-memo-input"
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
+              disabled={!report} // 리포트 없으면 입력 비활성화
             />
+            <button
+              className="ai-report-btn"
+              onClick={handleSaveMemo}
+              disabled={!report || isSavingMemo}
+              style={{ marginTop: '10px' }}
+            >
+              {isSavingMemo ? '저장 중...' : '저장'}
+            </button>
           </div>
         </section>
 
       </main>
 
-      {/* 하단 네비게이션 */}
       <Nav currentScreen={currentScreen} />
     </>
   );

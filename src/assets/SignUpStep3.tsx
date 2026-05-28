@@ -123,22 +123,27 @@ const SignUpStep3: React.FC = () => {
           {/* 4. Age */}
           <div className="signup-section">
             <label className="signup-label">나이</label>
-            <Inputbox 
+            <Inputbox
               placeholder="반려동물 나이를 입력하세요"
               value={age}
-              onChange={(val) => setAge(val.replace(/[^0-9]/g, ''))}
+              onChange={(val) => setAge(val.replace(/[^0-9]/g, '').slice(0, 2))}
               onClear={() => setAge('')}
+              suffix="살"
             />
           </div>
 
           {/* 5. Weight */}
           <div className="signup-section">
             <label className="signup-label">몸무게</label>
-            <Inputbox 
+            <Inputbox
               placeholder="반려동물 몸무게를 입력하세요"
               value={weight}
-              onChange={(val) => setWeight(val.replace(/[^0-9]/g, ''))}
+              onChange={(val) => {
+                const filtered = val.replace(/[^0-9.]/g, '');
+                if (/^\d*\.?\d{0,1}$/.test(filtered)) setWeight(filtered);
+              }}
               onClear={() => setWeight('')}
+              suffix="kg"
             />
           </div>
 
