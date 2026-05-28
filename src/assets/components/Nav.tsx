@@ -23,7 +23,7 @@ const Nav: React.FC<NavProps> = (
         {id:'gallery', name:'Gallery',icon:gallery},
         {id:'live', name:'Live cam',icon:live},
         {id:'feed', name:'Feed set',icon:feed},
-        {id:'report', name:'Ai report',icon:report},
+        {id:'report', name:'AI Report',icon:report},
     ]
 
   const activateNav = (id:string) => {

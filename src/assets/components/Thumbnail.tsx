@@ -1,28 +1,35 @@
-import React, {useState, useRef} from 'react';
+import React, {useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/gallery.css';
 
+interface MediaThumbnail{
+    mediaId: number;
+    url: string;
+    createAt: string;
+}
+
 interface ThumbnailProps {
-    url?: string;
+    mediaThumbnail?: MediaThumbnail;
     checkOn?: boolean;
-    onThumbnailPress: (state: boolean) => void;
+    isSelected?: boolean;
+    onThumbnailPress: (id: number) => void;
+    onSelect: (id: number) => void;
 }
 
 const Thumbnail: React.FC<ThumbnailProps> = (
 {
-    url='', checkOn=false,
-    onThumbnailPress
+    mediaThumbnail, checkOn=false, isSelected=false,
+    onThumbnailPress, onSelect
 }) => {
     const navigate = useNavigate()
-    const [checked, setChecked] = useState(false);
     const timerRef = useRef<number | null>(null);
     const pressRef = useRef(false);
 
     const startPress = () => {
         timerRef.current = window.setTimeout(() => {
             pressRef.current = true;
-            onThumbnailPress(true)
-            setChecked(true);
+            onThumbnailPress(mediaThumbnail?.mediaId ?? -1);
+            onSelect(mediaThumbnail?.mediaId ?? -1);
         }, 500);
     };
 
@@ -32,20 +39,14 @@ const Thumbnail: React.FC<ThumbnailProps> = (
         }
     };
 
-    const checkThumbnail =() => {
-        if (checked) {
-            setChecked(false);
-        } else {
-            setChecked(true);
-        }
-    }
-
     const clickThumbnail = () =>{
-        if (pressRef.current) { return;
+        if (pressRef.current) { 
+            pressRef.current = false;
+            return;
         } else if (checkOn) {
-            checkThumbnail();
+            onSelect(mediaThumbnail?.mediaId ?? -1);
         } else {
-           navigate('/gallery/detail')
+           navigate(`/gallery/detail/${mediaThumbnail?.mediaId}`)
         }
     }
 
@@ -57,11 +58,12 @@ const Thumbnail: React.FC<ThumbnailProps> = (
             onMouseUp={endPress}
             onMouseLeave={endPress}
         >
-            <img className='thumbnail-image' src={url} alt={url} />
-            <input type="checkbox" aria-label={url}
+            <img className='thumbnail-image' src={mediaThumbnail?.url} alt={mediaThumbnail?.url} />
+            <input type="checkbox" aria-label={mediaThumbnail?.url} readOnly
                 className={checkOn==true ? 'thumbnail-check' : 'thumbnail-check hide'}
-                checked={checked}
-                onClick={checkThumbnail}
+                checked={isSelected}
+                onChange={() => onSelect(mediaThumbnail?.mediaId ?? -1)}
+                onClick={(e) => e.stopPropagation()}
             />
         </div>
     );
