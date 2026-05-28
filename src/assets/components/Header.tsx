@@ -11,14 +11,14 @@ import {noticeContext} from './../../App'
 interface HeaderProps {
   title?: string;
   visible?: boolean;
-
-  useRefresh?:boolean;
-  useProfile?:boolean;
-  useNotification?: boolean
+  useRefresh?: boolean;
+  useProfile?: boolean;
+  useNotification?: boolean;
+  useBack?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = (
-  {title, visible=true, useProfile=false, useRefresh=false, useNotification=true
+  {title, visible=true, useProfile=false, useRefresh=false, useNotification=true, useBack=true
 }) => {
   
   const {setNotice} = useContext(noticeContext)
@@ -34,15 +34,17 @@ const Header: React.FC<HeaderProps> = (
   
   return (
     <header className={visible ? "main-header" : "main-header hide"}>
-      <div className='icon-wrapper'>
-        <img 
-          src={back} 
-          alt="Back" 
-          className={!useProfile?'header-icon':'header-icon hide'}
-          onClick={()=>{
+
+      <div className='icon-wrapper' style={{ height: '28px' }}>
+        <img
+          src={back}
+          alt="Back"
+          className={useBack && !useProfile ? 'header-icon' : 'header-icon hide'}
+                    onClick={()=>{
             controlBackButton;
             setNotice(false);
           }}
+
         />
 
         <img

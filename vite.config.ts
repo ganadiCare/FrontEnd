@@ -11,12 +11,16 @@ import babel from '@rolldown/plugin-babel'
 // })
 
 export default defineConfig({
+  plugins: [
+    react(),
+    babel({ presets: [reactCompilerPreset()] })
+  ],
   server: {
     proxy: {
       '/api': {
         target: 'http://20.189.241.58:8080',
         changeOrigin: true,
-      }
-    }
-  }
+      },
+    },
+  },
 })

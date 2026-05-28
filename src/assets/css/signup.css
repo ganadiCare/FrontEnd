@@ -1,0 +1,81 @@
+/* signup.css */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
+.signup-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 412px; /* 모바일 폭 고정 */
+  height: 100vh;    /* 전체 화면 높이 사용 */
+  margin: 0 auto;
+  background-color: #ffffff;
+  position: relative;
+  border-left: 1px solid #eee;
+  border-right: 1px solid #eee;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.signup-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* 내용 많아지면 내부 스크롤 */
+  padding: 30px 20px;
+}
+
+.signup-form {
+  flex: 1; /* 입력칸들이 있는 곳을 최대한 늘림 */
+  display: flex;
+  flex-direction: column;
+  gap: 25px; /* 섹션 사이 간격 */
+}
+
+.signup-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.signup-label {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+.signup-label .red {
+  color: #ff0000;
+  margin-left: 2px;
+}
+
+.error-txt {
+  color: #ff0000;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+.success-txt {
+  color: #0099FF;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+/* 하단 버튼 영역을 바닥에 붙이기 */
+.signup-footer {
+  margin-top: 40px; /* 입력창과 최소 간격 */
+  padding: 20px 0;
+  display: flex;
+  justify-content: center;
+  background-color: #fff; /* 스크롤 시 글자가 겹쳐 보이지 않게 */
+}
+
+/* Inputbox 컴포넌트의 에러 테두리 강제 적용 */
+.input-container.error .input-wrapper {
+  border-color: #ff0000 !important;
+}
+
+/* 스크롤바 숨기기 */
+.signup-body::-webkit-scrollbar {
+  display: none;
+}

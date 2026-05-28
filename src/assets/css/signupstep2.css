@@ -1,0 +1,106 @@
+/* signupStep2.css */
+
+.signup-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 412px;
+  height: 100vh; /* 전체 높이 고정 */
+  margin: 0 auto;
+  background-color: #ffffff;
+  overflow: hidden; /* 전체 영역은 스크롤 방지 */
+}
+
+.signup-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 30px 20px 20px 20px; /* 하단 패딩을 20px 정도로 유지 */
+}
+
+.signup-title {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.divider-line {
+  border: 0;
+  height: 1px;
+  background-color: #ccc;
+  margin: 0px 0; 
+}
+
+/* 섹션 및 리스트 */
+.signup-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0; 
+}
+
+.section-subtitle {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  margin-top: 0; 
+}
+
+.section-subtitle .red {
+  color: #ff0000;
+}
+
+.divider-line {
+  border: 0;
+  height: 1px;
+  background-color: #ccc;
+  margin: 20px 0;
+}
+
+.empty-text {
+  font-size: 13px;
+  color: #aaa;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.added-device-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #000;
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.error-txt {
+  color: #ff0000;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.signup-footer {
+  padding: 15px 20px 25px 20px; /* 여백을 조금 더 넉넉히 주면 더 깔끔합니다 */
+  background-color: #fff;
+  z-index: 10;
+
+  /* ⭐️ 두 번째 사진과 같은 은은한 상단 그림자 효과 */
+  box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.05); 
+  
+  /* 만약 그림자 경계가 너무 흐릿하다면 아래처럼 아주 연한 선을 추가해도 좋습니다 */
+  border-top: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.signup-body::-webkit-scrollbar {
+  display: none;
+}
