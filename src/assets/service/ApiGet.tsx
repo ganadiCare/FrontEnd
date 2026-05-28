@@ -66,6 +66,7 @@ export async function updateFeedSchedule(scheduleId: number, updatedSchedule: ob
     console.error('스케줄 수정 실패:', error);
     throw error;
   }
+}
 
 api.interceptors.request.use(
   (config) => {
@@ -210,5 +211,5 @@ export async function getCameras() {
     } finally {
         console.log('로딩 종료');
     }
-
+  
 }

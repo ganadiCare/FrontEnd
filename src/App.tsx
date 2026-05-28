@@ -25,7 +25,7 @@ import CameraScreen from './assets/CameraScreen';
 import CameraScheduleScreen from './assets/CameraScheduleScreen';
 import CameraConnectScreen from './assets/CameraConnectScreen';
 
-import TempleteScreen from './assets/TempleteScreen';
+
 import AiReport from './assets/AiReport.tsx';
 import SignUpComplete from './assets/SignUpComplete';
 
