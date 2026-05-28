@@ -33,7 +33,7 @@ const Schedule: React.FC = () => {
       <span className={styles.line}></span>
       <p style={{ marginLeft: '20px' }}>LIST</p>
       <div style={{ marginBottom: '20px' }}>
-        {test.map((i) => (
+        {test.map(() => (
           <div className={styles.list}>
             <p>18:00</p>
             <p>20g</p>

@@ -2,7 +2,7 @@ import axios from "axios";
 
 // const BASE_URL = 'http://20.189.241.58:8080'; 
 const BASE_URL = ''; 
-const TOKEN = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI1IiwiZW1haWwiOiJweWdnb29kMTIzQG5hdmVyLmNvbSIsIm5pY2tuYW1lIjoicHlnIiwidG9rZW5UeXBlIjoiYWNjZXNzIiwiaWF0IjoxNzc5ODI1Mzk2LCJleHAiOjE3Nzk4Mjg5OTZ9.OCQGIUGZ_peSLqz1X4Pg--Rzh4b2USbUtknp3ZuU_HyBgVXExsQj_WTNJ47m0K6hP1XD1Br20r-Ertx1t4kXTQ'
+const TOKEN = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI3IiwiZW1haWwiOiJvbm1vaW05QGdtYWlsLmNvbSIsIm5pY2tuYW1lIjoi6rCA64KY65SUIiwidG9rZW5UeXBlIjoiYWNjZXNzIiwiaWF0IjoxNzc5OTIwMzU4LCJleHAiOjE3Nzk5MjM5NTh9.xc77RfakZdcu56eanSiUMihciqJQloXlq2K7HBN3ZRKR7A5bKMHqUP90eyjKlmf5WHCovo59ZYzIdoqWmGC28w'
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -41,5 +41,30 @@ export async function fetchInitialData() {
     console.error(에러);
   } finally {
     console.log('로딩 종료.');
+  }
+}
+
+//Body만 보내는 유형
+export async function updateDispenserConfig(updateData: object) {
+  try {
+    const response = await api.patch('/api/v1/dispensers', updateData);
+    console.log('설정 수정 성공:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ 설정 수정 실패:', error);
+    throw error;
+  }
+}
+
+//URL 파라미터 + Body 유형
+export async function updateFeedSchedule(scheduleId: number, updatedSchedule: object) {
+  try {
+    // 💡 백틱(``)을 사용해서 주소창 중간에 고유 ID 값을 쏙 넣어줍니다.
+    const response = await api.patch(`/api/v1/dispensers/schedules/${scheduleId}`, updatedSchedule);
+    console.log(`📌 스케줄 ${scheduleId}번 수정 성공:`, response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ 스케줄 수정 실패:', error);
+    throw error;
   }
 }

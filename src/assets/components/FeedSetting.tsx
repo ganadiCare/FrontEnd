@@ -4,12 +4,14 @@ import foodPic from './../image_folder/Feed.png'
 import waterPic from './../image_folder/Water.png'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Dropdown } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
 
 interface Props {
     setState: (value: string) => void;
 }
 
 export default function FeedSetting({ setState }: Props) {
+    let camSlice = useSelector((state:any) =>state.camSlice)
     const [isOn, setIsOn] = useState(true);
     let [type, changeType] = useState('food');
     return <>
@@ -26,8 +28,8 @@ export default function FeedSetting({ setState }: Props) {
                 <div className={styles.window}>
                     <h2 className={styles.card_title}>FOOD</h2>
                     <div className={styles.info_section}>
-                        <p>STORAGE AMOUNT : 1000g</p>
-                        <p>LEFTOVERS : 10g</p>
+                        <p>STORAGE AMOUNT : {camSlice.feeding.result?.[0]?.amount}g</p>
+                        <p>LEFTOVERS : {camSlice.feeding.result?.[0]?.leftovers}g</p>
                     </div>
                 </div>
 
@@ -71,8 +73,8 @@ export default function FeedSetting({ setState }: Props) {
                 <div className={styles.window}>
                     <h2 className={styles.card_title}>WATER</h2>
                     <div className={styles.info_section}>
-                        <p>STORAGE AMOUNT : 1000g</p>
-                        <p>LEFTOVERS : 10g</p>
+                        <p>STORAGE AMOUNT : {camSlice.watering.result?.[0]?.amount}g</p>
+                        <p>LEFTOVERS : {camSlice.watering.result?.[0]?.leftovers}g</p>
                     </div>
                 </div>
 

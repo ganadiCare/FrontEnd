@@ -1,7 +1,10 @@
 import { useState } from "react";
 import styles from './../css/feed.module.css'
+import { useSelector } from "react-redux";
 
 export default function Toggle() {
+  let camSlice = useSelector((state:any) =>  state.camSlice )
+  console.log('클리닝모드는',camSlice.dispenser?.result?.isCleaningMode)
   const [isOn, setIsOn] = useState(true);
 
   return (

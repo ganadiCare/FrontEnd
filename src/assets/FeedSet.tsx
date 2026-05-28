@@ -20,8 +20,8 @@ const FeedSet: React.FC = () => {
   const [state, setState] = useState('set');
 
   //리덕스테스트
-  let a = useSelector((state:any) =>  state.camSlice )
-  console.log(a.feeding)
+  let camSlice = useSelector((state:any) =>  state.camSlice )
+  console.log('피딩데이터는',camSlice.dispenser?.result?.water)
 
   //디스펜서연결용 임시변수
   let online = true
