@@ -15,7 +15,9 @@ interface SelectBarProps {
 
 const SelectBar: React.FC<SelectBarProps> = (
 {
-  options=[], selectedValue, visible=true,
+  options=[], 
+  selectedValue, 
+  visible=true,
   onSelectClick
 }) => {
   const clickNext=() =>{

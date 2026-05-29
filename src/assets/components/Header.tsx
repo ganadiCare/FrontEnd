@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../css/templete.css';
 
 import user from '../image_folder/User.png';
 import back from '../image_folder/Back.png';
 import notification from '../image_folder/Notification.png';
+
+import {noticeContext} from './../../App'
 
 interface HeaderProps {
   title?: string;
@@ -18,6 +20,8 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = (
   {title, visible=true, useProfile=false, useRefresh=false, useNotification=true, useBack=true
 }) => {
+  
+  const {setNotice} = useContext(noticeContext)
   const navigate = useNavigate()
 
   const controlBackButton = () => {
@@ -30,12 +34,17 @@ const Header: React.FC<HeaderProps> = (
   
   return (
     <header className={visible ? "main-header" : "main-header hide"}>
+
       <div className='icon-wrapper' style={{ height: '28px' }}>
         <img
           src={back}
           alt="Back"
           className={useBack && !useProfile ? 'header-icon' : 'header-icon hide'}
-          onClick={controlBackButton}
+                    onClick={()=>{
+            controlBackButton;
+            setNotice(false);
+          }}
+
         />
 
         <img
@@ -49,7 +58,7 @@ const Header: React.FC<HeaderProps> = (
       <h2 className="header-title">{title}</h2>
 
       <div className='icon-wrapper'>
-        <div className='icon-wrapper' onClick={() => navigate('/notification')}>
+        <div className='icon-wrapper' onClick={()=>setNotice(true)}>
           <img
             src={notification}
             alt="Notification"
