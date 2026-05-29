@@ -160,6 +160,20 @@
   background-color: #007acc;
 }
 
+.ai-report-btn-danger {
+  background-color: #e53935;
+}
+
+.ai-report-btn-danger:active {
+  background-color: #c62828;
+}
+
+.ai-report-btn:disabled,
+.ai-report-btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* --- MEMO --- */
 .report-memo-input {
   width: 100%;

@@ -6,7 +6,7 @@ import Header from './components/Header';
 import Nav from './components/Nav';
 import DatePicker from './components/DatePicker';
 import BarGraph from './components/BarGraph';
-import { getReport, createReport, updateMemo } from '../api/report';
+import { getReport, createReport, updateMemo, deleteReport } from '../api/report';
 import type { ReportResult } from '../api/report';
 
 // 24시간 분량의 빈 배열 (그래프 기본값 — 데이터 없을 때 0으로 채움)
@@ -35,6 +35,7 @@ const Report: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);             // 리포트 조회 로딩
   const [isGenerating, setIsGenerating] = useState(false);       // AI 리포트 생성 로딩
   const [isSavingMemo, setIsSavingMemo] = useState(false);       // 메모 저장 로딩
+  const [isDeletingReport, setIsDeletingReport] = useState(false); // 리포트 삭제 로딩
 
   // ─── 리포트 조회 ──────────────────────────────────────────────────────────
   // useCallback으로 메모이제이션하여 useEffect 의존성 배열에서 무한 루프 방지
@@ -92,6 +93,26 @@ const Report: React.FC = () => {
     setSelectedDate(next);
   };
 
+  // ─── 리포트 삭제 ──────────────────────────────────────────────────────────
+  const handleDeleteReport = async () => {
+    if (!report) return;
+    if (!window.confirm('리포트를 삭제하시겠습니까?')) return;
+    setIsDeletingReport(true);
+    try {
+      const res = await deleteReport(report.reportId);
+      if (res.isSuccess) {
+        setReport(null);
+        setMemo('');
+      } else {
+        alert(res.message || '리포트 삭제에 실패했습니다.');
+      }
+    } catch {
+      alert('서버 연결에 실패했습니다.');
+    } finally {
+      setIsDeletingReport(false);
+    }
+  };
+
   // ─── 메모 저장 ────────────────────────────────────────────────────────────
   // 리포트 ID를 기준으로 메모만 별도 업데이트
   const handleSaveMemo = async () => {
@@ -141,10 +162,20 @@ const Report: React.FC = () => {
             {isLoading ? (
               <p className="report-body-text">리포트를 불러오는 중...</p>
             ) : report ? (
-              // pre-wrap: AI 요약의 줄바꿈(\n)을 그대로 렌더링
-              <p className="report-body-text" style={{ whiteSpace: 'pre-wrap' }}>
-                {report.aiSummary}
-              </p>
+              <>
+                {/* pre-wrap: AI 요약의 줄바꿈(\n)을 그대로 렌더링 */}
+                <p className="report-body-text" style={{ whiteSpace: 'pre-wrap' }}>
+                  {report.aiSummary}
+                </p>
+                <button
+                  className="ai-report-btn ai-report-btn-danger"
+                  onClick={handleDeleteReport}
+                  disabled={isDeletingReport}
+                  style={{ marginTop: '16px' }}
+                >
+                  {isDeletingReport ? '삭제 중...' : '리포트 삭제'}
+                </button>
+              </>
             ) : (
               <div style={{ textAlign: 'center', padding: '16px 0' }}>
                 <p className="report-body-text" style={{ marginBottom: '12px' }}>해당 날짜의 리포트가 없습니다.</p>
