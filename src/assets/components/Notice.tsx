@@ -8,7 +8,7 @@ interface NoticeProps {
 
 const Notice: React.FC<NoticeProps> = ({ setNotice }) => {
     return (<div className='overlay1'>
-        <Header title='NOTICE' />
+        <Header title='NOTICE' onBack={() => setNotice(false)} />
         <div className='overlay2'>
             <div className='info-window'>
                 {/* 상단: 날짜와 닫기 버튼 */}

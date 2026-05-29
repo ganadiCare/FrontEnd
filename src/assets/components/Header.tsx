@@ -15,10 +15,11 @@ interface HeaderProps {
   useProfile?: boolean;
   useNotification?: boolean;
   useBack?: boolean;
+  onBack?: () => void; // 기본 navigate(-1) 대신 실행할 커스텀 뒤로가기 동작
 }
 
 const Header: React.FC<HeaderProps> = (
-  {title, visible=true, useProfile=false, useRefresh=false, useNotification=true, useBack=true
+  {title, visible=true, useProfile=false, useRefresh=false, useNotification=true, useBack=true, onBack
 }) => {
   
   const {setNotice} = useContext(noticeContext)
@@ -41,7 +42,8 @@ const Header: React.FC<HeaderProps> = (
           alt="Back"
           className={useBack && !useProfile ? 'header-icon' : 'header-icon hide'}
                     onClick={()=>{
-            controlBackButton;
+            if (onBack) onBack();
+            else controlBackButton();
             setNotice(false);
           }}
 
@@ -57,14 +59,14 @@ const Header: React.FC<HeaderProps> = (
 
       <h2 className="header-title">{title}</h2>
 
-      <div className='icon-wrapper'>
+      <div className='icon-wrapper' style={{ visibility: useNotification ? 'visible' : 'hidden' }}>
         <div className='icon-wrapper' onClick={()=>setNotice(true)}>
           <img
             src={notification}
             alt="Notification"
-            className={useNotification?'header-icon':'header-icon hide'}
+            className='header-icon'
           />
-          <span className={useNotification?'badge':'badge hide'}>15</span>
+          <span className='badge'>15</span>
         </div>
       </div>
     </header>
