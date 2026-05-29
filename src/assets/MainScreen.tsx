@@ -114,7 +114,7 @@ const MainScreen: React.FC = () => {
             <p className={camera ? 'message hide' : 'message error'}
             >카메라와 연결되지 않았습니다</p>
           </div>
-          <LiveBox isLive={false}/>
+          <LiveBox camera={camera} isLive={false}/>
           <p
             className={!camera ? "medium-text text-button" : "medium-text hide"}
             onClick={()=>navigate('/camera/connect')}
