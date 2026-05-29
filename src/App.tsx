@@ -44,7 +44,7 @@ function App() {
     }
   })
   .catch((err)=>{console.log('못받음 ',err)})
- },[])
+ },[CamData])
   
   return (
     <div className = "mobile-wrapper">
