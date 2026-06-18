@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import './css/templete.css';
 
@@ -29,6 +29,7 @@ const CameraScreen: React.FC<CameraScreenProps> = (
 ) => {
   const navigate = useNavigate();
   const currentScreen = 'camera';
+
   const [select, setSelect] = useState(camList?.[0]);
   const [deviceName, setDeviceName] = useState('');
   const [nameError, setNameError] = useState('');
@@ -70,7 +71,7 @@ const CameraScreen: React.FC<CameraScreenProps> = (
       <main className="main-content">
         <section className="main-section">
           <div className='heading-wrapper'>
-            <h3 className='section-heading'>카메라 설정</h3>
+            <h2 className='section-heading'>카메라 설정</h2>
             <select
               className='select-input'
               id='select'

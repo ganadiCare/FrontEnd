@@ -1,53 +1,138 @@
-import React, {useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from './store/hooks';
+//import type { components } from './service/api';
 import './css/templete.css';
+
+import { fetchCameraThunk } from './store/cameraSlice'; 
 
 import Header from './components/Header';
 import Nav from './components/Nav';
-import SelectBar from './components/SelectBar';
 import LiveBox from './components/LiveBox';
 import Controller from './components/Controller';
 import Move from './image_folder/Move.png';
 import Camera from './image_folder/Camera.png'
 
-interface CamInfo{
-  deviceId: number;
-  deviceName: string;
-  code?: string;
-  url?: string;
-  isMain?: boolean;
+//type CameraData = components['schemas']['CameraDTO'];
 
-  resolution?: string;
-  motionSensitive?: number;
-
-  nightVision?: string;
-  private?: boolean;
-}
-
-interface LiveScreenProps {
-  camList?: Array<CamInfo>;
-}
-
-const LiveScreen: React.FC<LiveScreenProps> = (
-  {camList}
-) => {
+const LiveScreen: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const currentScreen = 'live';
-  const navigate = useNavigate()
-  const getOptions = () =>{
-    return camList?.map((cam) => ({
-      id: cam.deviceId, name: cam.deviceName
-    })) || [];
-  }
-  const options = getOptions();
 
-  const [select, setSelect] = useState(options[0]);
-  const [controlBar, setControlBar] = useState(false);
-  const [control, setControl] = useState('control');
+  const { cameraData } = useAppSelector((state) => state.cameraSlice);
+
+  const [controlBar, setControlBar] = useState(() => {
+    const stateData = location.state as { controlBar?: boolean } | null;
+    return stateData?.controlBar ?? false;
+  });
+  const [control, setControl] = useState(() => {
+    const stateData = location.state as { control?: string } | null;
+    return stateData?.control ?? 'control';
+  });
   const [direction, setDirection] = useState('center');
-  const [fullMode, setFullMode] = useState(false);
+  const [isManual, setIsManual] = useState(false);
 
-  const currentCam = camList?.find(cam => cam.deviceId === select?.id);
-  
+  useEffect(() => {
+    window.history.replaceState(
+      {
+        ...window.history.state,
+        usr: {
+          ...window.history.state?.usr,
+          controlBar: controlBar,
+          control: control,
+        }
+      }, ''
+    );
+  }, [controlBar, control]);
+
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+  const pcRef = useRef<RTCPeerConnection | null>(null);
+  const dcRef = useRef<RTCDataChannel | null>(null);
+  const sessionIdRef = useRef<string>('');
+
+  //WebRTC 시그널링 및 커넥션 수립 함수
+  const startWebRTC = async () => {
+    sessionIdRef.current = crypto.randomUUID();
+
+    wsRef.current = new WebSocket('');
+
+    wsRef.current.onopen = async () => {
+      wsRef.current?.send(JSON.stringify({
+        type: 'register', role: 'browser', sessionId: sessionIdRef.current
+      }));
+
+      pcRef.current = new RTCPeerConnection({
+        iceTransportPolicy: "relay",
+        iceServers: []
+      });
+
+      pcRef.current.ontrack = (e) => {
+        console.log('영상 트랙 수신됨');
+        setStream(e.streams[0]);
+      };
+
+      pcRef.current.onicecandidate = (e) => {
+        if (!e.candidate) {
+          console.log('ICE candidate 수집 완료, Offer 전송!');
+          wsRef.current?.send(JSON.stringify({
+            type: 'offer',
+            sdp: pcRef.current?.localDescription?.sdp,
+            sessionId: sessionIdRef.current
+          }));
+        }
+      };
+      // 서보모터 제어용 데이터 채널 오픈
+      dcRef.current = pcRef.current.createDataChannel('control');
+
+      const offer = await pcRef.current.createOffer({ offerToReceiveVideo: true });
+      await pcRef.current.setLocalDescription(offer);
+    };
+
+    wsRef.current.onmessage = async (e) => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'answer' && msg.sessionId === sessionIdRef.current) {
+        console.log('Answer 수신 및 설정');
+        await pcRef.current?.setRemoteDescription(
+          new RTCSessionDescription({ type: 'answer', sdp: msg.sdp })
+        );
+      }
+    };
+  };
+
+  // WebRTC 연결 종료
+  const stopWebRTC = () => {
+    if (wsRef.current) wsRef.current.close();
+    if (pcRef.current) pcRef.current.close();
+    setStream(null);
+  };
+
+  const sendControl = useCallback((cmd: object) => {
+    if (!dcRef.current) {
+      console.error('WebRTC DataChannel이 생성되지 않았습니다.');
+      return;
+    }
+    if (dcRef.current.readyState !== 'open') {
+      console.warn(`제어 대기: '${dcRef.current.readyState}'`);
+      return;
+    }
+    console.log('패킷 전송 성공:', cmd);
+    dcRef.current.send(JSON.stringify(cmd));
+  }, []);
+
+  const handleResetCam = () => {
+    sendControl({ cmd: 'move', pan: 0, tilt: 0 });
+    setDirection('center');
+  };
+
+  const handleToggleMode = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const manual = e.target.checked;
+    setIsManual(manual);
+    sendControl({ cmd: 'mode', val: manual ? 'manual' : 'auto' });
+    sendControl({ cmd: 'stop' }); // 안전을 위한 즉시 정지 패킷 송신
+  };
   
   const clickScreen = () =>{
     setControlBar(!controlBar);
@@ -55,18 +140,18 @@ const LiveScreen: React.FC<LiveScreenProps> = (
       setControl('controller');
   }
 
+  useEffect(() => {
+    if (!cameraData) dispatch(fetchCameraThunk());
+  }, [dispatch, cameraData]);
+
+  useEffect(() => {
+    return () => stopWebRTC();
+  }, []);
+
   return (
     <>
       <Header 
         title='CAMERA'
-        visible={!fullMode}
-      />
-
-      <SelectBar
-        options={options}
-        visible={!fullMode}
-        selectedValue={select}
-        onSelectClick={setSelect}
       />
 
       <main
@@ -77,17 +162,17 @@ const LiveScreen: React.FC<LiveScreenProps> = (
           <div onClick={(e) => e.stopPropagation()}>
             <LiveBox 
               isLive={true}
-              isFull={fullMode}
-              camInfo={currentCam}
-              onFullClick={()=>setFullMode(!fullMode)}
+              camera={cameraData}
+              stream={stream} 
+              onStartLive={startWebRTC}
             />
           </div>
           <p className='hide'>{direction}</p>
         </section>
       </main>
 
-      {/* 세로모드 컨트롤 */}
-      <section className={!fullMode ? 'control-bar' : 'control-bar hide'}>
+      {/* 하단 컨트롤 */}
+      <section className='control-bar'>
         <div className='control-menu'>
           <div
             className='control-menu-button'
@@ -104,10 +189,23 @@ const LiveScreen: React.FC<LiveScreenProps> = (
         </div>
         {/* 컨트롤러 영역 */}
         <div className={controlBar && control=='controller' ? 'control-component' : 'control-component hide'}>
-          <Controller onDirectionClick={setDirection}/>
+          <div className='control-manual'>
+            <label htmlFor="manual-toggle"className='input-label'>수동 조작</label>
+            <input type="checkbox" id="manual-toggle" className="toggle-input" 
+            checked={isManual} onChange={handleToggleMode}/>
+            <label htmlFor="manual-toggle" className="toggle-input-button">
+              <span className="toggle-input-switch"/>
+            </label>
+          </div>
+          <Controller
+            onDirectionClick={setDirection}
+            sendControl={sendControl}
+            isManual={isManual}
+          />
           <button
-              className='small-button control-reset'
-            >초기화</button>
+            className='small-button control-reset'
+            onClick={handleResetCam}
+          >초기화</button>
         </div>
         {/* 버튼 영역 */}
         <div className={controlBar && control=='button' ? 'control-component' : 'control-component hide'}>
@@ -136,28 +234,8 @@ const LiveScreen: React.FC<LiveScreenProps> = (
         </div>
       </section>
 
-      {/* 가로모드 컨트롤 */}
-      <div className={fullMode ? 'full-controller' : 'full-controller hide'}>
-        <Controller isFull={true} onDirectionClick={setDirection}/>
-      </div>
-      <div className={fullMode ? 'full-buttons' : 'full-buttons hide'}>
-        <button className='full-button' aria-label="캡쳐">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-            <circle cx="12" cy="13" r="4" />
-          </svg>
-        </button>
-        <button className='full-button' aria-label='녹화'>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="12" r="6" fill="#ff4d4d" stroke="none" />
-          </svg>
-        </button>
-      </div>
-
       <Nav
         currentScreen={currentScreen}
-        visible={!fullMode}
       />
     </>
   );

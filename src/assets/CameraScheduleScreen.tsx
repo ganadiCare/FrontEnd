@@ -78,7 +78,7 @@ const CameraScheduleScreen: React.FC<CameraScheduleScreenProps> = (
       <main className="main-content">
         <section className="main-section">
           <div className='heading-wrapper'>
-            <h3 className='section-heading'>카메라 스케줄 설정</h3>
+            <h2 className='section-heading'>카메라 스케줄 설정</h2>
           </div>
 
           <form className='input-form' action="">
@@ -106,7 +106,7 @@ const CameraScheduleScreen: React.FC<CameraScheduleScreenProps> = (
                 />
               </label>
             </div>
-            <p className='message error'>{scheduleError}</p>
+            <span className='message error'>{scheduleError}</span>
             <button type="button" 
               className='medium-button'
               onClick={()=>saveSchedule()}

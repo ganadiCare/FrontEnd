@@ -11,10 +11,12 @@ interface PopupProps {
     popupMessage?: PopupMessage;
     visible?: boolean;
     onBackgroundClick?: ()=>void;
+    onOkClick?: ()=>void;
+    onCancelClick?: ()=>void;
 }
 
 const Popup: React.FC<PopupProps> = (
-{popupMessage, visible=false, onBackgroundClick}
+{popupMessage, visible=false, onBackgroundClick , onOkClick, onCancelClick}
 ) => {
     return (
         <div
@@ -22,9 +24,16 @@ const Popup: React.FC<PopupProps> = (
             onClick={onBackgroundClick}
         >
             <div className={visible ? 'popup-box' : 'popup-box hide'}>
-                <h3 className='section-heading'>{popupMessage?.title}</h3>
+                <h2 className='section-heading'>{popupMessage?.title}</h2>
                 <hr className='popup-divider'/>
                 <span className='small-text'>{popupMessage?.content}</span>
+                
+                <div className={popupMessage?.type=='OX' ? 'popup-buttons' : 'popup-buttons hide'}>
+                    <button type="button" className='medium-button'
+                    onClick={onOkClick} >예</button>
+                    <button type="button" className='medium-button'
+                    onClick={onCancelClick} >아니오</button>
+                </div>
             </div>
         </div>
     );

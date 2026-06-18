@@ -1,60 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from './store/hooks'
 import type { components } from './service/api';
-import { initAccessToken, getProfile, getPets, updatePets} from './service/ApiGet';
 import './css/templete.css';
+import './css/profile.css';
+
+import { fetchPetThunk, updatePetThunk } from './store/petSlice';
+import { fetchProfileThunk, logoutThunk, deleteMemberThunk } from './store/profileSlice';
 
 import Header from './components/Header';
 import Nav from './components/Nav';
 import Popup from './components/Popup';
-import Loading from './components/Loading';
 
-import defaultProfile from './image_folder/DefaultProfile.png'
+import defaultProfile from './image_folder/DefaultProfile.png';
 
-type ProfileData = components['schemas']['ProfileDTO'];
 type PetData = components['schemas']['PetDTO'];
+type UpdatePetData = components['schemas']['UpdatePetDTO'];
 
 const ProfileScreen: React.FC = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const currentScreen = 'profile';
-  const [loading, setLoading] = useState(true);
 
-  const [profile, setProfile] = useState<ProfileData | undefined>(undefined);
-  const [pet, setPet] = useState<PetData | undefined>(undefined);
+  const { petData } = useAppSelector((state) => state.petSlice);
+  const { profileData } = useAppSelector((state) => state.profileSlice);
+
+  const [updatePet, setUpdatePet] = useState<PetData | null>(petData);
   
   const [petNameError, setPetNameError] = useState('');
   const [petAgeError, setPetAgeError] = useState('');
   const [petWeightError, setPetWeightError] = useState('');
-  //const [userNameError, setUserNameError] = useState('');
+
+  const [logoutPopup, setLogoutPopup] = useState(false);
 
   useEffect(() => {
-      const fetchScreen = async () => {
-        setLoading(true);
-        try {
-          await initAccessToken();
-          const petData = await getPets().catch(err => {
-            console.error('Pet 로딩 실패:', err);
-            return null;
-          });
-          const profileData = await getProfile().catch(err => {
-            console.error('Profile 로딩 실패:', err);
-            return null;
-          });
-  
-          if (profileData && profileData.isSuccess) setProfile(profileData.result);
-          if (petData && petData.isSuccess) setPet(petData.result);
-  
-        } catch (error) {
-          console.error('데이터 로딩 오류: ', error);
-        }
-        setLoading(false);
-      };
-      fetchScreen();
-    }, []);
+    if (!petData) dispatch(fetchPetThunk());
+    if (!profileData) dispatch(fetchProfileThunk());
+  }, [dispatch, petData, profileData]);
+
+  if (!updatePet && petData) {
+    setUpdatePet(petData);
+  }
 
   /* 데이터 변경 함수 */
   const changePet = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    setPet((prev) => {
+    setUpdatePet((prev) => {
       const currentData = prev || {} as PetData;
       return {
         ...currentData,
@@ -66,7 +57,7 @@ const ProfileScreen: React.FC = () => {
 
   /* 생일 변경 함수 */
   const changeBirthday = (type: 'month' | 'day' | 'unknown', e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-    setPet((prev) => {
+    setUpdatePet((prev) => {
       const currentData = prev || {} as PetData;
       const currentBirthday = currentData.birthday || '00-00';
       
@@ -92,62 +83,58 @@ const ProfileScreen: React.FC = () => {
   const savePet = async() => {
     let check = true;
 
-    if (!pet?.name?.trim()) {
+    if (!updatePet?.name?.trim()) {
       setPetNameError('이름을 입력해주세요.');
       check = false;
-    }
-    else {
+    } else {
       setPetNameError('');
     }
 
-    if (!pet?.age) {
+    if (!updatePet?.age) {
       setPetAgeError('나이를 입력해주세요.');
       check = false;
-    } else if(pet?.age<0) {
+    } else if(updatePet?.age<0) {
       setPetAgeError('나이는 음수일 수 없습니다.');
       check = false;
     } else {
       setPetAgeError('')
     }
 
-    if (!pet?.weight) {
+    if (!updatePet?.weight) {
       setPetWeightError('체중을 입력해주세요.');
       check = false;
-    } else if (pet?.weight<=0) {
+    } else if (updatePet?.weight<=0) {
       setPetWeightError('체중은 0 이상이여야 합니다.');
       check = false;
     } else {
       setPetWeightError('')
     }
 
-    if (check) {
-      try {
-        setLoading(true);
-        await updatePets(pet);
-        setLoading(false);
-        toast('반려동물 정보가 저장되었습니다.');
-      } catch (error) {
-        console.error(error);
-        setLoading(false);
-        toast.error('저장 중 오류가 발생했습니다.');
-      }
+    if (check && updatePet) {
+      const updateData: UpdatePetData = {
+        name: updatePet.name ?? "",
+        species: updatePet.species ?? "DOG",
+        gender: updatePet.gender ?? "MALE",
+        age: updatePet.age ?? 0,
+        weight: updatePet.weight ?? 0,
+        birthday: updatePet.birthday ?? "00-00"
+      };
+      dispatch(updatePetThunk(updateData));
     }
     return;
   }
 
-  /* 유저 정보 변경
-  const changeUserName = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    //
+  const logout = async() => {
+    try{
+      await dispatch(logoutThunk());
+      navigate('/');
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+    }
   }
-
-  const saveUserName = () => {
-    //
-  }
-  */
 
   return (
     <>
-      <ToastContainer/>
       <Header title='PROFILE'/>
 
       {/* 메인 콘텐츠 영역 */}
@@ -155,16 +142,16 @@ const ProfileScreen: React.FC = () => {
         {/* 반려동물 프로필 영역 */}
         <section className="main-section">
           <div className='heading-wrapper'>
-            <h3 className='section-heading'>반려동물 프로필</h3>
+            <h2 className='section-heading'>반려동물 프로필</h2>
           </div>
           
           <form className='input-form' action="">
             <div className='input-box row'>
               <div className="profile-wrapper">
                 <img
-                    className="profile-image" 
-                    src={defaultProfile}
-                    alt="profile image"
+                  className="profile-image" 
+                  src={defaultProfile}
+                  alt="profile image"
                 />
               </div>
               <input
@@ -184,25 +171,25 @@ const ProfileScreen: React.FC = () => {
                 <input className='text-input'
                 type="text"
                 name="name"
-                value={pet?.name}
+                value={updatePet?.name}
                 placeholder='반려동물 이름'
                 onChange={changePet}
                 />
               </label>
-              <p className='message error'>{petNameError}</p>
+              <span className='message error'>{petNameError}</span>
             </div>
 
             <div className='input-box column'>
               <label className='input-label'>종류</label>
               <div className='radio-input-box'>
                 <input type="radio" id='species-dog' className='radio-input' name='species'
-                value='DOG' checked={pet?.species === 'DOG'} onChange={changePet}/>
+                value='DOG' checked={updatePet?.species === 'DOG'} onChange={changePet}/>
                 <label htmlFor="species-dog" className='radio-input-button'>강아지</label>
                 <input type="radio" id='species-cat' className='radio-input' name='species' 
-                value='CAT' checked={pet?.species === 'CAT'} onChange={changePet}/>
+                value='CAT' checked={updatePet?.species === 'CAT'} onChange={changePet}/>
                 <label htmlFor="species-cat" className='radio-input-button'>고양이</label>
                 <input type="radio" id='species-etc' className='radio-input' name='species' 
-                value='ETC' checked={pet?.species === 'ETC'} onChange={changePet}/>
+                value='ETC' checked={updatePet?.species === 'ETC'} onChange={changePet}/>
                 <label htmlFor="species-etc" className='radio-input-button'>기타</label>
               </div>
             </div>
@@ -211,10 +198,10 @@ const ProfileScreen: React.FC = () => {
               <label className='input-label'>성별</label>
               <div className='radio-input-box'>
                 <input type="radio" id='gender-m' className='radio-input' name='gender'
-                value='MALE' checked={pet?.gender === 'MALE'} onChange={changePet}/>
+                value='MALE' checked={updatePet?.gender === 'MALE'} onChange={changePet}/>
                 <label htmlFor="gender-m" className='radio-input-button'>수컷</label>
                 <input type="radio" id='gender-f' className='radio-input' name='gender'
-                value='FEMALE' checked={pet?.gender === 'FEMALE'} onChange={changePet}/>
+                value='FEMALE' checked={updatePet?.gender === 'FEMALE'} onChange={changePet}/>
                 <label htmlFor="gender-f" className='radio-input-button'>암컷</label>
               </div>
             </div>
@@ -225,13 +212,13 @@ const ProfileScreen: React.FC = () => {
                 <input className='number-input'
                   type='number'
                   name="age"
-                  value={pet?.age}
+                  value={updatePet?.age}
                   placeholder='반려동물 나이'
                   onChange={changePet}
                 />
-                <p className='medium-text'>살</p>
+                <span className='medium-text'>살</span>
               </div>
-              <p className='message error'>{petAgeError}</p>
+              <span className='message error'>{petAgeError}</span>
             </div>
 
             <div className='input-box column'>
@@ -240,21 +227,21 @@ const ProfileScreen: React.FC = () => {
                 <input className='number-input'
                   type='number'
                   name="weight"
-                  value={pet?.weight}
+                  value={updatePet?.weight}
                   placeholder='kg 단위로 입력 (ex. 5.2)'
                   onChange={changePet}
                 />
-                <p className='medium-text'>kg</p>
+                <span className='medium-text'>kg</span>
               </div>
               <p className='message error'>{petWeightError}</p>
             </div>
 
             <div className='input-box column'>
               <label className='input-label'>생일</label>
-              <div className='input-box row'>
+              <div className='select-input-box'>
                 <select
                   className="select-input"
-                  value={pet?.birthday?.split('-')[0]}
+                  value={updatePet?.birthday?.split('-')[0]}
                   aria-label='month'
                   onChange={(e) => changeBirthday('month', e)}
                 >
@@ -265,7 +252,7 @@ const ProfileScreen: React.FC = () => {
                 </select>
                 <select
                   className="select-input"
-                  value={pet?.birthday?.split('-')[1]}
+                  value={updatePet?.birthday?.split('-')[1]}
                   aria-label='day'
                   onChange={(e) => changeBirthday('day', e)}
                 >
@@ -300,7 +287,7 @@ const ProfileScreen: React.FC = () => {
         {/* 기타 설정 영역 */}
         <section className="main-section">
           <div className='heading-wrapper'>
-            <h3 className='section-heading'>사용자 설정</h3>
+            <h2 className='section-heading'>사용자 설정</h2>
           </div>
 
           <form className='input-form' action="">
@@ -318,7 +305,7 @@ const ProfileScreen: React.FC = () => {
                   <input className='text-input'
                     type="text"
                     name="userName"
-                    value={profile?.nickname}
+                    value={profileData?.nickname}
                     placeholder='사용자 이름'
                     //onChange={changeUserName}
                   />
@@ -333,7 +320,7 @@ const ProfileScreen: React.FC = () => {
 
             <div className='input-box row'>
               <label className='input-label'>아이디</label>
-              <p className='input-fixed-value'>{profile?.email ?? '???'}</p>
+              <p className='input-fixed-value'>{profileData?.email ?? '???'}</p>
             </div>
 
             <div className='input-box row'>
@@ -347,18 +334,26 @@ const ProfileScreen: React.FC = () => {
             </div>
 
             <div className='input-box row'>
-              <button type="button" className='medium-button'>로그아웃</button>
+              <button type="button" className='medium-button'
+                onClick={()=>setLogoutPopup(true)}
+              >로그아웃</button>
               <button type="button" className='medium-button'>계정 삭제</button>
             </div>
           </form>
         </section>
-        <Loading visible={loading}/>
       </main>
 
       <Popup
-        //popupMessage={mediaInfo()}
-        //visible={usePopup}
-        //onBackgroundClick={()=>setUsePopup(false)}
+        popupMessage={
+          {
+            title: '정말로 로그아웃 하시겠습니까?',
+            type: 'OX'
+          }
+        }
+        visible={logoutPopup}
+        onBackgroundClick={()=>setLogoutPopup(false)}
+        onOkClick={()=>logout()}
+        onCancelClick={()=>setLogoutPopup(false)}
       />
 
       <Nav currentScreen={currentScreen} />

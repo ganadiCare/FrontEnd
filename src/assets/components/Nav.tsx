@@ -21,8 +21,8 @@ const Nav: React.FC<NavProps> = (
   const array = [
         {id:'main', name:'Home',icon:home},
         {id:'gallery', name:'Gallery',icon:gallery},
-        {id:'live', name:'Live cam',icon:live},
-        {id:'feed', name:'Feed set',icon:feed},
+        {id:'camera/live', name:'Live cam',icon:live},
+        {id:'dispenser', name:'Feed set',icon:feed},
         {id:'report', name:'AI Report',icon:report},
     ]
 

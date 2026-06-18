@@ -30,7 +30,7 @@ const Header: React.FC<HeaderProps> = (
   
   return (
     <header className={visible ? "main-header" : "main-header hide"}>
-      <div className='icon-wrapper' style={{ height: '28px' }}>
+      <div className='icon-wrapper'>
         <img
           src={back}
           alt="Back"

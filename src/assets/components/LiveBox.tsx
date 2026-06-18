@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import type { components } from '../service/api';
 import { useNavigate } from 'react-router-dom';
 import '../css/live.css';
@@ -6,24 +6,34 @@ import '../css/live.css';
 type CameraData = components['schemas']['CameraDTO'];
 
 interface LiveBoxProps {
-  camera?: CameraData;
+  camera?: CameraData | null;
+  stream?: MediaStream | null;
   visible?:  boolean;
   isLive?: boolean;
   isFull?: boolean;
-  onFullClick?: () => void;
+  onStartLive?: () => void;
 }
 
 const LiveBox: React.FC<LiveBoxProps> = (
-  {camera, visible=true, isLive=true, isFull=false, onFullClick}
+  {camera, stream, visible=true, isLive=true, isFull=false, onStartLive}
 ) => {
   const navigate = useNavigate()
   const [liveOn, setLiveOn] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+      videoRef.current.play().catch(err => console.error('재생 실패:', err));
+    }
+  }, [stream]);
 
   const clickPlayButton = () => {
     if (isLive) {
       setLiveOn(true);
+      onStartLive?.();
     } else {
-      navigate('/live');
+      navigate('/camera/live');
     }
   }
 
@@ -31,9 +41,11 @@ const LiveBox: React.FC<LiveBoxProps> = (
     <div className={visible? (!isFull? "live-box" : "live-box full") : "live-box hide"}>
       <video
         className='live-viewer'
-        src={''}
-      >
-      해당 브라우저에서 재생 불가능</video>
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+      >해당 브라우저에서 재생 불가능</video>
 
       <div className='live-control'>
         {/* 중앙 플레이 버튼 */}
@@ -65,8 +77,8 @@ const LiveBox: React.FC<LiveBoxProps> = (
         </div>
         {/* 전체화면 아이콘 */}
         <div
-        className= {camera && isLive ? 'full-icon' : 'full-icon hide'}
-        onClick={()=>onFullClick?.()}
+          className= {camera && isLive ? 'full-icon' : 'full-icon hide'}
+          onClick={isFull ? ()=>navigate('/camera/live') : ()=>navigate('/camera/live/full')}
         >
         {
           isFull

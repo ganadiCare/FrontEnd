@@ -1,0 +1,22 @@
+.pet-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-wrapper {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid #0099FF;
+  padding: 0px;
+  margin: 4px 0px;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}

@@ -1,0 +1,28 @@
+.dispenser-control{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.dispenser-control-button{
+    border: none;
+    border-bottom: 1px #000 solid;
+    background-color: #fff;
+    padding: 8px;
+    width: 50px;
+    flex: 1;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.dispenser-control-button.selected{
+    background-color: #ccc;
+}
+
+.dispenser-control-button:hover{
+    background-color: #aaa;
+}
+
+.dispenser-control-icon{
+    width: 30px;
+}
