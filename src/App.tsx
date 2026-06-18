@@ -12,7 +12,12 @@ import CameraScreen from './assets/CameraScreen';
 import CameraScheduleScreen from './assets/CameraScheduleScreen';
 import CameraConnectScreen from './assets/CameraConnectScreen';
 
+import SignUp from './assets/SignUp';
+import SignUpStep2 from './assets/SignUpStep2.tsx'; 
+import SignUpStep3 from './assets/SignUpStep3.tsx';
 import TempleteScreen from './assets/TempleteScreen';
+import AiReport from './assets/AiReport.tsx';
+import SignUpComplete from './assets/SignUpComplete';
 
 function App() {
   return (
@@ -34,6 +39,11 @@ function App() {
           <Route path='/camera/connect' element = {<CameraConnectScreen/>}></Route>
 
           <Route path='/templete' element = {<TempleteScreen/>}></Route>
+          <Route path='/signup' element = {<SignUp/>}></Route>
+          <Route path='/signup-step2' element = {<SignUpStep2/>}></Route>
+          <Route path='/signup-step3' element = {<SignUpStep3/>}></Route>
+          <Route path='/signup-complete' element = {<SignUpComplete/>}></Route>
+          <Route path='/report' element = {<AiReport/>}></Route>
         </Routes>
       </div>
     </div>
