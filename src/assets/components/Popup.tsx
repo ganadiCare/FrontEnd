@@ -1,5 +1,6 @@
 import React from 'react';
 import '../css/templete.css';
+import '../css/popup.css'
 
 interface PopupMessage{
     title?: string;

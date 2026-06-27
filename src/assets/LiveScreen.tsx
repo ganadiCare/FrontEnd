@@ -19,7 +19,7 @@ const LiveScreen: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const currentScreen = 'live';
+  const currentScreen = 'camera';
 
   const { cameraData } = useAppSelector((state) => state.cameraSlice);
 
