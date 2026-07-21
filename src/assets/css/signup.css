@@ -1,209 +1,81 @@
-/* 전체 컨테이너 세팅 (기존 설정 활용) */
-.signup-container {
+/* signup.css */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
+.signup-wrapper {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 412px;
-  min-height: 100vh;
+  max-width: 412px; /* 모바일 폭 고정 */
+  height: 100vh;    /* 전체 화면 높이 사용 */
+  margin: 0 auto;
   background-color: #ffffff;
-  padding: 30px 20px;
-  box-sizing: border-box;
-  font-family: 'sans-serif'; /* 프로젝트에 맞는 폰트로 변경해주세요 */
-}
-
-/* 상단 헤더 & 진행 단계 (1, 2, 3) */
-.signup-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.signup-title {
-  font-size: 20px;
-  font-weight: bold;
-  margin: 0;
-  color: #000;
-}
-
-.step-indicator {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.step {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background-color: #d9d9d9;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 10px;
-  color: white;
-  font-weight: bold;
-}
-
-.step.active {
-  background-color: #71D0FF; 
-  width: 20px;
-  height: 20px;
-  font-size: 12px;
-}
-
-.title-line {
-  border: 0;
-  height: 1px; 
-  background-color: #a0a0a0;
-  margin: 4px 0 20px 0;
-  width: 100%;
-}
-
-/* 폼 영역 전체 간격 */
-.signup-form-content {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-/* 입력칸 라벨 (ID, password, Name) */
-.input-section {
-  display: flex;
-  flex-direction: column;
-}
-
-.input-label {
-  font-size: 15px;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #000;
-}
-
-.required {
-  color: #E00000; /* 빨간색 별표 */
-}
-
-/* 입력칸 레이아웃 */
-.input-row {
-  display: flex;
-  gap: 10px;
-}
-
-.input-box {
   position: relative;
-  flex: 1; /* 남은 공간을 모두 차지하도록 설정 */
+  border-left: 1px solid #eee;
+  border-right: 1px solid #eee;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.signup-body {
+  flex: 1;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  overflow-y: auto; /* 내용 많아지면 내부 스크롤 */
+  padding: 30px 20px;
 }
 
-.input-box input {
-  width: 100%;
-  height: 45px;
-  padding: 0 35px 0 15px;
-  border: 1px solid #777;
-  border-radius: 6px;
-  font-size: 12px;
-  color: #333;
-  box-sizing: border-box;
-  outline: none;
+.signup-form {
+  flex: 1; /* 입력칸들이 있는 곳을 최대한 늘림 */
+  display: flex;
+  flex-direction: column;
+  gap: 25px; /* 섹션 사이 간격 */
 }
 
-.input-box input::placeholder {
-  color: #aaa;
-  font-weight: 500;
+.signup-section {
+  display: flex;
+  flex-direction: column;
 }
 
-.input-box input:focus {
-  border-color: #4DB8FF;
+.signup-label {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #000;
 }
 
-.input-box.error input:focus {
-  border-color: #ff0000; /* 에러일 땐 클릭해도 빨간색 유지 */
-  box-shadow: 0 0 5px rgba(255, 0, 0, 0.2); /* 은은한 빨간색 광채 효과 */
-}
-
-/* X (지우기) 버튼 */
-.clear-btn {
-  position: absolute;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 12px;
-  color: #777;
-  cursor: pointer;
-  padding: 5px;
-}
-
-/* 옆에 붙는 버튼 (중복확인, 재발송) */
-.side-btn {
-  height: 45px;
-  padding: 0 15px;
-  background-color: #fff;
-  border: 1px solid #777;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #333;
-  cursor: pointer;
-  white-space: nowrap; /* 글씨가 줄바꿈되지 않게 방지 */
-}
-
-/* NEXT 버튼 */
-.next-button {
-  margin-top: 20px;
-  width: 100%;
-  height: 55px;
-  background-color: #0099FF;
-  color: #fff;
-  border: none;
-  border-radius: 0; /* 이미지처럼 각진 버튼이라면 0으로 둡니다 */
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.next-button:disabled {
-  background-color: #d9d9d9; 
-  color: #888888;
-}
-
-.next-button:disabled:active {
-  background-color: #d9d9d9 !important; 
-}
-
-.next-button:active {
-  background-color: #007ACC;
-}
-
-/* 에러 메시지 스타일 */
-.error-message {
+.signup-label .red {
   color: #ff0000;
-  font-size: 11px;
+  margin-left: 2px;
+}
+
+.error-txt {
+  color: #ff0000;
+  font-size: 12px;
   margin-top: 5px;
   font-weight: 500;
-  padding-left: 2px; 
-  text-align: left;
 }
 
-/* 에러가 발생했을 때 input 테두리를 빨간색으로 변경 */
-.input-box input.error-border {
-  border-color: #ff3333; 
+.success-txt {
+  color: #0099FF;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: 500;
 }
 
-/* 에러 상태일 때는 포커스(클릭)해도 파란색으로 안 바뀌고 빨간색 유지 */
-.input-box input.error-border:focus {
-  border-color: #ff3333; 
+/* 하단 버튼 영역을 바닥에 붙이기 */
+.signup-footer {
+  margin-top: 40px; /* 입력창과 최소 간격 */
+  padding: 20px 0;
+  display: flex;
+  justify-content: center;
+  background-color: #fff; /* 스크롤 시 글자가 겹쳐 보이지 않게 */
 }
 
-/* 기본 상태의 input-box */
-.input-box {
-  border: 1px solid #dddddd;
-  border-radius: 8px;
-  transition: border-color 0.2s; /* 부드러운 색상 변화 */
+/* Inputbox 컴포넌트의 에러 테두리 강제 적용 */
+.input-container.error .input-wrapper {
+  border-color: #ff0000 !important;
 }
 
-/* 에러 상태일 때의 테두리 (핵심!) */
-.input-box.error {
-  border: 2px solid #ff0000 !important;
+/* 스크롤바 숨기기 */
+.signup-body::-webkit-scrollbar {
+  display: none;
 }

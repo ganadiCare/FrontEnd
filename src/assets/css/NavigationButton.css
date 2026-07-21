@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500;700&display=swap');
+.nav-button {
+  width: 278px;
+  height: 53px;
+  background-color: #5087FF;
+  color: #FFFFFF; 
+  border: none;; 
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.nav-button:hover, .nav-button:active {
+  background-color: #4071de; 
+}
+
+/* 👈 추가: 비활성화 상태일 때 스타일 */
+.nav-button:disabled {
+  background-color: #d9d9d9; /* 회색으로 변경 */
+  color: #888888;
+  cursor: not-allowed;     /* 금지 모양 마우스 포인터 */
+  box-shadow: none;        /* 그림자 제거 (있다면) */
+}
+
+/* 비활성화일 때는 호버 효과도 없애줍니다 */
+.nav-button:disabled:hover {
+  background-color: #d9d9d9;
+}

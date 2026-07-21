@@ -1,0 +1,60 @@
+/* signupcomplete.css */
+
+.complete-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 412px;
+  height: 100vh;
+  margin: 0 auto;
+  background-color: #ffffff;
+}
+
+.complete-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 0 30px;
+}
+
+.complete-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.complete-text {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
+  text-align: center;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.complete-nickname {
+  display: block;
+}
+
+.complete-footer {
+  padding: 15px 20px 40px 20px;
+}
+
+.complete-login-btn {
+  width: 100%;
+  height: 52px;
+  background-color: #5B8DEF;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.complete-login-btn:active {
+  background-color: #4070cc;
+}
