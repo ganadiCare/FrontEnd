@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from './store/hooks';
+import { useDispenser } from "./store/useDispenser";
 import type { components } from './service/api';
 import './css/templete.css';
 import './css/dispenser.css'
-
-import { fetchDispenserThunk, updateDispenserThunk } from "./store/dispenserSlice";
 
 import Header from "./components/Header"
 import Nav from "./components/Nav"
@@ -18,44 +16,53 @@ type UpdateDispenserData = components['schemas']['UpdateDispenserDTO'];
 const DispenserDetailScreen: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useAppDispatch();
   const currentScreen = 'dispenser';
   
-  const { dispenserData } = useAppSelector((state) => state.dispenserSlice);
-  
-  useEffect(() => {
-    if (!dispenserData) dispatch(fetchDispenserThunk());
-  }, [dispatch, dispenserData]);
+  const { dispenserData, updateDispenser, isUpdating } = useDispenser();
 
-  const [type, setType] = useState(location.state.type ?? '');
+  const [prevData, setPrevData] = useState(dispenserData);
+  const [type, setType] = useState(location.state.type ?? 'feed');
   const [autoFeed, setAutoFeed] = useState(dispenserData?.food?.isAutoFeed ?? false);
   const [autoWater, setAutoWater] = useState(dispenserData?.water?.isAutoWater ?? false);
   const [minWater, setMinWater] = useState(dispenserData?.water?.minWater ?? 0);
   const [maxWater, setMaxWater] = useState(dispenserData?.water?.maxWater ?? 0);
   const [waterScheduleError, setWaterScheduleError] = useState('');
 
-  const updateDispenser = async() => {
+  if (dispenserData !== prevData) {
+    setPrevData(dispenserData);
+    setAutoFeed(dispenserData?.food?.isAutoFeed ?? false);
+    setAutoWater(dispenserData?.water?.isAutoWater ?? false);
+    setMinWater(dispenserData?.water?.minWater ?? 0);
+    setMaxWater(dispenserData?.water?.maxWater ?? 0);
+  }
+
+  const updateSetting = async(feed?: boolean, water?: boolean, min?: number, max?:number) => {
+    const targetFeed = feed ?? autoFeed;
+    const targetWater = water ?? autoWater;
+    const targetMin = min ?? minWater;
+    const targetMax = max ?? maxWater;
+
     const updateData : UpdateDispenserData = {
       deviceName: dispenserData?.deviceName,
-      isAutoFeed: autoFeed,
-      isAutoWater: autoWater,
-      minWater: minWater,
-      maxWater: maxWater,
+      isAutoFeed: targetFeed,
+      isAutoWater: targetWater,
+      minWater: targetMin,
+      maxWater: targetMax,
       isCleaningMode: dispenserData?.isCleaningMode ?? false
     };
-    await dispatch(updateDispenserThunk(updateData));
+    updateDispenser(updateData);
   }
 
   const handleToggleAutoFeed = () => {
-    if (autoFeed) setAutoFeed(false);
-    else setAutoFeed(true);
-    updateDispenser();
+    const mode = !autoFeed;
+    setAutoFeed(mode);
+    updateSetting(mode, autoWater, minWater, maxWater);
   }
 
   const handleToggleAutoWater = () => {
-    if (autoWater) setAutoWater(false);
-    else setAutoWater(true);
-    updateDispenser();
+    const mode = !autoWater;
+    setAutoWater(mode);
+    updateSetting(autoFeed, mode, minWater, maxWater);
   }
 
   const changeMinWater = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -71,7 +78,7 @@ const DispenserDetailScreen: React.FC = () => {
   }
 
   const saveWaterSchedule = () => {
-    if (!minWater || !maxWater) {
+    if (!maxWater) {
       setWaterScheduleError('값을 입력해주세요.');
       return null;
     } else if (maxWater<=minWater) {
@@ -79,7 +86,7 @@ const DispenserDetailScreen: React.FC = () => {
       return null;
     } else {
       setWaterScheduleError('');
-      updateDispenser();
+      updateSetting(autoFeed, autoWater, minWater, maxWater);
     }
   }
 
@@ -169,10 +176,10 @@ const DispenserDetailScreen: React.FC = () => {
           </div>
 
           <div className='input-box row'>
-            <label htmlFor="auto-toggle"className='input-label'>자동급여</label>
-            <input type="checkbox" id="auto-toggle" className="toggle-input"
+            <label htmlFor="auto-feed"className='input-label'>자동급여</label>
+            <input type="checkbox" id="auto-feed" className="toggle-input"
               checked={autoFeed} onChange={handleToggleAutoFeed}/>
-            <label htmlFor="auto-toggle" className="toggle-input-button">
+            <label htmlFor="auto-feed" className="toggle-input-button">
               <span className="toggle-input-switch"/>
             </label>
           </div>
@@ -226,10 +233,10 @@ const DispenserDetailScreen: React.FC = () => {
           </div>
           
           <div className='input-box row'>
-            <label htmlFor="auto-toggle"className='input-label'>자동급여</label>
-            <input type="checkbox" id="auto-toggle" className="toggle-input"
+            <label htmlFor="auto-water"className='input-label'>자동급여</label>
+            <input type="checkbox" id="auto-water" className="toggle-input"
               checked={autoWater} onChange={handleToggleAutoWater}/>
-            <label htmlFor="auto-toggle" className="toggle-input-button">
+            <label htmlFor="auto-water" className="toggle-input-button">
               <span className="toggle-input-switch"/>
             </label>
           </div>
@@ -260,7 +267,7 @@ const DispenserDetailScreen: React.FC = () => {
             <button type="button"
               className='medium-button'
               onClick={()=>saveWaterSchedule()}
-            >저장하기</button>
+            >{isUpdating ? '저장 중...' :'저장하기'}</button>
           </div>
           
           <hr className="section-divider" />

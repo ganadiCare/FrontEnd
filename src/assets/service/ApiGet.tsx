@@ -8,7 +8,6 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json'
   },
-  withCredentials: true
 });
 
 api.interceptors.request.use(
@@ -18,9 +17,6 @@ api.interceptors.request.use(
       config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
-  },
-  (error) => {
-    return Promise.reject(error);
   }
 );
 
@@ -29,8 +25,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    const isAuthError = error.response && (error.response.status === 401 || error.response.status === 403);
-    if (isAuthError && !originalRequest._retry) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true; // 플래그를 true로 설정
 
       try {
@@ -48,12 +43,9 @@ api.interceptors.response.use(
         console.log('액세스 토큰 재발급 성공.');
 
         if (originalRequest.headers) {
-          originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+          originalRequest.headers.set('Authorization', `Bearer ${newAccessToken}`);
         }
-        return api({
-          ...originalRequest,
-          headers: originalRequest.headers.toJSON()
-        });
+        return api(originalRequest);
         
       } catch (error) {
         console.error('액세스 토큰 재발급 실패');
@@ -373,7 +365,8 @@ export async function deleteReport(reportId: number) {
   }
 }
 
-export async function updateMemo(reportId: number,
+export async function updateMemo(
+  reportId: number,
   memoData: {memo?: string | undefined}
 ) {
   console.log('Report 메모 수정 중...');

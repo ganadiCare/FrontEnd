@@ -1,43 +1,45 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from './store/hooks';
+import { useDispenser } from './store/useDispenser';
 import type { components } from './service/api';
 import './css/templete.css';
 
-import { fetchDispenserThunk, updateDispenserThunk } from "./store/dispenserSlice";
-
 import Header from "./components/Header"
 import Nav from "./components/Nav"
-
 
 type UpdateDispenserData = components['schemas']['UpdateDispenserDTO'];
 
 const DispenserSettingScreen: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const currentScreen = 'dispenser';
 
-  const { dispenserData } = useAppSelector((state) => state.dispenserSlice);
-  
-  useEffect(() => {
-    if (!dispenserData) dispatch(fetchDispenserThunk());
-  }, [dispatch, dispenserData]);
+  const { dispenserData, updateDispenser } = useDispenser();
 
   //const [select, setSelect] = useState('');
+  const [prevData, setPrevData] = useState(dispenserData);
   const [deviceName, setDeviceName] = useState(dispenserData?.deviceName ?? '');
   const [cleaningMode, setCleaningMode] = useState(dispenserData?.isCleaningMode ?? false);
   const [nameError, setNameError] = useState('');
 
-  const updateDispenser = async() => {
+  if (dispenserData !== prevData) {
+    setPrevData(dispenserData);
+    setDeviceName(dispenserData?.deviceName ?? '');
+    setCleaningMode(dispenserData?.isCleaningMode ?? false);
+  }
+
+  const updateSetting = async(name?: string, cleaning?: boolean) => {
+    const targetName = name ?? deviceName;
+    const targetCleaning = cleaning ?? cleaningMode;
+
     const updateData : UpdateDispenserData = {
-      deviceName: deviceName,
+      deviceName: targetName,
       isAutoFeed: dispenserData?.food?.isAutoFeed ?? false,
       isAutoWater: dispenserData?.water?.isAutoWater ?? false,
       minWater: dispenserData?.water?.minWater ?? 0,
       maxWater: dispenserData?.water?.maxWater ?? 100,
-      isCleaningMode: cleaningMode
+      isCleaningMode: targetCleaning
     };
-    dispatch(updateDispenserThunk(updateData));
+    updateDispenser(updateData);
   }
 
   const changeDeviceName = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -50,14 +52,14 @@ const DispenserSettingScreen: React.FC = () => {
     }
     else {
       setNameError('');
-      updateDispenser();
+      updateSetting(deviceName, cleaningMode);
     }
   }
 
   const handleToggleCleaningMode = () => {
-    if (cleaningMode) setCleaningMode(false);
-    else setCleaningMode(true);
-    updateDispenser();
+    const mode = !cleaningMode;
+    setCleaningMode(mode);
+    updateSetting(deviceName, mode);
   };
 
   return (

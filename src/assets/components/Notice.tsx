@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../store/hooks'
-import type { components } from '../service/api';
 import '../css/templete.css';
 import '../css/notice.css';
 

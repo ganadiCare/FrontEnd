@@ -1,71 +1,77 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { useNavigate} from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { useCamera } from './store/useCamera';
+import type { components } from './service/api';
 import './css/templete.css';
 
 import Header from './components/Header';
 import Nav from './components/Nav';
 
-interface CamInfo{
-  deviceId: number;
-  deviceName: string;
-  code?: string;
-  url?: string;
-  isMain?: boolean;
+type UpdateCameraData = components['schemas']['UpdateCameraDTO'];
+type NightVisionType = "AUTO" | "ON" | "OFF" | undefined;
 
-  resolution?: string;
-  motionSensitive?: number;
-
-  nightVision?: string;
-  private?: boolean;
-}
-
-interface CameraScreenProps {
-  camList?: Array<CamInfo>;
-}
-
-const CameraScreen: React.FC<CameraScreenProps> = (
-  {camList}
-) => {
+const CameraScreen: React.FC = () => {
   const navigate = useNavigate();
   const currentScreen = 'camera';
 
-  const [select, setSelect] = useState(camList?.[0]);
-  const [deviceName, setDeviceName] = useState('');
-  const [nameError, setNameError] = useState('');
-  
-  
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    setSelect((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        // 숫자 입력창이면 숫자로 변환해서 저장
-        [name]: type === 'number' ? Number(value) : value,
-      };
-    });
-  };
+  const { cameraData, updateCamera } = useCamera();
 
-  const changeName = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setDeviceName(e.target.value);
+  //const [select, setSelect] = useState(camList?.[0]);
+  const [prevData, setPrevData] = useState(cameraData);
+  const [deviceName, setDeviceName] = useState(cameraData?.deviceName ?? '');
+  const [nameError, setNameError] = useState('');
+  const [nightVision, setNightVision] = useState(cameraData?.nightVision ?? undefined);
+  const [privateMode, setPrivateMode] = useState(cameraData?.isPrivateMode ?? true);
+
+  if (cameraData !== prevData) {
+    setPrevData(cameraData);
+    setDeviceName(cameraData?.deviceName ?? '');
+    setNightVision(cameraData?.nightVision ?? undefined);
+    setPrivateMode(cameraData?.isPrivateMode ?? true);
   }
 
-  const saveName = () => {
-    if (!deviceName.trim()) {
-      setNameError('이름을 입력해주세요');
-      return;
+  const updateSetting = async(name?: string, night?: NightVisionType , priv?: boolean) => {
+    const targetName = name ?? deviceName;
+    const targetNight = night ?? nightVision;
+    const targetPriv = priv ?? privateMode;
+
+    const updateData : UpdateCameraData = {
+      deviceName: targetName,
+      nightVision: targetNight,
+      isPrivateMode: targetPriv,
+      isAutoRecordMode: cameraData?.isAutoRecordMode ?? false
+    };
+    updateCamera(updateData);
+  }
+
+  const handleTogglePrivateMode = async() => {
+    const mode = !privateMode;
+    setPrivateMode(mode);
+    updateSetting(deviceName, nightVision, mode);
+  };
+
+  const handleRadioNightVision = async(e: React.ChangeEvent<HTMLInputElement>) => {
+    const mode= e.target.value.toUpperCase() as NightVisionType;
+    setNightVision(mode);
+    updateSetting(deviceName, mode, privateMode);
+  }
+
+  const changeDeviceName = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setDeviceName(e.target.value);
+  }
+  
+  const saveDeviceName = async() => {
+    if (!deviceName?.trim()) {
+      setNameError('이름을 입력해주세요.');
     }
-    else{
-      setNameError('')
-      toast('저장되었습니다.');
-      return;
+    else {
+      setNameError('');
+      updateSetting();
     }
   }
 
   return (
     <>
-      <ToastContainer/>
       <Header title='CAMERA'/>
 
       <main className="main-content">
@@ -76,14 +82,8 @@ const CameraScreen: React.FC<CameraScreenProps> = (
               className='select-input'
               id='select'
               aria-label='select'
-              value={select?.deviceId}
+              //value={select}
             >
-              {camList?.map(cam=>(
-                <option
-                  key={cam?.deviceId}
-                  value={cam?.deviceId}
-                >{cam?.deviceName}</option>
-              ))}
             </select>
           </div>
           
@@ -95,12 +95,12 @@ const CameraScreen: React.FC<CameraScreenProps> = (
                     type="text"
                     value={deviceName}
                     placeholder='카메라 이름'
-                    onChange={changeName}
+                    onChange={changeDeviceName}
                   />
                   <button
                     type='button'
                     className='small-button'
-                    onClick={()=>saveName()}
+                    onClick={()=>saveDeviceName()}
                   >저장</button>
                 </div>
               </label>
@@ -109,12 +109,13 @@ const CameraScreen: React.FC<CameraScreenProps> = (
 
             <div className='input-box row'>
               <label className='input-label'>기기 코드</label>
-              <p className='input-fixed-value'>{ '???' }</p>
+              <p className='input-fixed-value'>{ cameraData?.deviceCode ?? '???' }</p>
             </div>
             
             <div className='input-box row'>
               <label htmlFor="private-toggle"className='input-label'>카메라 차단</label>
-              <input type="checkbox" id="private-toggle" className="toggle-input" />
+              <input type="checkbox" id="private-toggle" className="toggle-input"
+              checked={privateMode} onClick={handleTogglePrivateMode}/>
               <label htmlFor="private-toggle" className="toggle-input-button">
                 <span className="toggle-input-switch"/>
               </label>
@@ -124,13 +125,15 @@ const CameraScreen: React.FC<CameraScreenProps> = (
               <label className='input-label'>야간 모드</label>
               <div className='radio-input-box'>
                 <input type="radio" id='nightvision-auto' className='radio-input' name='nightVision'
-                value='auto' onChange={handleInputChange}/>
+                value='AUTO' checked={nightVision === 'AUTO'} onChange={handleRadioNightVision}/>
                 <label htmlFor="nightvision-auto" className='radio-input-button'>자동</label>
+
                 <input type="radio" id='nightvision-on' className='radio-input' name='nightVision' 
-                value='on' onChange={handleInputChange}/>
+                value='ON' checked={nightVision === 'ON'} onChange={handleRadioNightVision}/>
                 <label htmlFor="nightvision-on" className='radio-input-button'>켜기</label>
+
                 <input type="radio" id='nightvision-off' className='radio-input' name='nightVision' 
-                value='off' onChange={handleInputChange}/>
+                value='OFF' checked={nightVision === 'OFF'} onChange={handleRadioNightVision}/>
                 <label htmlFor="nightvision-off" className='radio-input-button'>끄기</label>
               </div>
             </div>

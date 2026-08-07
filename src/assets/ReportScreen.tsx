@@ -1,22 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from './store/hooks';
-import type { components } from './service/api';
+import React, { useState } from 'react';
+import { useReport } from './store/useReport';
 import './css/templete.css';
 import './css/report.css';
-
-import { fetchReportThunk, createReportThunk, deleteReportThunk, updateReportMemoThunk } from './store/reportSlice';
 
 import Header from './components/Header';
 import Nav from './components/Nav';
 
 import Calender from './components/Calendar'
 import BarGraph from './components/BarGraph';
-
-type UpdateMemoData = components['schemas']['UpdateMemoDTO'];
-interface UpdateMemoId {
-    reportId: number;
-    memoData: UpdateMemoData;
-}
 
 // 24시간 분량의 빈 배열 (그래프 기본값 — 데이터 없을 때 0으로 채움)
 const EMPTY_24 = Array(24).fill(0);
@@ -33,41 +24,55 @@ const logsToHourly = (logs: {time: string | undefined; amount: number | undefine
   });
   return hourly;
 };
-const today = new Date().toISOString().split('T')[0]; // 오늘 날짜 (미래 선택 방지 기준)
+const day = new Date()
+const today = day.toISOString().split('T')[0]; // 오늘 날짜
+day.setDate(day.getDate() + 1);
+const tomorrow = day.toISOString().split('T')[0]; // 내일 날짜
+
 
 const ReportScreen: React.FC = () => {
-  const dispatch = useAppDispatch();
   const currentScreen = 'report';
-
-  const { reportData, isLoading } = useAppSelector((state) => state.reportSlice);
   
   // ─── 상태 정의 ────────────────────────────────────────────────────────────
   const [selectedDate, setSelectedDate] = useState(today);       // 조회 중인 날짜
-  const [memo, setMemo] = useState('');      // 메모 입력값
+  const [selectedMemo, setMemo] = useState('');      // 메모 입력값
+  const [prevReportId, setPrevReportId] = useState<number | undefined>(undefined);
 
-  const createReport = async() => {
-    await dispatch(createReportThunk(selectedDate));
+  const {
+    reportData,
+    isReportLoading,
+    isCreating,
+    isUpdatingMemo,
+    createReport,
+    deleteReport,
+    updateMemo
+  } = useReport(selectedDate);
+
+  const currentReportId = reportData?.reportId;
+  if (currentReportId !== prevReportId) {
+    setPrevReportId(currentReportId);
+    setMemo(reportData?.memo ?? '');
+  }
+
+  const handleCreateReport = async() => {
+    createReport(selectedDate);
   };
 
-  const deleteReport = async() => {
-    await dispatch(deleteReportThunk(reportData?.reportId ?? 0));
+  const handleDeleteReport = async() => {
+    deleteReport(reportData?.reportId ?? 0);
   };
 
   const refreshReport = async() => {
-    await deleteReport();
-    await createReport();
+    await handleDeleteReport();
+    await handleCreateReport();
   }
 
-  useEffect(() => {
-    dispatch(fetchReportThunk(selectedDate));
-  }, [dispatch, selectedDate]);
-
-  const updateMemo = async() => {
-    const updateData : UpdateMemoId = {
-      reportId: reportData?.reportId ?? 0,
-      memoData: {memo: memo ?? ''}
-    }
-    dispatch(updateReportMemoThunk(updateData))
+  const handleUpdateMemo = async() => {
+    if (!reportData?.reportId) return;
+    updateMemo({
+      reportId: reportData.reportId,
+      memoData: { memo: selectedMemo ?? '' },
+    });
   }
 
   // ─── 날짜 이동 (<, > 버튼) ────────────────────────────────────────────────
@@ -79,7 +84,7 @@ const ReportScreen: React.FC = () => {
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
     const next = `${yyyy}-${mm}-${dd}`;
-    if (next > today) return; // 미래 날짜 이동 차단
+    if (next > tomorrow) return; // 미래 날짜 이동 차단
     setSelectedDate(next);
   };
 
@@ -104,7 +109,7 @@ const ReportScreen: React.FC = () => {
       {/* 날짜 선택 바: < 이전 날 / 날짜 표시 / 다음 날 > + 달력 아이콘 */}
       <div className="report-date-bar">
         <button className="date-arrow" onClick={() => handleDateChange(-1)}>{'<'}</button>
-        <Calender selectedDate={selectedDate} onChange={setSelectedDate} maxDate={today} />
+        <Calender selectedDate={selectedDate} onChange={setSelectedDate} maxDate={tomorrow} />
         {/*<span className="date-text">{selectedDate.replace(/-/g, '.')}</span>*/}
         <button className={(today>selectedDate) ? "date-arrow" : "date-arrow-disable"}
         onClick={() => handleDateChange(1)}>{'>'}</button>
@@ -118,7 +123,7 @@ const ReportScreen: React.FC = () => {
             <h2 className="section-heading">오늘의 활동 리포트</h2>
           </div>
           
-          {isLoading ? (
+          {isReportLoading ? (
             <p className="medium-text">리포트를 불러오는 중...</p>
           ) : reportData ? (
             <>
@@ -131,9 +136,9 @@ const ReportScreen: React.FC = () => {
               <button
                 className="small-button"
                 onClick={()=>refreshReport()}
-                disabled={isLoading}
+                disabled={isCreating}
               >
-                {isLoading ? '생성 중...' : '리포트 재생성'}
+                {isCreating ? '생성 중...' : '리포트 재생성'}
               </button>
             </>
 
@@ -145,10 +150,10 @@ const ReportScreen: React.FC = () => {
               <p className="medium-text">해당 날짜의 리포트가 없습니다.</p>
               <button
                 className="medium-button"
-                onClick={()=>createReport()}
-                disabled={isLoading}
+                onClick={()=>handleCreateReport()}
+                disabled={isReportLoading}
               >
-                {isLoading ? '생성 중...' : '리포트 생성'}
+                {isReportLoading ? '생성 중...' : '리포트 생성'}
               </button>
             </div>
           )}
@@ -207,17 +212,17 @@ const ReportScreen: React.FC = () => {
           <textarea
             aria-label='report-memo'
             className="report-memo-input"
-            value={memo}
+            value={selectedMemo}
             onChange={(e) => setMemo(e.target.value)}
             disabled={!reportData} // 리포트 없으면 입력 비활성화
           />
           <button
             type='button'
             className="small-button"
-            onClick={()=>updateMemo()}
-            disabled={!reportData || isLoading}
+            onClick={()=>handleUpdateMemo()}
+            disabled={!reportData || isReportLoading}
           >
-            {isLoading ? '저장 중...' : '저장'}
+            {isUpdatingMemo ? '저장 중...' : '저장'}
           </button>
         </section>
       </main>

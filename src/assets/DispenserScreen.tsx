@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from './store/hooks';
+import { useDispenser } from "./store/useDispenser";
 import type { components } from './service/api';
 import './css/templete.css';
-
-import { fetchDispenserThunk, updateDispenserThunk } from "./store/dispenserSlice";
 
 import Header from "./components/Header";
 import Nav from "./components/Nav";
@@ -13,33 +11,36 @@ type UpdateDispenserData = components['schemas']['UpdateDispenserDTO'];
 
 const DispenserScreen: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const currentScreen = 'dispenser';
 
-  const { dispenserData } = useAppSelector((state) => state.dispenserSlice);
+  const { dispenserData, updateDispenser } = useDispenser();
 
-  useEffect(() => {
-    if (!dispenserData) dispatch(fetchDispenserThunk());
-  }, [dispatch, dispenserData]);
-
+  const [prevData, setPrevData] = useState(dispenserData);
   const [cleaningMode, setCleaningMode] = useState(dispenserData?.isCleaningMode ?? false);
 
-  const updateDispenser = async() => {
+  if (dispenserData !== prevData) {
+    setPrevData(dispenserData);
+    setCleaningMode(dispenserData?.isCleaningMode ?? false);
+  }
+
+  const updateSetting = async(cleaning?: boolean) => {
+    const targetCleaning = cleaning ?? cleaningMode;
+
     const updateData : UpdateDispenserData = {
       deviceName: dispenserData?.deviceName,
       isAutoFeed: dispenserData?.food?.isAutoFeed ?? false,
       isAutoWater: dispenserData?.water?.isAutoWater ?? false,
       minWater: dispenserData?.water?.minWater ?? 0,
       maxWater: dispenserData?.water?.maxWater ?? 0,
-      isCleaningMode: cleaningMode
+      isCleaningMode: targetCleaning
     };
-    dispatch(updateDispenserThunk(updateData));
+    updateDispenser(updateData);
   }
 
   const handleToggleCleaningMode = () => {
-    if (cleaningMode) setCleaningMode(false);
-    else setCleaningMode(true);
-    updateDispenser();
+    const mode = !cleaningMode;
+    setCleaningMode(mode);
+    updateSetting(mode);
   };
 
   return (

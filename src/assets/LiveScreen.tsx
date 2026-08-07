@@ -1,10 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from './store/hooks';
+import { useCamera } from './store/useCamera';
 //import type { components } from './service/api';
-import './css/templete.css';
-
-import { fetchCameraThunk } from './store/cameraSlice'; 
+import './css/templete.css'; 
 
 import Header from './components/Header';
 import Nav from './components/Nav';
@@ -16,12 +14,11 @@ import Camera from './image_folder/Camera.png'
 //type CameraData = components['schemas']['CameraDTO'];
 
 const LiveScreen: React.FC = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const currentScreen = 'camera';
+  const currentScreen = 'live';
 
-  const { cameraData } = useAppSelector((state) => state.cameraSlice);
+  const { cameraData } = useCamera();
 
   const [controlBar, setControlBar] = useState(() => {
     const stateData = location.state as { controlBar?: boolean } | null;
@@ -55,19 +52,17 @@ const LiveScreen: React.FC = () => {
 
   //WebRTC 시그널링 및 커넥션 수립 함수
   const startWebRTC = async () => {
+    const url = "";
     sessionIdRef.current = crypto.randomUUID();
 
-    wsRef.current = new WebSocket('');
+    wsRef.current = new WebSocket(url);
 
     wsRef.current.onopen = async () => {
       wsRef.current?.send(JSON.stringify({
         type: 'register', role: 'browser', sessionId: sessionIdRef.current
       }));
 
-      pcRef.current = new RTCPeerConnection({
-        iceTransportPolicy: "relay",
-        iceServers: []
-      });
+      pcRef.current = new RTCPeerConnection();
 
       pcRef.current.ontrack = (e) => {
         console.log('영상 트랙 수신됨');
@@ -139,10 +134,6 @@ const LiveScreen: React.FC = () => {
     if (control=='control')
       setControl('controller');
   }
-
-  useEffect(() => {
-    if (!cameraData) dispatch(fetchCameraThunk());
-  }, [dispatch, cameraData]);
 
   useEffect(() => {
     return () => stopWebRTC();

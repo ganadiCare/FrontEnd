@@ -1,12 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from './store/hooks';
+import { usePet } from './store/usePet';
+import { useCamera } from './store/useCamera';
+import { useReport } from './store/useReport';
 import './css/templete.css';
 import './css/profile.css';
-
-import { fetchPetThunk } from './store/petSlice';
-import { fetchReportThunk } from './store/reportSlice';
-import { fetchCameraThunk } from './store/cameraSlice';
 
 import Header from './components/Header';
 import Nav from './components/Nav';
@@ -20,21 +18,15 @@ import waterIcon from './image_folder/Water.png';
 
 const MainScreen: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const currentScreen = 'main';
+  const today = new Date().toISOString().split('T')[0];
 
-  const { petData } = useAppSelector((state) => state.petSlice);
-  const { reportData } = useAppSelector((state) => state.reportSlice);
-  const { cameraData } = useAppSelector((state) => state.cameraSlice);
-
-  useEffect(() => {
-    if (!petData) dispatch(fetchPetThunk());
-    if (!reportData) dispatch(fetchReportThunk());
-    if (!cameraData) dispatch(fetchCameraThunk());
-  }, [dispatch, petData, reportData, cameraData]);
+  const { petData } = usePet();
+  const { cameraData } = useCamera();
+  const { reportData } = useReport(today);
 
   const setAiSummary = () => {
-    return reportData?.aiSummary?.split("오늘의 요약:")[1]?.trim();
+    return reportData?.aiSummary?.split("요약")[1]?.trim();
   }
 
   return (

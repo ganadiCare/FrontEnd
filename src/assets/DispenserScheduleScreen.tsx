@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from './store/hooks';
+import React, { useState } from "react";
+import { useDispenser } from "./store/useDispenser";
 import type { components } from './service/api';
 import './css/templete.css';
-
-import { fetchDispenserThunk, updateDispenserThunk, addScheduleThunk, removeScheduleThunk } from "./store/dispenserSlice";
 
 import Header from "./components/Header"
 import Nav from "./components/Nav"
@@ -15,49 +13,48 @@ type CreateScheduleData = components['schemas']['CreateScheduleDTO'];
 
 
 const DispenserScheduleScreen: React.FC = () => {
-  const dispatch = useAppDispatch();
   const currentScreen = 'dispenser';
 
-  const { dispenserData } = useAppSelector((state) => state.dispenserSlice);
-    
-  useEffect(() => {
-    if (!dispenserData) dispatch(fetchDispenserThunk());
-  }, [dispatch, dispenserData]);
+  const { dispenserData, updateDispenser, addSchedule, removeSchedule } = useDispenser();
 
   //const [select, setSelect] = useState('');
+  const [prevData, setPrevData] = useState(dispenserData);
   const [autoFeed, setAutoFeed] = useState(dispenserData?.food?.isAutoFeed ?? false);
   const [time, setTime] = useState('');
   const [feedAmount, setFeedAmount] = useState(0);
   const [scheduleError, setScheduleError] = useState('');
 
-  const updateDispenser = async() => {
+  if (dispenserData !== prevData) {
+    setPrevData(dispenserData);
+    setAutoFeed(dispenserData?.food?.isAutoFeed ?? false);
+  }
+
+  const updateSetting = async(auto?:boolean) => {
+    const targetAuto = auto ?? dispenserData?.food?.isAutoFeed;
+
     const updateData : UpdateDispenserData = {
       deviceName: dispenserData?.deviceName,
-      isAutoFeed: autoFeed,
+      isAutoFeed: targetAuto,
       isAutoWater: dispenserData?.water?.isAutoWater ?? false,
       minWater: dispenserData?.water?.minWater ?? 0,
       maxWater: dispenserData?.water?.maxWater ?? 0,
       isCleaningMode: dispenserData?.isCleaningMode ?? false
     };
-    dispatch(updateDispenserThunk(updateData));
+    updateDispenser(updateData);
   }
 
-  const addSchedule = async() => {
+  const addScheduleSetting = async() => {
     const addData : CreateScheduleData = {
       feedTime: time,
       amount: feedAmount
     };
-    dispatch(addScheduleThunk(addData));
-  }
-
-  const removeSchedule = async(id: number) => {
-    dispatch(removeScheduleThunk(id));
+    addSchedule(addData);
   }
 
   const handleToggleAutoFeed = () => {
-    if (autoFeed) setAutoFeed(false);
-    else setAutoFeed(true);
-    updateDispenser();
+    const mode = !autoFeed;
+    setAutoFeed(mode);
+    updateSetting(mode);
   }
 
   const changeTime = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -88,7 +85,7 @@ const DispenserScheduleScreen: React.FC = () => {
       return false;
     } else {
       setScheduleError('');
-      addSchedule();
+      addScheduleSetting();
     }
   }
 
@@ -143,6 +140,7 @@ const DispenserScheduleScreen: React.FC = () => {
               </label>
             </div>
             
+            {/*
             <div className='input-box column'>
               <label className='input-label'>채우기 방식</label>
               <div className='radio-input-box'>
@@ -154,7 +152,7 @@ const DispenserScheduleScreen: React.FC = () => {
                 <label htmlFor="fill-skip" className='radio-input-button'>급식 건너뛰기</label>
               </div>
               <p className="message">*그릇에 사료가 남아있는 경우의 자동 급식 방식입니다.</p>
-            </div>
+            </div>*/}
 
             <div className='input-box row'>
               <label className='input-label'>시간

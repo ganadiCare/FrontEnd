@@ -1,13 +1,5 @@
-import { useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import { useAppDispatch } from './assets/store/hooks.ts';
 import './assets/css/app.css'
-
-import { fetchProfileThunk } from './assets/store/profileSlice';
-import { fetchPetThunk } from './assets/store/petSlice';
-import { fetchCameraThunk } from './assets/store/cameraSlice';
-import { fetchDispenserThunk } from './assets/store/dispenserSlice';
-import { fetchReportThunk } from './assets/store/reportSlice';
 
 import StartScreen from './assets/start';
 import SignUp from './assets/SignUp';
@@ -22,7 +14,8 @@ import ProfileScreen from './assets/ProfileScreen'
 import GalleryScreen from './assets/GalleryScreen';
 import GalleryDetailScreen from './assets/GalleryDetailScreen';
 
-import LiveScreen from './assets/LiveScreen'
+import LiveScreen from './assets/LiveScreen.tsx';
+import LiveFullScreen from './assets/LiveFullScreen.tsx';
 import CameraScreen from './assets/CameraScreen';
 import CameraScheduleScreen from './assets/CameraScheduleScreen';
 import CameraConnectScreen from './assets/CameraConnectScreen';
@@ -37,20 +30,6 @@ import ReportScreen from './assets/ReportScreen.tsx';
 
 
 function App() {
-  const dispatch = useAppDispatch();
-
-  useEffect(()=>{
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      dispatch(fetchProfileThunk());
-      dispatch(fetchPetThunk());
-      dispatch(fetchCameraThunk());
-      dispatch(fetchDispenserThunk());
-      dispatch(fetchReportThunk());
-    }
-  }, [dispatch]);
-
-
   return (
     <div className = "mobile-wrapper">
       <div className='app-container'>
@@ -75,6 +54,7 @@ function App() {
             <Route path='schedule' element = {<CameraScheduleScreen/>}></Route>
             <Route path='connect' element = {<CameraConnectScreen/>}></Route>
             <Route path='live' element = {<LiveScreen/>}></Route>
+            <Route path='full' element = {<LiveFullScreen/>}></Route>
           </Route>
 
           <Route path='/dispenser'>

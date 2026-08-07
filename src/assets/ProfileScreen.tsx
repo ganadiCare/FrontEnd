@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from './store/hooks'
+import { usePet } from './store/usePet';
+import { useProfile } from './store/useProfile';
 import type { components } from './service/api';
 import './css/templete.css';
 import './css/profile.css';
-
-import { fetchPetThunk, updatePetThunk } from './store/petSlice';
-import { fetchProfileThunk, logoutThunk, deleteMemberThunk } from './store/profileSlice';
 
 import Header from './components/Header';
 import Nav from './components/Nav';
@@ -19,33 +17,26 @@ type UpdatePetData = components['schemas']['UpdatePetDTO'];
 
 const ProfileScreen: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const currentScreen = 'profile';
 
-  const { petData } = useAppSelector((state) => state.petSlice);
-  const { profileData } = useAppSelector((state) => state.profileSlice);
+  const { petData, updatePet, isUpdatingPet } = usePet();
+  const { profileData, userLogout, userDelete } = useProfile();
 
-  const [updatePet, setUpdatePet] = useState<PetData | null>(petData);
-  
+  const [localPet, setLocalPet] = useState<PetData | null>(petData);
   const [petNameError, setPetNameError] = useState('');
   const [petAgeError, setPetAgeError] = useState('');
   const [petWeightError, setPetWeightError] = useState('');
 
   const [logoutPopup, setLogoutPopup] = useState(false);
 
-  useEffect(() => {
-    if (!petData) dispatch(fetchPetThunk());
-    if (!profileData) dispatch(fetchProfileThunk());
-  }, [dispatch, petData, profileData]);
-
-  if (!updatePet && petData) {
-    setUpdatePet(petData);
+  if (!localPet && petData) {
+    setLocalPet(petData);
   }
 
   /* 데이터 변경 함수 */
   const changePet = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    setUpdatePet((prev) => {
+    setLocalPet((prev) => {
       const currentData = prev || {} as PetData;
       return {
         ...currentData,
@@ -57,20 +48,19 @@ const ProfileScreen: React.FC = () => {
 
   /* 생일 변경 함수 */
   const changeBirthday = (type: 'month' | 'day' | 'unknown', e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-    setUpdatePet((prev) => {
+    setLocalPet((prev) => {
       const currentData = prev || {} as PetData;
-      const currentBirthday = currentData.birthday || '00-00';
+      const currentBirthday = currentData.birthday || '2026-00-00';
       
-      let [month, day] = currentBirthday.split('-');
-      if (!month || !day) { month = '00'; day = '00'; }
+      const [year, month, day] = currentBirthday.split('-');
       let newBirthday = currentBirthday;
 
       if (type === 'unknown') {
         const isChecked = (e.target as HTMLInputElement).checked;
-        newBirthday = isChecked ? '00-00' : '01-01';
+        newBirthday = isChecked ? '2026-00-00' : currentBirthday;
       } else {
         const value = e.target.value;
-        newBirthday = type === 'month' ? `${value}-${day}` : `${month}-${value}`;
+        newBirthday = type === 'month' ? `${year}-${value}-${day}` : `${year}-${month}-${value}`;
       }
 
       return {
@@ -83,50 +73,50 @@ const ProfileScreen: React.FC = () => {
   const savePet = async() => {
     let check = true;
 
-    if (!updatePet?.name?.trim()) {
+    if (!localPet?.name?.trim()) {
       setPetNameError('이름을 입력해주세요.');
       check = false;
     } else {
       setPetNameError('');
     }
 
-    if (!updatePet?.age) {
+    if (!localPet?.age) {
       setPetAgeError('나이를 입력해주세요.');
       check = false;
-    } else if(updatePet?.age<0) {
+    } else if(localPet?.age<0) {
       setPetAgeError('나이는 음수일 수 없습니다.');
       check = false;
     } else {
       setPetAgeError('')
     }
 
-    if (!updatePet?.weight) {
+    if (!localPet?.weight) {
       setPetWeightError('체중을 입력해주세요.');
       check = false;
-    } else if (updatePet?.weight<=0) {
+    } else if (localPet?.weight<=0) {
       setPetWeightError('체중은 0 이상이여야 합니다.');
       check = false;
     } else {
       setPetWeightError('')
     }
 
-    if (check && updatePet) {
+    if (check && localPet) {
       const updateData: UpdatePetData = {
-        name: updatePet.name ?? "",
-        species: updatePet.species ?? "DOG",
-        gender: updatePet.gender ?? "MALE",
-        age: updatePet.age ?? 0,
-        weight: updatePet.weight ?? 0,
-        birthday: updatePet.birthday ?? "00-00"
+        name: localPet.name ?? "",
+        species: localPet.species ?? "DOG",
+        gender: localPet.gender ?? "MALE",
+        age: localPet.age ?? 0,
+        weight: localPet.weight ?? 0,
+        birthday: localPet.birthday ?? "2026-00-00"
       };
-      dispatch(updatePetThunk(updateData));
+      updatePet(updateData);
     }
     return;
   }
 
   const logout = async() => {
     try{
-      await dispatch(logoutThunk());
+      userLogout();
       navigate('/');
     } catch (error) {
       console.error('로그아웃 실패:', error);
@@ -171,7 +161,7 @@ const ProfileScreen: React.FC = () => {
                 <input className='text-input'
                 type="text"
                 name="name"
-                value={updatePet?.name}
+                value={localPet?.name}
                 placeholder='반려동물 이름'
                 onChange={changePet}
                 />
@@ -183,13 +173,13 @@ const ProfileScreen: React.FC = () => {
               <label className='input-label'>종류</label>
               <div className='radio-input-box'>
                 <input type="radio" id='species-dog' className='radio-input' name='species'
-                value='DOG' checked={updatePet?.species === 'DOG'} onChange={changePet}/>
+                value='DOG' checked={localPet?.species === 'DOG'} onChange={changePet}/>
                 <label htmlFor="species-dog" className='radio-input-button'>강아지</label>
                 <input type="radio" id='species-cat' className='radio-input' name='species' 
-                value='CAT' checked={updatePet?.species === 'CAT'} onChange={changePet}/>
+                value='CAT' checked={localPet?.species === 'CAT'} onChange={changePet}/>
                 <label htmlFor="species-cat" className='radio-input-button'>고양이</label>
                 <input type="radio" id='species-etc' className='radio-input' name='species' 
-                value='ETC' checked={updatePet?.species === 'ETC'} onChange={changePet}/>
+                value='ETC' checked={localPet?.species === 'ETC'} onChange={changePet}/>
                 <label htmlFor="species-etc" className='radio-input-button'>기타</label>
               </div>
             </div>
@@ -198,10 +188,10 @@ const ProfileScreen: React.FC = () => {
               <label className='input-label'>성별</label>
               <div className='radio-input-box'>
                 <input type="radio" id='gender-m' className='radio-input' name='gender'
-                value='MALE' checked={updatePet?.gender === 'MALE'} onChange={changePet}/>
+                value='MALE' checked={localPet?.gender === 'MALE'} onChange={changePet}/>
                 <label htmlFor="gender-m" className='radio-input-button'>수컷</label>
                 <input type="radio" id='gender-f' className='radio-input' name='gender'
-                value='FEMALE' checked={updatePet?.gender === 'FEMALE'} onChange={changePet}/>
+                value='FEMALE' checked={localPet?.gender === 'FEMALE'} onChange={changePet}/>
                 <label htmlFor="gender-f" className='radio-input-button'>암컷</label>
               </div>
             </div>
@@ -212,7 +202,7 @@ const ProfileScreen: React.FC = () => {
                 <input className='number-input'
                   type='number'
                   name="age"
-                  value={updatePet?.age}
+                  value={localPet?.age}
                   placeholder='반려동물 나이'
                   onChange={changePet}
                 />
@@ -227,7 +217,7 @@ const ProfileScreen: React.FC = () => {
                 <input className='number-input'
                   type='number'
                   name="weight"
-                  value={updatePet?.weight}
+                  value={localPet?.weight}
                   placeholder='kg 단위로 입력 (ex. 5.2)'
                   onChange={changePet}
                 />
@@ -241,7 +231,7 @@ const ProfileScreen: React.FC = () => {
               <div className='select-input-box'>
                 <select
                   className="select-input"
-                  value={updatePet?.birthday?.split('-')[0]}
+                  value={localPet?.birthday?.split('-')[1]}
                   aria-label='month'
                   onChange={(e) => changeBirthday('month', e)}
                 >
@@ -252,7 +242,7 @@ const ProfileScreen: React.FC = () => {
                 </select>
                 <select
                   className="select-input"
-                  value={updatePet?.birthday?.split('-')[1]}
+                  value={localPet?.birthday?.split('-')[2]}
                   aria-label='day'
                   onChange={(e) => changeBirthday('day', e)}
                 >
@@ -279,7 +269,7 @@ const ProfileScreen: React.FC = () => {
             <button type="button"
               className='medium-button'
               onClick={()=>savePet()}
-            >저장하기</button>
+            >{isUpdatingPet ? '저장 중...' : '저장하기'}</button>
           </form>
         </section>
         <hr className="main-divider" />
@@ -291,13 +281,13 @@ const ProfileScreen: React.FC = () => {
           </div>
 
           <form className='input-form' action="">
-            <div className='input-box row'>
+            {/*<div className='input-box row'>
               <label htmlFor="push-toggle"className='input-label'>푸쉬 알림</label>
               <input type="checkbox" id="push-toggle" className="toggle-input" />
               <label htmlFor="push-toggle" className="toggle-input-button">
                 <span className="toggle-input-switch"/>
               </label>
-            </div>
+            </div>*/}
 
             <div className='input-box column'>
               <label className='input-label'>이름
@@ -309,10 +299,10 @@ const ProfileScreen: React.FC = () => {
                     placeholder='사용자 이름'
                     //onChange={changeUserName}
                   />
-                  <button type='button'
+                  {/*<button type='button'
                     className='small-button'
                     //onClick={()=>saveUserName()}
-                  >저장</button>
+                  >저장</button>*/}
                 </div>
               </label>
               {/* <p className='message error'>{userNameError}</p> */}
