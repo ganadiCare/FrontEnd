@@ -368,6 +368,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/activities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 활동 기록 기간 조회 */
+        get: operations["getActivityLogs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -716,6 +733,28 @@ export interface components {
             code?: string;
             message?: string;
             result?: components["schemas"]["FeedingLogDTO"][];
+        };
+        ActivityLogDTO: {
+            /** Format: int64 */
+            activityId?: number;
+            cameraSessionId?: string;
+            /** Format: date-time */
+            cameraStartedAt?: string;
+            /** Format: date-time */
+            detectedStartedAt?: string;
+            /** Format: date-time */
+            lastDetectedAt?: string;
+            /** Format: date-time */
+            detectedEndedAt?: string;
+            /** Format: int64 */
+            detectedSeconds?: number;
+            detecting?: boolean;
+        };
+        ApiResponseListActivityLogDTO: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["ActivityLogDTO"][];
         };
     };
     responses: never;
@@ -1330,6 +1369,29 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseListFeedingLogDTO"];
+                };
+            };
+        };
+    };
+    getActivityLogs: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseListActivityLogDTO"];
                 };
             };
         };

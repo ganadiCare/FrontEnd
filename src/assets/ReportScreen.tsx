@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useReport } from './store/useReport';
+import { useActivity } from './store/useActivity';
 import './css/templete.css';
 import './css/report.css';
 
@@ -47,6 +48,8 @@ const ReportScreen: React.FC = () => {
     deleteReport,
     updateMemo
   } = useReport(selectedDate);
+
+  const { activityLogs } = useActivity(selectedDate);
 
   const currentReportId = reportData?.reportId;
   if (currentReportId !== prevReportId) {
@@ -99,8 +102,15 @@ const ReportScreen: React.FC = () => {
     ? logsToHourly(reportData.watering.logs.map(l => ({ time: l.wateringTime, amount: l.amount })))
     : EMPTY_24;
 
-  // 활동량: 별도 센서 API 연동 전까지 빈 데이터
-  const activityData = EMPTY_24;
+  // 활동량: Activity API 로그(감지 시작 시각, 감지 지속 시간)를 시간대별로 합산
+  const activityData = logsToHourly(
+    activityLogs.map(l => ({ time: l.detectedStartedAt, amount: l.detectedSeconds }))
+  );
+
+  // 활동 시간 합계(시:분)
+  const totalActivitySeconds = activityLogs.reduce((sum, l) => sum + (l.detectedSeconds ?? 0), 0);
+  const activityHours = String(Math.floor(totalActivitySeconds / 3600)).padStart(2, '0');
+  const activityMinutes = String(Math.floor((totalActivitySeconds % 3600) / 60)).padStart(2, '0');
 
   return (
     <>
@@ -186,7 +196,7 @@ const ReportScreen: React.FC = () => {
 
           <span className="medium-text bold">활동</span>
           <div className='section-box column'>
-            <span className="medium-text">활동 시간 : 02 : 08</span>
+            <span className="medium-text">활동 시간 : {activityHours} : {activityMinutes}</span>
           </div>
 
           <span className="medium-text bold">급식</span>
