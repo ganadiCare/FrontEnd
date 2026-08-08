@@ -377,7 +377,25 @@ export async function updateMemo(
   } catch (error) {
     console.log('Report 메모 수정 실패');
     console.error(error);
-    throw error; 
+    throw error;
+  } finally {
+    console.log('로딩 종료');
+  }
+}
+
+//Activity API 관련
+export async function getActivities(from: string, to: string) {
+  console.log('Activity 데이터를 가져오는 중...');
+  try {
+    const response = await api.get('/api/v1/activities', {
+      params: { from, to }
+    });
+    console.log('Activity 데이터 가져오기 성공', response.data);
+    return response.data;
+  } catch (error) {
+    console.log('Activity 데이터 가져오기 실패');
+    console.error(error);
+    throw error;
   } finally {
     console.log('로딩 종료');
   }

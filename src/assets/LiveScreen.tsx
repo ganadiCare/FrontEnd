@@ -4,8 +4,6 @@ import { useAppDispatch, useAppSelector } from './store/hooks';
 //import type { components } from './service/api';
 import './css/templete.css';
 
-import { fetchCameraThunk } from './store/cameraSlice'; 
-
 import Header from './components/Header';
 import Nav from './components/Nav';
 import LiveBox from './components/LiveBox';
@@ -55,28 +53,48 @@ const LiveScreen: React.FC = () => {
 
   //WebRTC 시그널링 및 커넥션 수립 함수
   const startWebRTC = async () => {
-    const url = "ws://20.189.241.58:8080/ws/signal";
+    const signalingUrl = import.meta.env.VITE_SIGNALING_URL;
+    const turnUrls = [
+      import.meta.env.VITE_TURN_URL_UDP,
+      import.meta.env.VITE_TURN_URL_TCP,
+    ].filter((url): url is string => Boolean(url));
+    const turnUsername = import.meta.env.VITE_TURN_USERNAME;
+    const turnCredential = import.meta.env.VITE_TURN_CREDENTIAL;
+
+    if (!signalingUrl) {
+      console.error('VITE_SIGNALING_URL이 설정되지 않았습니다.');
+      return;
+    }
+
+    const hasTurnConfig = Boolean(
+      turnUrls.length > 0 && turnUsername && turnCredential,
+    );
+
+    if (turnUrls.length > 0 && !hasTurnConfig) {
+      console.error('TURN 서버 주소, 사용자 이름, 자격 증명을 모두 설정해야 합니다.');
+      return;
+    }
+
     sessionIdRef.current = crypto.randomUUID();
 
-    wsRef.current = new WebSocket(url);
+    wsRef.current = new WebSocket(signalingUrl);
 
     wsRef.current.onopen = async () => {
       wsRef.current?.send(JSON.stringify({
         type: 'register', role: 'browser', sessionId: sessionIdRef.current
       }));
 
+      const iceServers: RTCIceServer[] = hasTurnConfig
+        ? [{
+            urls: turnUrls,
+            username: turnUsername,
+            credential: turnCredential,
+          }]
+        : [];
+
       pcRef.current = new RTCPeerConnection({
-        iceTransportPolicy: "relay",
-        iceServers: [
-          {
-            urls: [
-              "turn:20.189.241.58:3478?transport=udp",
-              "turn:20.189.241.58:3478?transport=tcp"
-            ],
-            username: "ganadicare",
-            credential: "zkzkdhxhr!23"
-          }
-        ]
+        iceTransportPolicy: hasTurnConfig ? 'relay' : 'all',
+        iceServers,
       });
 
       pcRef.current.ontrack = (e) => {
