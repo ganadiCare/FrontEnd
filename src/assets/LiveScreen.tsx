@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useCamera } from './store/useCamera';
+import { useAppDispatch, useAppSelector } from './store/hooks';
 //import type { components } from './service/api';
-import './css/templete.css'; 
+import './css/templete.css';
+
+import { fetchCameraThunk } from './store/cameraSlice'; 
 
 import Header from './components/Header';
 import Nav from './components/Nav';
@@ -14,11 +16,12 @@ import Camera from './image_folder/Camera.png'
 //type CameraData = components['schemas']['CameraDTO'];
 
 const LiveScreen: React.FC = () => {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const currentScreen = 'live';
 
-  const { cameraData } = useCamera();
+  const { cameraData } = useAppSelector((state) => state.cameraSlice);
 
   const [controlBar, setControlBar] = useState(() => {
     const stateData = location.state as { controlBar?: boolean } | null;
@@ -52,7 +55,7 @@ const LiveScreen: React.FC = () => {
 
   //WebRTC 시그널링 및 커넥션 수립 함수
   const startWebRTC = async () => {
-    const url = "";
+    const url = "ws://20.189.241.58:8080/ws/signal";
     sessionIdRef.current = crypto.randomUUID();
 
     wsRef.current = new WebSocket(url);
@@ -62,7 +65,19 @@ const LiveScreen: React.FC = () => {
         type: 'register', role: 'browser', sessionId: sessionIdRef.current
       }));
 
-      pcRef.current = new RTCPeerConnection();
+      pcRef.current = new RTCPeerConnection({
+        iceTransportPolicy: "relay",
+        iceServers: [
+          {
+            urls: [
+              "turn:20.189.241.58:3478?transport=udp",
+              "turn:20.189.241.58:3478?transport=tcp"
+            ],
+            username: "ganadicare",
+            credential: "zkzkdhxhr!23"
+          }
+        ]
+      });
 
       pcRef.current.ontrack = (e) => {
         console.log('영상 트랙 수신됨');
@@ -136,14 +151,17 @@ const LiveScreen: React.FC = () => {
   }
 
   useEffect(() => {
+    if (!cameraData) dispatch(fetchCameraThunk());
+  }, [dispatch, cameraData]);
+
+  useEffect(() => {
     return () => stopWebRTC();
   }, []);
 
   return (
     <>
-      <Header
+      <Header 
         title='CAMERA'
-        useBack={false}
       />
 
       <main
