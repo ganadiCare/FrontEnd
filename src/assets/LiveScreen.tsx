@@ -141,8 +141,9 @@ const LiveScreen: React.FC = () => {
 
   return (
     <>
-      <Header 
+      <Header
         title='CAMERA'
+        useBack={false}
       />
 
       <main

@@ -78,7 +78,7 @@ const LiveBox: React.FC<LiveBoxProps> = (
         {/* 전체화면 아이콘 */}
         <div
           className= {camera && isLive ? 'full-icon' : 'full-icon hide'}
-          onClick={isFull ? ()=>navigate('/camera/live') : ()=>navigate('/camera/full')}
+          onClick={isFull ? ()=>navigate(-1) : ()=>navigate('/camera/full')}
         >
         {
           isFull

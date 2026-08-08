@@ -45,7 +45,7 @@ const DispenserScreen: React.FC = () => {
 
   return (
     <>
-      <Header title='DISPENSER' />
+      <Header title='DISPENSER' useBack={false} />
 
       <main className="main-content">
         <section className="main-section line">

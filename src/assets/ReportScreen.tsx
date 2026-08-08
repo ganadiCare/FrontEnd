@@ -104,7 +104,7 @@ const ReportScreen: React.FC = () => {
 
   return (
     <>
-      <Header title="REPORT" useNotification={true} />
+      <Header title="REPORT" useNotification={true} useBack={false} />
 
       {/* 날짜 선택 바: < 이전 날 / 날짜 표시 / 다음 날 > + 달력 아이콘 */}
       <div className="report-date-bar">

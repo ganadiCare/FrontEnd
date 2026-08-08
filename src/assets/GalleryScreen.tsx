@@ -53,6 +53,7 @@ const GalleryScreen: React.FC<GalleryScreenProps> = (
       <Header
         title='GALLERY'
         useRefresh={checkOn}
+        useBack={false}
       />
 
       {/* 메인 콘텐츠 영역 */}
