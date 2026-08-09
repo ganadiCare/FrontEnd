@@ -202,13 +202,11 @@ const DispenserDetailScreen: React.FC = () => {
 
           <span className="medium-text bold">수동 급여</span>
           <div className="section-box column">
-            <label className="medium-text"><input type="radio" name="feeding-amount"/> 추천 : </label>
             <div className='input-box row'>
-              <label className="medium-text"><input type="radio" name="feeding-amount"/> 사용자 지정 : </label>
+              <label className="medium-text">사료량 : </label>
               <input className='number-input small'
                 type='number'
                 name="feed-amount"
-                placeholder='사료량'
               />
               <span className='medium-text'>g</span>
             </div>
@@ -273,16 +271,15 @@ const DispenserDetailScreen: React.FC = () => {
           <hr className="section-divider" />
           <span className="medium-text bold">수동 급여</span>
           <div className="section-box column">
-            <label className="medium-text"><input type="radio" name="watering-amount"/> 추천 : </label>
             <div className='input-box row'>
-              <label className="medium-text"><input type="radio" name="watering-amount"/> 사용자 지정 : </label>
+              <label className="medium-text">급수량 : </label>
               <input className='number-input small'
                 type='number'
                 name="water-amount"
-                placeholder='급수량'
               />
               <span className='medium-text'>ml</span>
             </div>
+
             <button
               className="medium-button"
             >급여</button>
