@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePet } from './store/usePet';
 import { useCamera } from './store/useCamera';
 import { useReport } from './store/useReport';
+import { calculatePetTargets } from './utils/petTarget';
 import './css/templete.css';
 import './css/profile.css';
 
@@ -39,17 +40,7 @@ const MainScreen: React.FC = () => {
   const waterIntake = (reportData?.watering?.totalAmount ?? 0) - (reportData?.watering?.leftovers ?? 0);
 
   //목표값 계산
-  const maxActivity = petData?.weight && totalActivity
-  ? petData?.weight * 10
-  : 100;
-
-  const maxFeed = petData?.weight && totalActivity
-  ? petData?.weight * 1000 * 0.02
-  : 100;
-
-  const maxWater = petData?.weight && totalActivity
-  ? petData?.weight * 55
-  : 100;
+  const maxValue = calculatePetTargets(petData)
 
   return (
     <>
@@ -77,19 +68,19 @@ const MainScreen: React.FC = () => {
             </div>
             <RingGraph
               currentValue={totalActivity}
-              fullValue={maxActivity}
+              fullValue={maxValue.maxActivity}
               text={activityList && activityList.length > 0 ? `${totalActivity}분` : '...'}
               icon={acivityIcon}
             />
             <RingGraph
               currentValue={foodIntake}
-              fullValue={maxFeed}
+              fullValue={maxValue.maxFeed}
               text={reportData ? `${foodIntake}g` : '...'}
               icon={feedIcon}
             />
             <RingGraph
               currentValue={waterIntake}
-              fullValue={maxWater}
+              fullValue={maxValue.maxWater}
               text={reportData ? `${waterIntake}ml` : '...'}
               icon={waterIcon}
             />

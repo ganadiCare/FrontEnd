@@ -4,7 +4,7 @@ import '../css/popup.css'
 
 interface PopupMessage{
     title?: string;
-    content?: string;
+    content?: string | React.ReactNode;
     type?: string
 }
 
@@ -28,6 +28,11 @@ const Popup: React.FC<PopupProps> = (
                 <h2 className='section-heading'>{popupMessage?.title}</h2>
                 <hr className='popup-divider'/>
                 <span className='small-text'>{popupMessage?.content}</span>
+
+                <div className={popupMessage?.type=='OK' ? 'popup-buttons' : 'popup-buttons hide'}>
+                    <button type="button" className='medium-button'
+                    onClick={onOkClick} >확인</button>
+                </div>
                 
                 <div className={popupMessage?.type=='OX' ? 'popup-buttons' : 'popup-buttons hide'}>
                     <button type="button" className='medium-button'

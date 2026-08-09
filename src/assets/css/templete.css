@@ -210,6 +210,10 @@
   background-color: #0077cc;
 }
 
+.medium-button.free{
+  width: max-content;
+}
+
 .text-button{
   cursor: pointer;
 }

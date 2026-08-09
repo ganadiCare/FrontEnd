@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePet } from './store/usePet';
 import { useProfile } from './store/useProfile';
+import { calculatePetTargets } from './utils/petTarget';
 import type { components } from './service/api';
 import './css/templete.css';
 import './css/profile.css';
@@ -28,6 +29,7 @@ const ProfileScreen: React.FC = () => {
   const [petWeightError, setPetWeightError] = useState('');
 
   const [logoutPopup, setLogoutPopup] = useState(false);
+  const [targetPopup, setTargetPopup] = useState(false);
 
   if (!localPet && petData) {
     setLocalPet(petData);
@@ -122,6 +124,9 @@ const ProfileScreen: React.FC = () => {
       console.error('로그아웃 실패:', error);
     }
   }
+
+  //목표값 계산
+    const maxValue = calculatePetTargets(petData)
 
   return (
     <>
@@ -266,10 +271,17 @@ const ProfileScreen: React.FC = () => {
               </div>
             </div>
 
-            <button type="button"
-              className='medium-button'
-              onClick={()=>savePet()}
-            >{isUpdatingPet ? '저장 중...' : '저장하기'}</button>
+            <div className='input-box row'>
+              <button type="button"
+                className='medium-button'
+                onClick={()=>savePet()}
+              >{isUpdatingPet ? '저장 중...' : '저장하기'}</button>
+
+              <button type="button"
+                className='medium-button free'
+                onClick={()=>setTargetPopup(true)}
+              >일일 권장 목표</button>
+            </div>
           </form>
         </section>
         <hr className="main-divider" />
@@ -344,6 +356,29 @@ const ProfileScreen: React.FC = () => {
         onBackgroundClick={()=>setLogoutPopup(false)}
         onOkClick={()=>logout()}
         onCancelClick={()=>setLogoutPopup(false)}
+      />
+
+      <Popup
+        popupMessage={
+          {
+            title: '일일 권장 목표',
+            content: (
+              <>
+              <div className='section-box column'>
+                <span className="medium-text">활동량 : {petData ? `${maxValue.maxActivity}분` : '-'}</span>
+                <span className="medium-text">사료 섭취량 : {petData ? `${maxValue.maxFeed}g` : '-'}</span>
+                <span className="medium-text">수분 섭취량 : {petData ? `${maxValue.maxWater}ml` : '-'}</span>
+              </div>
+              <span className="message">* 본 권장량은 표준 계산식에 따른 가이드라인으로,
+                  아이의 건강 상태 및 수의사 진단에 따라 달라질 수 있습니다.</span>
+              </>
+            ),
+            type: 'OK'
+          }
+        }
+        visible={targetPopup}
+        onBackgroundClick={()=>setTargetPopup(false)}
+        onOkClick={()=>setTargetPopup(false)}
       />
 
       <Nav currentScreen={currentScreen} />
