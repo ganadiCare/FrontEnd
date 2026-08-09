@@ -23,11 +23,16 @@ const MainScreen: React.FC = () => {
 
   const { petData } = usePet();
   const { cameraData } = useCamera();
-  const { reportData } = useReport(today);
+  const { reportData, activityList } = useReport(today);
 
   const setAiSummary = () => {
     return reportData?.aiSummary?.split("요약")[1]?.trim();
   }
+
+  // 활동 로그 시간 합산
+  const totalActivity = activityList && activityList.length > 0
+  ? Math.floor(activityList.reduce((acc, cur) => acc + (cur.detectedSeconds ?? 0), 0) / 60)
+  : 0;
 
   return (
     <>
@@ -54,9 +59,9 @@ const MainScreen: React.FC = () => {
               <span className="medium-text">{petData?.name ?? '???'}</span>
             </div>
             <RingGraph
-              currentValue={reportData?.feeding?.totalAmount}
-              fullValue={100}
-              text={reportData ? `${reportData?.feeding?.totalAmount}분` : '...'}
+              currentValue={totalActivity}
+              fullValue={120}
+              text={activityList && activityList.length > 0 ? `${totalActivity}분` : '...'}
               icon={acivityIcon}
             />
             <RingGraph

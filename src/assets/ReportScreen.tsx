@@ -24,6 +24,19 @@ const logsToHourly = (logs: {time: string | undefined; amount: number | undefine
   });
   return hourly;
 };
+
+const activitiesToHourly = (activities: { detectedStartedAt: string | undefined; detectedSeconds: number | undefined }[]): number[] => {
+  const hourly = [...EMPTY_24];
+  activities.forEach(({ detectedStartedAt, detectedSeconds }) => {
+    if (!detectedStartedAt || detectedSeconds === undefined) return;
+
+    const timePart = detectedStartedAt.includes('T') ? detectedStartedAt.split('T')[1] : detectedStartedAt;
+    const hour = parseInt(timePart.split(':')[0], 10);
+    if (!isNaN(hour) && hour >= 0 && hour < 24) hourly[hour] += detectedSeconds;
+  });
+  return hourly;
+};
+
 const day = new Date()
 const today = day.toISOString().split('T')[0]; // 오늘 날짜
 day.setDate(day.getDate() + 1);
@@ -40,6 +53,7 @@ const ReportScreen: React.FC = () => {
 
   const {
     reportData,
+    activityList,
     isReportLoading,
     isCreating,
     isUpdatingMemo,
@@ -100,7 +114,20 @@ const ReportScreen: React.FC = () => {
     : EMPTY_24;
 
   // 활동량: 별도 센서 API 연동 전까지 빈 데이터
-  const activityData = EMPTY_24;
+  const activityData = activityList
+  ? activitiesToHourly(activityList.map(a => ({ detectedStartedAt: a.detectedStartedAt, detectedSeconds: a.detectedSeconds })))
+  : EMPTY_24;
+
+  // 활동 로그 시간 합산
+  const totalActivity = (activities: { detectedSeconds?: number }[]): string => {
+    if (!activities || activities.length === 0) return '-';
+
+    const totalSeconds = activities.reduce((acc, cur) => acc + (cur.detectedSeconds ?? 0), 0);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${minutes}분 ${seconds}초`;
+  };
 
   return (
     <>
@@ -136,7 +163,7 @@ const ReportScreen: React.FC = () => {
               <button
                 className="small-button"
                 onClick={()=>refreshReport()}
-                disabled={isCreating}
+                disabled={isReportLoading || isCreating}
               >
                 {isCreating ? '생성 중...' : '리포트 재생성'}
               </button>
@@ -151,9 +178,9 @@ const ReportScreen: React.FC = () => {
               <button
                 className="medium-button"
                 onClick={()=>handleCreateReport()}
-                disabled={isReportLoading}
+                disabled={isReportLoading || isCreating}
               >
-                {isReportLoading ? '생성 중...' : '리포트 생성'}
+                {isReportLoading || isCreating ? '생성 중...' : '리포트 생성'}
               </button>
             </div>
           )}
@@ -186,7 +213,7 @@ const ReportScreen: React.FC = () => {
 
           <span className="medium-text bold">활동</span>
           <div className='section-box column'>
-            <span className="medium-text">활동 시간 : 02 : 08</span>
+            <span className="medium-text">활동 시간 : {activityList && activityList.length > 0  ? totalActivity(activityData) : '-'}</span>
           </div>
 
           <span className="medium-text bold">급식</span>

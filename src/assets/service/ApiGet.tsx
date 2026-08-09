@@ -17,15 +17,17 @@ api.interceptors.request.use(
       config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
-  }
+  },
+  (error) => Promise.reject(error)
 );
 
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
 
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+    if ((status === 401 || status === 403) && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true; // 플래그를 true로 설정
 
       try {
@@ -50,6 +52,7 @@ api.interceptors.response.use(
       } catch (error) {
         console.error('액세스 토큰 재발급 실패');
         localStorage.removeItem('accessToken');
+        window.location.href = '/';
         return Promise.reject(error);
       }
     }
@@ -326,6 +329,23 @@ export async function getReportList() {
     return response.data;
   } catch (error) {
     console.log('Report 목록 가져오기 실패');
+    console.error(error);
+    throw error; 
+  } finally {
+    console.log('로딩 종료');
+  }
+}
+
+export async function getActivities(from: string, to: string) {
+  console.log('Activity 데이터를 가져오는 중...');
+  try {
+    const response = await api.get('/v1/activities', {
+      params: { from, to, },
+    });
+    console.log('Activity 데이터 가져오기 성공', response.data);
+    return response.data;
+  } catch (error) {
+    console.log('Activity 데이터 가져오기 실패');
     console.error(error);
     throw error; 
   } finally {
