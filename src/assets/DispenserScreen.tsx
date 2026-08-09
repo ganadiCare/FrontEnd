@@ -71,7 +71,7 @@ const DispenserScreen: React.FC = () => {
 
           <div className="section-box column">
             <span className="medium-text">마지막 급여 시간 : {dispenserData?.water?.latestWateringTime ?? '...'}</span>
-            <span className="medium-text">그릇 잔여량 : {dispenserData?.water?.leftovers ?? '...'}</span>
+            <span className="medium-text">그릇 잔여량 : { dispenserData?.water ? `${dispenserData?.water?.leftovers}ml` : '...'}</span>
           </div>
 
           <button

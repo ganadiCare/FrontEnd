@@ -102,9 +102,17 @@ const ReportScreen: React.FC = () => {
     setSelectedDate(next);
   };
 
+  // 섭취량 계산
+  const foodIntake = (reportData?.feeding?.totalAmount ?? 0) - (reportData?.feeding?.leftovers ?? 0);
+  const waterIntake = (reportData?.watering?.totalAmount ?? 0) - (reportData?.watering?.leftovers ?? 0);
+
+  // 활동 로그 시간 합산
+  const totalActivity = activityList && activityList.length > 0
+  ? activityList.reduce((acc, cur) => acc + (cur.detectedSeconds ?? 0), 0)
+  : 0;
+
   // ─── 그래프용 시간대별 데이터 변환 ───────────────────────────────────────
   // 리포트가 없으면 EMPTY_24(전부 0)를 사용하여 빈 그래프 표시
-  
   const foodData = reportData?.feeding?.logs
     ? logsToHourly(reportData.feeding.logs.map(l => ({ time: l.feedTime, amount: l.amount })))
     : EMPTY_24;
@@ -117,17 +125,6 @@ const ReportScreen: React.FC = () => {
   const activityData = activityList
   ? activitiesToHourly(activityList.map(a => ({ detectedStartedAt: a.detectedStartedAt, detectedSeconds: a.detectedSeconds })))
   : EMPTY_24;
-
-  // 활동 로그 시간 합산
-  const totalActivity = (activities: { detectedSeconds?: number }[]): string => {
-    if (!activities || activities.length === 0) return '-';
-
-    const totalSeconds = activities.reduce((acc, cur) => acc + (cur.detectedSeconds ?? 0), 0);
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-
-    return `${minutes}분 ${seconds}초`;
-  };
 
   return (
     <>
@@ -213,21 +210,21 @@ const ReportScreen: React.FC = () => {
 
           <span className="medium-text bold">활동</span>
           <div className='section-box column'>
-            <span className="medium-text">활동 시간 : {activityList && activityList.length > 0  ? totalActivity(activityData) : '-'}</span>
+            <span className="medium-text">활동 시간 : {activityList && activityList.length > 0 ? `${Math.floor(totalActivity/60)}분 ${totalActivity%60}초` : '-'}</span>
           </div>
 
           <span className="medium-text bold">급식</span>
           <div className='section-box column'>
             <span className="medium-text">급여량 : {reportData?.feeding ? `${reportData.feeding.totalAmount}g` : '-'}</span>
-            <span className="medium-text">섭취량 : {reportData?.feeding ? `${reportData.feeding.totalCount}g` : '-'}</span>
-            <span className="medium-text">섭취 횟수 : {reportData?.feeding ? `${reportData.feeding.leftovers}회` : '-'}</span>
+            <span className="medium-text">섭취량 : {reportData?.feeding ? `${foodIntake}g` : '-'}</span>
+            <span className="medium-text">섭취 횟수 : {reportData?.feeding ? `${reportData.feeding.totalCount}회` : '-'}</span>
           </div>
 
           <span className="medium-text bold">급수</span>
           <div className='section-box column'>
             <span className="medium-text">급여량 : {reportData?.watering ? `${reportData.watering.totalAmount}ml` : '-'}</span>
-            <span className="medium-text">섭취량 : {reportData?.watering ? `${reportData.watering.totalCount}ml` : '-'}</span>
-            <span className="medium-text">섭취 횟수 : {reportData?.watering ? `${reportData.watering.leftovers}회` : '-'}</span>
+            <span className="medium-text">섭취량 : {reportData?.watering ? `${waterIntake}ml` : '-'}</span>
+            <span className="medium-text">섭취 횟수 : {reportData?.watering ? `${reportData.watering.totalCount}회` : '-'}</span>
           </div>
         </section>
 

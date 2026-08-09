@@ -12,7 +12,7 @@ const RingGraph: React.FC<RingGraphProps> = (
 {
     icon, text, currentValue=0, fullValue=100
 }) => {
-    const ratio = fullValue>0 ? currentValue / fullValue : 0;
+    const ratio = fullValue>0 ? Math.min(currentValue / fullValue, 1) : 0;
     const ringColor = ratio>0.25 ? '#0099FF': '#FF0000';
 
     return (
