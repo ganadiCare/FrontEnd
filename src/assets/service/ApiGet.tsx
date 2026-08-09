@@ -339,7 +339,7 @@ export async function getReportList() {
 export async function getActivities(from: string, to: string) {
   console.log('Activity 데이터를 가져오는 중...');
   try {
-    const response = await api.get('/v1/activities', {
+    const response = await api.get('/api/v1/activities', {
       params: { from, to, },
     });
     console.log('Activity 데이터 가져오기 성공', response.data);
