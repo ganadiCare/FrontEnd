@@ -19,29 +19,13 @@ const SignUp: React.FC = () => {
     setEmailError, setPasswordError, setConfirmPasswordError,
     validateEmail, handleSendAuthCode, handleVerifyCode,
     validatePassword, validateConfirmPassword,
-    handleAutoFill, isNextDisabled,
+    isNextDisabled,
   } = useSignupForm();
 
   return (
     <div className="signup-wrapper">
       {/* 1. 상단 헤더 */}
       <Header title="회원가입" useNotification={false} />
-
-      {import.meta.env.DEV && (
-      <button 
-        onClick={handleAutoFill}
-        type="button"
-        style={{ 
-          position: 'absolute', 
-          right: '10px', 
-          top: '60px', 
-          zIndex: 100, 
-          fontSize: '10px', 
-          opacity: 0.5,
-          padding: '4px 8px',
-          cursor: 'pointer'
-        }}
-      >자동채우기</button>)}
 
       <div className="signup-body">
         <div className="signup-form">

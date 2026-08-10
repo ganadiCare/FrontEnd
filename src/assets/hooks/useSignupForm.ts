@@ -21,20 +21,6 @@ export const useSignupForm = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+~`|}{[\]:;?><,./-]).{8,20}$/;
 
-  // --- 개발용 자동 채우기 ---
-  const handleAutoFill = () => {
-    setEmail('test@example.com');
-    setAuthCode('123456');
-    setPassword('test1234!');
-    setConfirmPassword('test1234!');
-    setNickname('테스터');
-    setIsAuthSent(true);
-    setIsVerified(true);
-    setEmailError('');
-    setPasswordError('');
-    setConfirmPasswordError('');
-  };
-
   // --- 이메일 형식 검사 ---
   const validateEmail = () => {
     if (email && !emailRegex.test(email)) {
@@ -126,6 +112,6 @@ export const useSignupForm = () => {
     setEmailError, setAuthCodeError, setPasswordError, setConfirmPasswordError,
     validateEmail, handleSendAuthCode, handleVerifyCode,
     validatePassword, validateConfirmPassword,
-    handleAutoFill, isNextDisabled,
+    isNextDisabled,
   };
 };
