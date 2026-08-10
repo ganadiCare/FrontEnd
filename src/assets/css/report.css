@@ -121,6 +121,11 @@
   cursor: not-allowed;
 }
 
+.dp-has-report {
+  color: #ff6b35;
+  font-weight: 700;
+}
+
 /* --- 날짜 선택 바 --- */
 .report-date-bar {
   display: flex;

@@ -7,15 +7,22 @@ interface CalenderProps {
   onChange: (date: string) => void; // 날짜 선택 시 호출되는 콜백
   disabled?: boolean; // true이면 달력 열기 불가
   maxDate?: string; // YYYY-MM-DD, 이 날짜 이후는 선택 불가 (미래 날짜 제한)
+  reportDates?: string[]; // 리포트가 존재하는 날짜 목록 (YYYY-MM-DD), 숫자 색을 다르게 표시
 }
 
 // 요일 헤더 텍스트 (일요일부터 토요일 순)
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
-// 오늘 날짜를 YYYY-MM-DD 형식으로 반환하는 유틸 함수
-const todayStr = () => new Date().toISOString().split('T')[0];
+// 오늘 날짜를 로컬 시간 기준 YYYY-MM-DD 형식으로 반환하는 유틸 함수 (toISOString은 UTC라 자정~오전9시 KST에 날짜가 하루 밀림)
+const todayStr = () => {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
 
-const Calender: React.FC<CalenderProps> = ({ selectedDate, onChange, disabled, maxDate }) => {
+const Calender: React.FC<CalenderProps> = ({ selectedDate, onChange, disabled, maxDate, reportDates }) => {
   // 달력 팝업 열림/닫힘 상태
   const [isOpen, setIsOpen] = useState(false);
   // 초기 표시 연도·월: 선택된 날짜 기준, 없으면 오늘 기준
@@ -118,6 +125,7 @@ const Calender: React.FC<CalenderProps> = ({ selectedDate, onChange, disabled, m
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     const firstDay = new Date(viewYear, viewMonth, 1).getDay();
     const today = todayStr();
+    const reportDateSet = new Set(reportDates);
     const cells: React.ReactNode[] = [];
 
     // 1일 이전 빈 셀로 요일 자리 맞춤
@@ -133,11 +141,12 @@ const Calender: React.FC<CalenderProps> = ({ selectedDate, onChange, disabled, m
       const isSelected = selectedDate && dateStr === selectedDate; // 선택된 날짜
       const isToday = dateStr === today;                           // 오늘 날짜
       const isFuture = maxDate ? dateStr > maxDate : false;        // 선택 불가 미래 날짜
+      const hasReport = reportDateSet.has(dateStr);                 // 리포트가 존재하는 날짜
 
       cells.push(
         <div
           key={day}
-          className={`dp-cell dp-day${isSelected ? ' dp-selected' : ''}${isToday && !isSelected ? ' dp-today' : ''}${isFuture ? ' dp-future' : ''}`}
+          className={`dp-cell dp-day${isSelected ? ' dp-selected' : ''}${isToday && !isSelected ? ' dp-today' : ''}${isFuture ? ' dp-future' : ''}${hasReport && !isSelected ? ' dp-has-report' : ''}`}
           onClick={isFuture ? undefined : () => handleDayClick(day)}
         >
           {day}
