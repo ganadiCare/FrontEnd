@@ -20,7 +20,15 @@ import waterIcon from './image_folder/Water.png';
 const MainScreen: React.FC = () => {
   const navigate = useNavigate();
   const currentScreen = 'main';
-  const today = new Date().toISOString().split('T')[0];
+  
+  // Date 객체를 로컬 시간 기준 YYYY-MM-DD 문자열로 변환 (toISOString은 UTC라 자정~오전9시 KST에 날짜가 하루 밀림)
+  const toLocalDateStr = (d: Date): string => {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+  const today = toLocalDateStr(new Date()); // 오늘 날짜
 
   const { petData } = usePet();
   const { cameraData } = useCamera();
