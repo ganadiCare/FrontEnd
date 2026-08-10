@@ -68,7 +68,7 @@ const LiveBox: React.FC<LiveBoxProps> = (
         {/* 우측 상단 태양(밝기) 아이콘 */}
         <div className={camera ? "brightness-icon" : "brightness-icon hide"}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2">
-            {camera?.nightVision=="OFF" || camera?.nightVision=="AUTO" ? (
+            {camera?.nightVision=="ON" ? (
               <path d="M12 21C16.9706 21 21 16.9706 21 12C21 11.9156 20.9988 11.8316 20.9965 11.7477C19.8634 12.5371 18.4857 13 17 13C13.134 13 10 9.86601 10 6.00002C10 4.96731 10.2236 3.98683 10.6251 3.10437C6.30715 3.76627 3 7.49693 3 12C3 16.9706 7.02944 21 12 21Z" />
             ):(<>
               <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>

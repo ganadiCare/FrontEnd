@@ -12,7 +12,8 @@ import Nav from './components/Nav';
 import RingGraph from './components/RingGraph';
 import LiveBox from './components/LiveBox';
 
-import defaultProfile from './image_folder/DefaultProfile.png'
+import profile_dog from './image_folder/Profile_Dog.png';
+import profile_cat from './image_folder/Profile_Cat.png';
 import acivityIcon from './image_folder/Activity.png'
 import feedIcon from './image_folder/Feed.png'
 import waterIcon from './image_folder/Water.png';
@@ -20,7 +21,7 @@ import waterIcon from './image_folder/Water.png';
 const MainScreen: React.FC = () => {
   const navigate = useNavigate();
   const currentScreen = 'main';
-  
+
   // Date 객체를 로컬 시간 기준 YYYY-MM-DD 문자열로 변환 (toISOString은 UTC라 자정~오전9시 KST에 날짜가 하루 밀림)
   const toLocalDateStr = (d: Date): string => {
     const yyyy = d.getFullYear();
@@ -68,7 +69,7 @@ const MainScreen: React.FC = () => {
               <div className="profile-wrapper">
                 <img
                     className="profile-image" 
-                    src={defaultProfile}
+                    src={petData?.species=='CAT' ? profile_cat : profile_dog}
                     alt="profile image"
                 />
               </div>
@@ -120,7 +121,7 @@ const MainScreen: React.FC = () => {
             <h2 className="section-heading">AI 요약</h2>
           </div>
           <p className="small-text">
-            {reportData ? setAiSummary() : '오늘의 리포트가 아직 존재하지 않아요!'}
+            {reportData?.aiSummary ? setAiSummary() : '오늘의 리포트가 아직 존재하지 않아요!'}
           </p>
 
           <button 

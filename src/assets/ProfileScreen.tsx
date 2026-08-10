@@ -11,7 +11,8 @@ import Header from './components/Header';
 import Nav from './components/Nav';
 import Popup from './components/Popup';
 
-import defaultProfile from './image_folder/DefaultProfile.png';
+import profile_dog from './image_folder/Profile_Dog.png';
+import profile_cat from './image_folder/Profile_Cat.png';
 
 type PetData = components['schemas']['PetDTO'];
 type UpdatePetData = components['schemas']['UpdatePetDTO'];
@@ -24,13 +25,15 @@ const ProfileScreen: React.FC = () => {
   const { profileData, userLogout, userDelete } = useProfile();
 
   const [localPet, setLocalPet] = useState<PetData | null>(petData);
+  const [birthdayNull, setBirthdayNull] = useState(petData?.birthday=='1900-01-01');
   const [petNameError, setPetNameError] = useState('');
   const [petAgeError, setPetAgeError] = useState('');
   const [petWeightError, setPetWeightError] = useState('');
 
-  const [logoutPopup, setLogoutPopup] = useState(false);
   const [targetPopup, setTargetPopup] = useState(false);
-
+  const [logoutPopup, setLogoutPopup] = useState(false);
+  const [userDeletePopup, setUserDeletePopup] = useState(false);
+  
   if (!localPet && petData) {
     setLocalPet(petData);
   }
@@ -49,28 +52,29 @@ const ProfileScreen: React.FC = () => {
   };
 
   /* 생일 변경 함수 */
-  const changeBirthday = (type: 'month' | 'day' | 'unknown', e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  const changeBirthday = (type: 'month' | 'day', e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     setLocalPet((prev) => {
       const currentData = prev || {} as PetData;
-      const currentBirthday = currentData.birthday || '2026-00-00';
+      const currentBirthday = currentData.birthday || null;
       
-      const [year, month, day] = currentBirthday.split('-');
+      let year, month, day;
+      if (currentBirthday != null) {[year, month, day] = currentBirthday.split('-');}
       let newBirthday = currentBirthday;
 
-      if (type === 'unknown') {
-        const isChecked = (e.target as HTMLInputElement).checked;
-        newBirthday = isChecked ? '2026-00-00' : currentBirthday;
-      } else {
-        const value = e.target.value;
-        newBirthday = type === 'month' ? `${year}-${value}-${day}` : `${year}-${month}-${value}`;
-      }
+      const value = e.target.value;
+      newBirthday = type === 'month' ? `${year}-${value}-${day}` : `${year}-${month}-${value}`;
 
       return {
         ...prev,
         birthday: newBirthday,
       } as PetData;
     });
-  };
+  }
+
+  const handleBirthdayNull = () => {
+    const mode = !birthdayNull;
+    setBirthdayNull(mode);
+  }
 
   const savePet = async() => {
     let check = true;
@@ -102,6 +106,13 @@ const ProfileScreen: React.FC = () => {
       setPetWeightError('')
     }
 
+    let birthday;
+    if (birthdayNull) {
+      birthday = '1900-01-01';
+    } else {
+      birthday = localPet?.birthday ?? '1900-01-01';
+    }
+
     if (check && localPet) {
       const updateData: UpdatePetData = {
         name: localPet.name ?? "",
@@ -109,7 +120,7 @@ const ProfileScreen: React.FC = () => {
         gender: localPet.gender ?? "MALE",
         age: localPet.age ?? 0,
         weight: localPet.weight ?? 0,
-        birthday: localPet.birthday ?? "2026-00-00"
+        birthday: birthday
       };
       updatePet(updateData);
     }
@@ -141,37 +152,39 @@ const ProfileScreen: React.FC = () => {
           </div>
           
           <form className='input-form' action="">
+            {/*
+            <input
+              type="file"
+              id="pet-image"
+              className='file-input'
+              accept="image/*"
+            />
+            <label 
+              htmlFor="pet-image" 
+              className='small-button'
+            >이미지 변경</label>
+            */}
             <div className='input-box row'>
               <div className="profile-wrapper">
                 <img
                   className="profile-image" 
-                  src={defaultProfile}
+                  src={petData?.species=='CAT' ? profile_cat : profile_dog}
                   alt="profile image"
                 />
               </div>
-              <input
-                type="file"
-                id="pet-image"
-                className='file-input'
-                accept="image/*"
-              />
-              <label 
-                htmlFor="pet-image" 
-                className='small-button'
-              >이미지 변경</label>
-            </div>
 
-            <div className='input-box column'>
-              <label className='input-label'>이름
-                <input className='text-input'
-                type="text"
-                name="name"
-                value={localPet?.name}
-                placeholder='반려동물 이름'
-                onChange={changePet}
-                />
-              </label>
-              <span className='message error'>{petNameError}</span>
+              <div className='input-box column'>
+                <label className='input-label'>이름
+                  <input className='text-input'
+                  type="text"
+                  name="name"
+                  value={localPet?.name}
+                  placeholder='반려동물 이름'
+                  onChange={changePet}
+                  />
+                </label>
+                <span className='message error'>{petNameError}</span>
+              </div>
             </div>
 
             <div className='input-box column'>
@@ -238,6 +251,7 @@ const ProfileScreen: React.FC = () => {
                   className="select-input"
                   value={localPet?.birthday?.split('-')[1]}
                   aria-label='month'
+                  disabled={birthdayNull}
                   onChange={(e) => changeBirthday('month', e)}
                 >
                   {Array.from({ length: 12 }, (_, i) => {
@@ -249,6 +263,7 @@ const ProfileScreen: React.FC = () => {
                   className="select-input"
                   value={localPet?.birthday?.split('-')[2]}
                   aria-label='day'
+                  disabled={birthdayNull}
                   onChange={(e) => changeBirthday('day', e)}
                 >
                   {Array.from({ length: 31 }, (_, i) => {
@@ -263,7 +278,8 @@ const ProfileScreen: React.FC = () => {
                       type="checkbox"
                       id="unknown-birthday"
                       className="checkbox-input"
-                      onChange={(e)=>changeBirthday('unknown', e)}
+                      checked={birthdayNull}
+                      onChange={handleBirthdayNull}
                     />
                     생일 불명
                   </label>
@@ -339,24 +355,14 @@ const ProfileScreen: React.FC = () => {
               <button type="button" className='medium-button'
                 onClick={()=>setLogoutPopup(true)}
               >로그아웃</button>
-              <button type="button" className='medium-button'>계정 삭제</button>
+
+              <button type="button" className='medium-button'
+                onClick={()=>setUserDeletePopup(true)}
+              >계정 삭제</button>
             </div>
           </form>
         </section>
       </main>
-
-      <Popup
-        popupMessage={
-          {
-            title: '정말로 로그아웃 하시겠습니까?',
-            type: 'OX'
-          }
-        }
-        visible={logoutPopup}
-        onBackgroundClick={()=>setLogoutPopup(false)}
-        onOkClick={()=>logout()}
-        onCancelClick={()=>setLogoutPopup(false)}
-      />
 
       <Popup
         popupMessage={
@@ -379,6 +385,32 @@ const ProfileScreen: React.FC = () => {
         visible={targetPopup}
         onBackgroundClick={()=>setTargetPopup(false)}
         onOkClick={()=>setTargetPopup(false)}
+      />
+
+      <Popup
+        popupMessage={
+          {
+            title: '정말로 로그아웃 하시겠습니까?',
+            type: 'OX'
+          }
+        }
+        visible={logoutPopup}
+        onBackgroundClick={()=>setLogoutPopup(false)}
+        onOkClick={()=>logout()}
+        onCancelClick={()=>setLogoutPopup(false)}
+      />
+
+      <Popup
+        popupMessage={
+          {
+            title: '정말로 계정을 삭제하시겠습니까?',
+            type: 'OX'
+          }
+        }
+        visible={userDeletePopup}
+        onBackgroundClick={()=>setUserDeletePopup(false)}
+        onOkClick={()=>userDelete()}
+        onCancelClick={()=>setUserDeletePopup(false)}
       />
 
       <Nav currentScreen={currentScreen} />
