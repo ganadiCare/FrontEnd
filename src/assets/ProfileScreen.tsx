@@ -51,18 +51,33 @@ const ProfileScreen: React.FC = () => {
     });
   };
 
-  /* 생일 변경 함수 */
-  const changeBirthday = (type: 'month' | 'day', e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  // 생년 설정 함수
+  const setBirthYear = () => {
     setLocalPet((prev) => {
       const currentData = prev || {} as PetData;
-      const currentBirthday = currentData.birthday || null;
+      const birthYear = currentData ? new Date().getFullYear() - (currentData.age ?? 0)+ 1 : null;
+
+      const currentBirthday = currentData.birthday ?? '1900-01-01';
+      const [year, month, day] = currentBirthday.split('-');
+
+      return {
+        ...prev,
+        birthday: `${birthYear}-${month}-${day}`,
+      } as PetData;
+    });
+  }
+
+  /* 생일 변경 함수 */
+  const changeBirthday = (type: 'MONTH' | 'DAY', e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    setLocalPet((prev) => {
+      const currentData = prev || {} as PetData;
+      const currentBirthday = currentData.birthday ?? '1900-01-01';
       
-      let year, month, day;
-      if (currentBirthday != null) {[year, month, day] = currentBirthday.split('-');}
+      const [year, month, day] = currentBirthday.split('-');
       let newBirthday = currentBirthday;
 
       const value = e.target.value;
-      newBirthday = type === 'month' ? `${year}-${value}-${day}` : `${year}-${month}-${value}`;
+      newBirthday = type === 'MONTH' ? `${year}-${value}-${day}` : `${year}-${month}-${value}`;
 
       return {
         ...prev,
@@ -74,6 +89,7 @@ const ProfileScreen: React.FC = () => {
   const handleBirthdayNull = () => {
     const mode = !birthdayNull;
     setBirthdayNull(mode);
+    if (!mode) setBirthYear();
   }
 
   const savePet = async() => {
@@ -137,7 +153,7 @@ const ProfileScreen: React.FC = () => {
   }
 
   //목표값 계산
-    const maxValue = calculatePetTargets(petData)
+  const maxValue = calculatePetTargets(petData)
 
   return (
     <>
@@ -252,7 +268,7 @@ const ProfileScreen: React.FC = () => {
                   value={localPet?.birthday?.split('-')[1]}
                   aria-label='month'
                   disabled={birthdayNull}
-                  onChange={(e) => changeBirthday('month', e)}
+                  onChange={(e) => changeBirthday('MONTH', e)}
                 >
                   {Array.from({ length: 12 }, (_, i) => {
                     const m = String(i + 1).padStart(2, '0');
@@ -264,7 +280,7 @@ const ProfileScreen: React.FC = () => {
                   value={localPet?.birthday?.split('-')[2]}
                   aria-label='day'
                   disabled={birthdayNull}
-                  onChange={(e) => changeBirthday('day', e)}
+                  onChange={(e) => changeBirthday('DAY', e)}
                 >
                   {Array.from({ length: 31 }, (_, i) => {
                     const d = String(i + 1).padStart(2, '0');
