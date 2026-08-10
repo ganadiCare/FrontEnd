@@ -189,7 +189,7 @@
 }
 
 .medium-button {
-  width: 100px;
+  min-width: 100px;
   padding: 10px 14px;
   margin: 8px 0px;
   border: none;
@@ -208,10 +208,6 @@
 
 .medium-button:hover {
   background-color: #0077cc;
-}
-
-.medium-button.free{
-  width: max-content;
 }
 
 .text-button{

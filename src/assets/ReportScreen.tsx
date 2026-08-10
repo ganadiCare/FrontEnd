@@ -44,7 +44,6 @@ const toLocalDateStr = (d: Date): string => {
   const dd = String(d.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
 };
-
 const today = toLocalDateStr(new Date()); // 오늘 날짜
 
 
@@ -169,7 +168,7 @@ const ReportScreen: React.FC = () => {
                 </span>
               ))}
               <button
-                className="small-button"
+                className="medium-button"
                 onClick={()=>refreshReport()}
                 disabled={isReportLoading || isCreating}
               >

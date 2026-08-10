@@ -23,10 +23,11 @@ const todayStr = () => {
 };
 
 const Calender: React.FC<CalenderProps> = ({ selectedDate, onChange, disabled, maxDate, reportDates }) => {
-  // 달력 팝업 열림/닫힘 상태
-  const [isOpen, setIsOpen] = useState(false);
   // 초기 표시 연도·월: 선택된 날짜 기준, 없으면 오늘 기준
   const base = selectedDate ? new Date(selectedDate) : new Date();
+
+  const [prevSelectedDate, setPrevSelectedDate] = useState(selectedDate);
+  const [isOpen, setIsOpen] = useState(false);
   const [viewYear, setViewYear] = useState(base.getFullYear());
   const [viewMonth, setViewMonth] = useState(base.getMonth());
 
@@ -52,11 +53,12 @@ const Calender: React.FC<CalenderProps> = ({ selectedDate, onChange, disabled, m
 
   // ─── 선택 날짜 변경 시 달력 뷰 동기화 ──────────────────────────────────────
   // 부모에서 selectedDate가 바뀌면 달력이 해당 연도·월로 이동
-  useEffect(() => {
+  if (selectedDate !== prevSelectedDate) {
+    setPrevSelectedDate(selectedDate);
     const d = selectedDate ? new Date(selectedDate) : new Date();
     setViewYear(d.getFullYear());
     setViewMonth(d.getMonth());
-  }, [selectedDate]);
+  }
 
   // ─── 달력 아이콘 클릭 → 팝업 열기/닫기 ────────────────────────────────────
   // 트리거 위치를 기준으로 팝업을 아래 또는 위에 배치하고,
