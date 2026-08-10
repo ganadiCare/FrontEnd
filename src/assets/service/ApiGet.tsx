@@ -402,3 +402,20 @@ export async function updateMemo(
     console.log('로딩 종료');
   }
 }
+
+//Notification API 관련
+export function createNotificationStream() {
+  console.log('Notification 스트림 연결 시도 중...');
+  try {
+    const url = `/api/v1/notifications/stream`;
+    const eventSource = new EventSource(url, {
+      withCredentials: true,
+    });
+    console.log('Notification 스트림 객체 생성 성공');
+    return eventSource;
+  } catch (error) {
+    console.log('Notification 스트림 연결 실패');
+    console.error(error);
+    throw error;
+  }
+}

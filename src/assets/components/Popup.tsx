@@ -22,7 +22,7 @@ const Popup: React.FC<PopupProps> = (
 ) => {
     return (
         <div
-            className={visible ? 'popup-background' : 'popup-background hide'}
+            className={`popup-background${boxClassName ? ' ' + boxClassName : ''}${visible ? '' : ' hide'}`}
             onClick={onBackgroundClick}
         >
             <div className={`popup-box${boxClassName ? ' ' + boxClassName : ''}${visible ? '' : ' hide'}`}>
@@ -32,14 +32,21 @@ const Popup: React.FC<PopupProps> = (
 
                 <div className={popupMessage?.type=='OK' ? 'popup-buttons' : 'popup-buttons hide'}>
                     <button type="button" className='medium-button'
-                    onClick={onOkClick} >확인</button>
+                    onClick={onOkClick}>확인</button>
+                </div>
+
+                <div className={popupMessage?.type=='OKC' ? 'popup-buttons' : 'popup-buttons hide'}>
+                    <button type="button" className='medium-button'
+                    onClick={onOkClick}>확인</button>
+                    <button type="button" className='medium-button'
+                    onClick={onCancelClick}>취소</button>
                 </div>
                 
                 <div className={popupMessage?.type=='OX' ? 'popup-buttons' : 'popup-buttons hide'}>
                     <button type="button" className='medium-button'
-                    onClick={onOkClick} >예</button>
+                    onClick={onOkClick}>예</button>
                     <button type="button" className='medium-button'
-                    onClick={onCancelClick} >아니오</button>
+                    onClick={onCancelClick}>아니오</button>
                 </div>
             </div>
         </div>

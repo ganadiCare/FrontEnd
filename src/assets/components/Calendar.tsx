@@ -14,13 +14,13 @@ interface CalenderProps {
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 // 오늘 날짜를 로컬 시간 기준 YYYY-MM-DD 형식으로 반환하는 유틸 함수 (toISOString은 UTC라 자정~오전9시 KST에 날짜가 하루 밀림)
-const todayStr = () => {
-  const d = new Date();
+const toLocalDateStr = (d: Date): string => {
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
 };
+const todayStr = toLocalDateStr(new Date());
 
 const Calender: React.FC<CalenderProps> = ({ selectedDate, onChange, disabled, maxDate, reportDates }) => {
   // 초기 표시 연도·월: 선택된 날짜 기준, 없으면 오늘 기준
@@ -126,7 +126,7 @@ const Calender: React.FC<CalenderProps> = ({ selectedDate, onChange, disabled, m
     // 해당 월의 총 일수와 1일의 요일(0=일 ~ 6=토)
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     const firstDay = new Date(viewYear, viewMonth, 1).getDay();
-    const today = todayStr();
+    const today = todayStr;
     const reportDateSet = new Set(reportDates);
     const cells: React.ReactNode[] = [];
 

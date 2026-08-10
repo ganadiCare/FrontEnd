@@ -74,7 +74,7 @@ const SignUpStep2: React.FC = () => {
 
   return (
     <div className="signup-wrapper">
-      <Header title="회원가입" useNotification={false} />
+      <Header title="회원가입" useNotice={false} />
 
       <div className="signup-body">
 
@@ -171,12 +171,12 @@ const SignUpStep2: React.FC = () => {
       <Popup
         popupMessage={
           {
-            title: '처음 화면으로 이동합니다.',
+            title: '처음 화면으로 이동하시겠습니까?',
             content: '회원가입을 다시 진행해야 합니다.',
-            type: 'OK'
+            type: 'OKC'
           }
         }
-        boxClassName="popup-box-signup"
+        boxClassName="signup"
         visible={backPopup}
         onBackgroundClick={() => setBackPopup(false)}
         onOkClick={() => navigate('/', { replace: true })}

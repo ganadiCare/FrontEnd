@@ -35,9 +35,13 @@ const MainScreen: React.FC = () => {
   const { cameraData } = useCamera();
   const { reportData, activityList } = useReport(today);
 
+  // AI 요약 추출
   const setAiSummary = () => {
-    return reportData?.aiSummary?.split("요약")[1]?.trim();
-  }
+    const summary = reportData?.aiSummary;
+    if (!summary) return "";
+    const match = summary.match(/\[오늘의 한눈 요약\]\s*\n([\s\S]*?)(?=\n\s*\[|$)/);
+    return match ? match[1].trim() : "";
+  };
 
   // 활동 로그 시간 합산
   const totalActivity = activityList && activityList.length > 0

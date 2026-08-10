@@ -20,7 +20,7 @@ const SignUpComplete: React.FC = () => {
 
   return (
     <div className="complete-wrapper">
-      <Header title="SIGN UP" useNotification={false} useBack={false} />
+      <Header title="SIGN UP" useNotice={false} useBack={false} />
 
       <div className="complete-body">
         <div className="complete-icon">

@@ -55,7 +55,7 @@ const LoginScreen: React.FC = () => {
 
   return (
     <>
-      <Header title="로그인" useNotification={false} />
+      <Header title="로그인" useNotice={false} />
 
       <div className="form-content">
         <form className="login-form">

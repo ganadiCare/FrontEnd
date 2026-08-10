@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useNotification } from '../store/useNotification'
 import '../css/templete.css';
 
 import Notice from './Notice';
@@ -13,29 +14,31 @@ interface HeaderProps {
   visible?: boolean;
   useRefresh?: boolean;
   useProfile?: boolean;
-  useNotification?: boolean;
+  useNotice?: boolean;
   useBack?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = (
-  {title, visible=true, useProfile=false, useRefresh=false, useNotification=true, useBack=true
+  {title, visible=true, useProfile=false, useRefresh=false, useNotice=true, useBack=true
 }) => {
   const navigate = useNavigate()
 
-  const [notice, setNotice] = useState(false);
+  const { notifications } = useNotification();
+
+  const [noticeOn, setNoticeOn] = useState(false);
 
   const controlBackButton = () => {
     if (useRefresh) {
       window.location.reload();
-    } else if(notice){
-      setNotice(false);
+    } else if(noticeOn){
+      setNoticeOn(false);
     } else {
       navigate(-1);
     }
   }
 
   const controlNoticeButton = () => {
-    setNotice(!notice);
+    setNoticeOn(!noticeOn);
   }
   
   return (
@@ -45,33 +48,34 @@ const Header: React.FC<HeaderProps> = (
           <img
             src={back}
             alt="Back"
-            className={(useBack && !useProfile) || notice ? 'header-icon' : 'header-icon hide'}
+            className={(useBack && !useProfile) || noticeOn ? 'header-icon' : 'header-icon hide'}
             onClick={controlBackButton}
           />
 
           <img
             src={user}
             alt="Profile"
-            className={useProfile && !notice ?'header-icon':'header-icon hide'}
+            className={useProfile && !noticeOn ?'header-icon':'header-icon hide'}
             onClick={() => navigate('/profile')}
           />
         </div>
 
-        <h2 className="header-title">{notice ? 'NOTIFICATION' : title}</h2>
+        <h2 className="header-title">{noticeOn ? 'NOTIFICATION' : title}</h2>
 
         <div className='icon-wrapper'>
-          <div className={useNotification?'icon-wrapper':'hide'} onClick={controlNoticeButton}>
+          <div className={useNotice ?'icon-wrapper':'hide'} onClick={controlNoticeButton}>
             <img
               src={notification}
               alt="Notification"
               className='header-icon'
             />
-            <span className='badge'>99</span>
+            <span className={ (notifications?.length>0) && !noticeOn ? 'badge' : 'badge hide' }
+              >{notifications?.length}</span>
           </div>
         </div>
       </header>
       
-      <Notice visible={notice}/>
+      <Notice visible={noticeOn}/>
     </>
   );
 };
