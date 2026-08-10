@@ -7,19 +7,27 @@ interface CalenderProps {
   onChange: (date: string) => void; // 날짜 선택 시 호출되는 콜백
   disabled?: boolean; // true이면 달력 열기 불가
   maxDate?: string; // YYYY-MM-DD, 이 날짜 이후는 선택 불가 (미래 날짜 제한)
+  reportDates?: string[]; // 리포트가 존재하는 날짜 목록 (YYYY-MM-DD), 숫자 색을 다르게 표시
 }
 
 // 요일 헤더 텍스트 (일요일부터 토요일 순)
 const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
 // 오늘 날짜를 YYYY-MM-DD 형식으로 반환하는 유틸 함수
-const todayStr = () => new Date().toISOString().split('T')[0];
+const todayStr = () => {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
 
-const Calender: React.FC<CalenderProps> = ({ selectedDate, onChange, disabled, maxDate }) => {
-  // 달력 팝업 열림/닫힘 상태
-  const [isOpen, setIsOpen] = useState(false);
+const Calender: React.FC<CalenderProps> = ({ selectedDate, onChange, disabled, maxDate, reportDates }) => {
   // 초기 표시 연도·월: 선택된 날짜 기준, 없으면 오늘 기준
   const base = selectedDate ? new Date(selectedDate) : new Date();
+
+  const [prevSelectedDate, setPrevSelectedDate] = useState(selectedDate);
+  const [isOpen, setIsOpen] = useState(false);
   const [viewYear, setViewYear] = useState(base.getFullYear());
   const [viewMonth, setViewMonth] = useState(base.getMonth());
 
@@ -45,11 +53,12 @@ const Calender: React.FC<CalenderProps> = ({ selectedDate, onChange, disabled, m
 
   // ─── 선택 날짜 변경 시 달력 뷰 동기화 ──────────────────────────────────────
   // 부모에서 selectedDate가 바뀌면 달력이 해당 연도·월로 이동
-  useEffect(() => {
+  if (selectedDate !== prevSelectedDate) {
+    setPrevSelectedDate(selectedDate);
     const d = selectedDate ? new Date(selectedDate) : new Date();
     setViewYear(d.getFullYear());
     setViewMonth(d.getMonth());
-  }, [selectedDate]);
+  }
 
   // ─── 달력 아이콘 클릭 → 팝업 열기/닫기 ────────────────────────────────────
   // 트리거 위치를 기준으로 팝업을 아래 또는 위에 배치하고,
@@ -118,6 +127,7 @@ const Calender: React.FC<CalenderProps> = ({ selectedDate, onChange, disabled, m
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     const firstDay = new Date(viewYear, viewMonth, 1).getDay();
     const today = todayStr();
+    const reportDateSet = new Set(reportDates);
     const cells: React.ReactNode[] = [];
 
     // 1일 이전 빈 셀로 요일 자리 맞춤
@@ -132,12 +142,13 @@ const Calender: React.FC<CalenderProps> = ({ selectedDate, onChange, disabled, m
       const dateStr = `${viewYear}-${mm}-${dd}`;
       const isSelected = selectedDate && dateStr === selectedDate; // 선택된 날짜
       const isToday = dateStr === today;                           // 오늘 날짜
-      const isFuture = maxDate ? dateStr > maxDate : false;        // 선택 불가 미래 날짜
+      const isFuture = maxDate ? dateStr > maxDate : false; 
+      const hasReport = reportDateSet.has(dateStr); // 리포트가 존재하는 날짜       // 선택 불가 미래 날짜
 
       cells.push(
         <div
           key={day}
-          className={`dp-cell dp-day${isSelected ? ' dp-selected' : ''}${isToday && !isSelected ? ' dp-today' : ''}${isFuture ? ' dp-future' : ''}`}
+          className={`dp-cell dp-day${isSelected ? ' dp-selected' : ''}${isToday && !isSelected ? ' dp-today' : ''}${isFuture ? ' dp-future' : ''}${hasReport && !isSelected ? ' dp-has-report' : ''}`}
           onClick={isFuture ? undefined : () => handleDayClick(day)}
         >
           {day}

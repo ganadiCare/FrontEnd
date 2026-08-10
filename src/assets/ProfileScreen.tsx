@@ -278,7 +278,7 @@ const ProfileScreen: React.FC = () => {
               >{isUpdatingPet ? '저장 중...' : '저장하기'}</button>
 
               <button type="button"
-                className='medium-button free'
+                className='medium-button'
                 onClick={()=>setTargetPopup(true)}
               >일일 권장 목표</button>
             </div>

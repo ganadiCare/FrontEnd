@@ -93,7 +93,7 @@ const MainScreen: React.FC = () => {
           <div className='heading-wrapper'>
             <h2 className="section-heading">LIVE</h2>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="10" cy="10" r="5" fill={cameraData ? "#f00" : "#aaa"}/>
+              <circle cx="10" cy="10" r="5" fill={!cameraData?.isPrivateMode ? "#f00" : "#aaa"}/>
             </svg>
             <p className={cameraData ? 'message hide' : 'message error'}
             >카메라와 연결되지 않았습니다</p>

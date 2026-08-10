@@ -37,10 +37,14 @@ const activitiesToHourly = (activities: { detectedStartedAt: string | undefined;
   return hourly;
 };
 
-const day = new Date()
-const today = day.toISOString().split('T')[0]; // 오늘 날짜
-day.setDate(day.getDate() + 1);
-const tomorrow = day.toISOString().split('T')[0]; // 내일 날짜
+// Date 객체를 로컬 시간 기준 YYYY-MM-DD 문자열로 변환 (toISOString은 UTC라 자정~오전9시 KST에 날짜가 하루 밀림)
+const toLocalDateStr = (d: Date): string => {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+const today = toLocalDateStr(new Date()); // 오늘 날짜
 
 
 const ReportScreen: React.FC = () => {
@@ -53,6 +57,7 @@ const ReportScreen: React.FC = () => {
 
   const {
     reportData,
+    reportList,
     activityList,
     isReportLoading,
     isCreating,
@@ -61,6 +66,11 @@ const ReportScreen: React.FC = () => {
     deleteReport,
     updateMemo
   } = useReport(selectedDate);
+
+  // 리포트가 존재하는 날짜 목록
+  const reportDates = reportList
+    .map(r => r.reportDate)
+    .filter((d): d is string => !!d);
 
   const currentReportId = reportData?.reportId;
   if (currentReportId !== prevReportId) {
@@ -98,7 +108,7 @@ const ReportScreen: React.FC = () => {
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
     const next = `${yyyy}-${mm}-${dd}`;
-    if (next > tomorrow) return; // 미래 날짜 이동 차단
+    if (next > today) return; // 미래 날짜 이동 차단
     setSelectedDate(next);
   };
 
@@ -133,7 +143,7 @@ const ReportScreen: React.FC = () => {
       {/* 날짜 선택 바: < 이전 날 / 날짜 표시 / 다음 날 > + 달력 아이콘 */}
       <div className="report-date-bar">
         <button className="date-arrow" onClick={() => handleDateChange(-1)}>{'<'}</button>
-        <Calender selectedDate={selectedDate} onChange={setSelectedDate} maxDate={tomorrow} />
+        <Calender selectedDate={selectedDate} onChange={setSelectedDate} maxDate={today} reportDates={reportDates}/>
         {/*<span className="date-text">{selectedDate.replace(/-/g, '.')}</span>*/}
         <button className={(today>selectedDate) ? "date-arrow" : "date-arrow-disable"}
         onClick={() => handleDateChange(1)}>{'>'}</button>
@@ -158,7 +168,7 @@ const ReportScreen: React.FC = () => {
                 </span>
               ))}
               <button
-                className="small-button"
+                className="medium-button"
                 onClick={()=>refreshReport()}
                 disabled={isReportLoading || isCreating}
               >

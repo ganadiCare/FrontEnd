@@ -16,7 +16,7 @@ import Camera from './image_folder/Camera.png'
 const LiveScreen: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const currentScreen = 'live';
+  const currentScreen = 'camera';
 
   const { cameraData } = useCamera();
 
