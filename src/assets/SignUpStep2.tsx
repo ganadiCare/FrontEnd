@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './css/signupStep2.css';
+import { useBackGuard } from './hooks/useBackGuard';
 
 import Header from './components/Header';
 import Inputbox from './components/Inputbox';
 import NavigationButton from './components/NavigationButton';
+import Popup from './components/Popup';
 
 interface Device {
   nickname: string;
@@ -14,6 +16,7 @@ interface Device {
 const SignUpStep2: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { backPopup, setBackPopup } = useBackGuard();
   const { nickname = '', email = '', password = '' } = (location.state as { nickname?: string; email?: string; password?: string }) ?? {};
 
   // 1. 상태 관리 (원래 코드 로직 반영)
@@ -158,11 +161,26 @@ const SignUpStep2: React.FC = () => {
                 password,
                 cameraCode: cameraList[0]?.code ?? '',
                 dispenserCode: dispenserList[0]?.code ?? '',
-              }
+              },
+              replace: true
             })}
             disabled={cameraList.length === 0}
           />
         </div>
+
+      <Popup
+        popupMessage={
+          {
+            title: '처음 화면으로 이동합니다.',
+            content: '회원가입을 다시 진행해야 합니다.',
+            type: 'OK'
+          }
+        }
+        boxClassName="popup-box-signup"
+        visible={backPopup}
+        onBackgroundClick={() => setBackPopup(false)}
+        onOkClick={() => navigate('/', { replace: true })}
+      />
     </div>
   );
 };

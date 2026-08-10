@@ -11,20 +11,21 @@ interface PopupMessage{
 interface PopupProps {
     popupMessage?: PopupMessage;
     visible?: boolean;
+    boxClassName?: string;
     onBackgroundClick?: ()=>void;
     onOkClick?: ()=>void;
     onCancelClick?: ()=>void;
 }
 
 const Popup: React.FC<PopupProps> = (
-{popupMessage, visible=false, onBackgroundClick , onOkClick, onCancelClick}
+{popupMessage, visible=false, boxClassName, onBackgroundClick , onOkClick, onCancelClick}
 ) => {
     return (
         <div
             className={visible ? 'popup-background' : 'popup-background hide'}
             onClick={onBackgroundClick}
         >
-            <div className={visible ? 'popup-box' : 'popup-box hide'}>
+            <div className={`popup-box${boxClassName ? ' ' + boxClassName : ''}${visible ? '' : ' hide'}`}>
                 <h2 className='section-heading'>{popupMessage?.title}</h2>
                 <hr className='popup-divider'/>
                 <span className='small-text'>{popupMessage?.content}</span>

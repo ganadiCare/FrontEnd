@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import './css/templete.css';
 import './css/signupstep3.css';
+import { useBackGuard } from './hooks/useBackGuard';
 
 import Header from './components/Header';
 import Inputbox from './components/Inputbox';
 import NavigationButton from './components/NavigationButton';
-import DatePicker from './components/DatePicker';
+import Popup from './components/Popup';
 import { signup } from '../api/auth';
 
 const SignUpStep3: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { backPopup, setBackPopup } = useBackGuard();
   const {
     nickname = '',
     email = '',
@@ -31,7 +34,8 @@ const SignUpStep3: React.FC = () => {
   const [gender, setGender] = useState<'MALE' | 'FEMALE' | null>(null);
   const [age, setAge] = useState('');
   const [weight, setWeight] = useState('');
-  const [birthday, setBirthday] = useState('');
+  const [birthMonth, setBirthMonth] = useState('01');
+  const [birthDay, setBirthDay] = useState('01');
   const [isUnknown, setIsUnknown] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,6 +43,12 @@ const SignUpStep3: React.FC = () => {
   const handleSignUp = async () => {
     setIsSubmitting(true);
     try {
+      // 한국 나이 기준: 태어난 해에 이미 1살이므로 출생연도 = 현재연도 - 나이 + 1
+      const birthYear = age ? new Date().getFullYear() - parseInt(age) + 1 : null;
+      const birthday = (!isUnknown && birthYear)
+        ? `${birthYear}-${birthMonth}-${birthDay}`
+        : '1900-01-01';
+
       const res = await signup({
         email,
         password,
@@ -53,11 +63,11 @@ const SignUpStep3: React.FC = () => {
           gender: gender ?? '',
           age: age ? parseInt(age) : 0,
           weight: weight ? parseFloat(weight) : 0,
-          birthday: birthday || '1900-01-01',
+          birthday,
         },
       });
       if (res.isSuccess) {
-        navigate('/signup-complete', { state: { nickname } });
+        navigate('/signup-complete', { state: { nickname }, replace: true });
       } else {
         alert(res.message || '회원가입에 실패했습니다.');
       }
@@ -70,7 +80,7 @@ const SignUpStep3: React.FC = () => {
 
   return (
     <div className="signup-wrapper">
-      <Header title="SIGN UP" useNotification={false} />
+      <Header title="회원가입" useNotification={false} />
 
       <div className="signup-body">
         <div className="signup-form">
@@ -151,25 +161,37 @@ const SignUpStep3: React.FC = () => {
           <div className="signup-section">
             <label className="signup-label">생일</label>
             <div className="birthday-container">
-              <div className={`date-input-wrapper${isUnknown ? ' date-input-disabled' : ''}`}>
-                <span className="birthday-date-text">
-                  {birthday ? birthday.replace(/-/g, '. ') : '날짜를 선택하세요'}
-                </span>
-                <DatePicker
-                  selectedDate={birthday}
-                  onChange={setBirthday}
+              <div className="select-input-box">
+                <select
+                  className="select-input"
+                  value={birthMonth}
+                  aria-label="month"
                   disabled={isUnknown}
-                  maxDate={new Date().toISOString().split('T')[0]}
-                />
+                  onChange={(e) => setBirthMonth(e.target.value)}
+                >
+                  {Array.from({ length: 12 }, (_, i) => {
+                    const m = String(i + 1).padStart(2, '0');
+                    return <option key={m} value={m}>{m}월</option>;
+                  })}
+                </select>
+                <select
+                  className="select-input"
+                  value={birthDay}
+                  aria-label="day"
+                  disabled={isUnknown}
+                  onChange={(e) => setBirthDay(e.target.value)}
+                >
+                  {Array.from({ length: 31 }, (_, i) => {
+                    const d = String(i + 1).padStart(2, '0');
+                    return <option key={d} value={d}>{d}일</option>;
+                  })}
+                </select>
               </div>
               <label className="unknown-checkbox">
                 <input
                   type="checkbox"
                   checked={isUnknown}
-                  onChange={(e) => {
-                    setIsUnknown(e.target.checked);
-                    if (e.target.checked) setBirthday('');
-                  }}
+                  onChange={(e) => setIsUnknown(e.target.checked)}
                 />
                 <span className="checkbox-text">Unknown</span>
               </label>
@@ -187,6 +209,20 @@ const SignUpStep3: React.FC = () => {
           disabled={!petName || !species || !gender || isSubmitting}
         />
       </div>
+
+      <Popup
+        popupMessage={
+          {
+            title: '처음 화면으로 이동합니다.',
+            content: '회원가입을 다시 진행해야 합니다.',
+            type: 'OK'
+          }
+        }
+        boxClassName="popup-box-signup"
+        visible={backPopup}
+        onBackgroundClick={() => setBackPopup(false)}
+        onOkClick={() => navigate('/', { replace: true })}
+      />
     </div>
   );
 };

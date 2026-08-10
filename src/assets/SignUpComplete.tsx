@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './css/signupcomplete.css';
 import Header from './components/Header';
@@ -7,6 +7,16 @@ const SignUpComplete: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const nickname = (location.state as { nickname?: string })?.nickname ?? '반려인';
+
+  // 뒤로가기 자체를 막음 (완료 화면에서는 이동 없이 그대로 유지)
+  useEffect(() => {
+    window.history.pushState(null, '', window.location.href);
+    const handlePopState = () => {
+      window.history.pushState(null, '', window.location.href);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   return (
     <div className="complete-wrapper">
