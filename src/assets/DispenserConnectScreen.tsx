@@ -85,6 +85,7 @@ const DispenserConnectScreen: React.FC = () => {
           </div>
           
           <form className='input-form' action="">
+
             <div className='input-box column'>
               <div className='input-box row'>
                 <label className='input-label'>기기 코드</label>
@@ -108,12 +109,12 @@ const DispenserConnectScreen: React.FC = () => {
                 />
               </div>
               <p className='message error'>{nameError}</p>
-
-              <button type="button"
-                className='medium-button'
-                onClick={()=>connectDevice()}
-              >기기 연결</button>
             </div>
+
+            <button type="button"
+              className='medium-button'
+              onClick={()=>connectDevice()}
+            >기기 연결</button>
           </form>
         </section>
         <hr className="main-divider" />

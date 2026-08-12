@@ -137,7 +137,24 @@ const DispenserDetailScreen: React.FC = () => {
     <>
       <Header title='DISPENSER' />
 
-      <div className="dispenser-control">
+      <main className={ dispenserData?.deviceCode ? "main-content hide" : "main-content" }>
+        <section className="full-section">
+          <div>
+            <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 8L16 16M16 8L8 16" />
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+          </div>
+          <p className="large-text">연결된 디스펜서가 없어요!</p>
+
+          <button
+            className='medium-button'
+            onClick={()=>navigate('/dispenser/connect')}
+          >+ 연결하기</button>
+        </section>
+      </main>
+
+      <div className={ dispenserData?.deviceCode ? "dispenser-control" : "dispenser-control hide" }>
         <button
           className={type==='feed' ? "dispenser-control-button selected" : "dispenser-control-button"}
           onClick={()=>setType('feed')}
@@ -160,7 +177,7 @@ const DispenserDetailScreen: React.FC = () => {
         </button>
       </div>
 
-      <main className="main-content">
+      <main className={ dispenserData?.deviceCode ? "main-content" : "main-content hide" }>
         <section className={type==='feed' ? "main-section line" : "hide"}>
           <div className='heading-wrapper'>
             <h2 className="section-heading">현재 상태</h2>

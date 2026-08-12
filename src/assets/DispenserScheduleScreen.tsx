@@ -164,6 +164,7 @@ const DispenserScheduleScreen: React.FC = () => {
                 />
               </label>
             </div>
+            
             <div className='input-box row'>
               <label className='input-label'>급여량</label>
               <input className='number-input small'
@@ -175,6 +176,7 @@ const DispenserScheduleScreen: React.FC = () => {
               />
               <span className='medium-text'>g</span>
             </div>
+
             <span className='message error'>{scheduleError}</span>
             <button type="button" 
               className='medium-button'

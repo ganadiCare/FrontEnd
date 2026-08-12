@@ -47,7 +47,24 @@ const DispenserScreen: React.FC = () => {
     <>
       <Header title='DISPENSER' useBack={false} />
 
-      <main className="main-content">
+      <main className={ dispenserData?.deviceCode ? "main-content hide" : "main-content" }>
+        <section className="full-section">
+          <div>
+            <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 8L16 16M16 8L8 16" />
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+          </div>
+          <p className="large-text">연결된 디스펜서가 없어요!</p>
+
+          <button
+            className='medium-button'
+            onClick={()=>navigate('/dispenser/connect')}
+          >+ 연결하기</button>
+        </section>
+      </main>
+
+      <main className={ dispenserData?.deviceCode ? "main-content" : "main-content hide" }>
         <section className="main-section line">
           <div className='heading-wrapper'>
             <h2 className="section-heading">급식</h2>

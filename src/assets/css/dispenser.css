@@ -26,3 +26,8 @@
 .dispenser-control-icon{
     width: 30px;
 }
+
+/* 요소 숨기기 */
+.hide{
+  display: none;
+}
