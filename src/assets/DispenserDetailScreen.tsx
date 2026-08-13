@@ -203,11 +203,18 @@ const DispenserDetailScreen: React.FC = () => {
           </div>
 
           <div className="section-box column">
-            <span className="medium-text">다음 급여 시간 : { nextSchedule ?
+            <span className={ dispenserData?.feedingSchedules && dispenserData?.feedingSchedules?.length>0 ?
+              "medium-text hide": "medium-text"}
+            >예약된 스케줄이 없습니다.</span>
+            <span className={ dispenserData?.feedingSchedules && dispenserData?.feedingSchedules?.length>0 ?
+              "medium-text": "medium-text hide"}
+            >다음 급여 시간 : { nextSchedule ?
               `${String(nextSchedule?.scheduleHour).padStart(2, '0')} : ${String(nextSchedule.scheduleMinute).padStart(2, '0')}`
               : '...'}
             </span>
-            <span className="medium-text">다음 급여량 : { nextSchedule ?
+            <span className={ dispenserData?.feedingSchedules && dispenserData?.feedingSchedules?.length>0 ?
+              "medium-text": "medium-text hide"}
+            >다음 급여량 : { nextSchedule ?
               `${nextSchedule.scheduleAmount}g`
               : '...'}
             </span>
