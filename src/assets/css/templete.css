@@ -642,32 +642,6 @@
   filter: invert(48%) sepia(80%) saturate(2852%) hue-rotate(191deg) brightness(101%) contrast(104%);
 }
 
-/* 로딩 표시 */
-.loading-box{
-  width: auto;
-  padding: 20px;
-  gap: 8px;
-  background-color: #9999;
-  border-radius: 20px;
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.loading-content{
-  position: relative;
-  color: #fff;
-  font-family: sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.5;
-}
-
 /* ⭐️ 하단 네비게이션 바 (고정) */
 .bottom-nav {
   position: absolute;

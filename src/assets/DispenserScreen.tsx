@@ -6,6 +6,7 @@ import './css/templete.css';
 
 import Header from "./components/Header";
 import Nav from "./components/Nav";
+import Loading from './components/Loading';
 
 type UpdateDispenserData = components['schemas']['UpdateDispenserDTO'];
 
@@ -13,7 +14,7 @@ const DispenserScreen: React.FC = () => {
   const navigate = useNavigate();
   const currentScreen = 'dispenser';
 
-  const { dispenserData, updateDispenser } = useDispenser();
+  const { dispenserData, isDispenserLoading, updateDispenser } = useDispenser();
 
   const [prevData, setPrevData] = useState(dispenserData);
   const [cleaningMode, setCleaningMode] = useState(dispenserData?.isCleaningMode ?? false);
@@ -47,7 +48,7 @@ const DispenserScreen: React.FC = () => {
     <>
       <Header title='DISPENSER' useBack={false} />
 
-      <main className={ dispenserData?.deviceCode ? "main-content hide" : "main-content" }>
+      <main className={ isDispenserLoading || dispenserData?.deviceCode ? "main-content hide" : "main-content" }>
         <section className="full-section">
           <div>
             <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -119,6 +120,8 @@ const DispenserScreen: React.FC = () => {
           </div>
         </section>
       </main>
+
+      <Loading visible={isDispenserLoading}></Loading>
 
       <Nav currentScreen={currentScreen} />
     </>

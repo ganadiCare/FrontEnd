@@ -11,6 +11,7 @@ import Header from './components/Header';
 import Nav from './components/Nav';
 import RingGraph from './components/RingGraph';
 import LiveBox from './components/LiveBox';
+import Loading from './components/Loading';
 
 import profile_dog from './image_folder/Profile_Dog.png';
 import profile_cat from './image_folder/Profile_Cat.png';
@@ -31,9 +32,9 @@ const MainScreen: React.FC = () => {
   };
   const today = toLocalDateStr(new Date()); // 오늘 날짜
 
-  const { petData } = usePet();
-  const { cameraData } = useCamera();
-  const { reportData, activityList } = useReport(today);
+  const { petData, isPetLoading } = usePet();
+  const { cameraData, isCameraLoading } = useCamera();
+  const { reportData, activityList, isReportLoading } = useReport(today);
 
   // AI 요약 추출
   const setAiSummary = () => {
@@ -112,10 +113,11 @@ const MainScreen: React.FC = () => {
             >카메라와 연결되지 않았습니다</p>
           </div>
           <LiveBox camera={cameraData} isLive={false}/>
-          <p
-            className={!cameraData ? "medium-text text-button" : "medium-text hide"}
+          <p></p>
+          <button 
+            className={!cameraData ? "small-button" : "small-button hide"}
             onClick={()=>navigate('/camera/connect')}
-          >카메라 연결 →</p>
+          >+ 카메라 연결</button>
         </section>
         <hr className="main-divider" />
 
@@ -133,8 +135,9 @@ const MainScreen: React.FC = () => {
             onClick={()=>navigate('/report')}
           >+ 더보기</button>
         </section>
-
       </main>
+
+      <Loading visible={isPetLoading || isCameraLoading || isReportLoading}></Loading>
 
       <Nav currentScreen={currentScreen} />
     </>

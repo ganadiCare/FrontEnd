@@ -10,6 +10,7 @@ import './css/profile.css';
 import Header from './components/Header';
 import Nav from './components/Nav';
 import Popup from './components/Popup';
+import Loading from './components/Loading';
 
 import profile_dog from './image_folder/Profile_Dog.png';
 import profile_cat from './image_folder/Profile_Cat.png';
@@ -21,8 +22,8 @@ const ProfileScreen: React.FC = () => {
   const navigate = useNavigate();
   const currentScreen = 'profile';
 
-  const { petData, updatePet, isUpdatingPet } = usePet();
-  const { profileData, userLogout, userDelete } = useProfile();
+  const { petData, isPetLoading, updatePet, isUpdatingPet } = usePet();
+  const { profileData, isProfileLoading, userLogout, userDelete } = useProfile();
 
   const [localPet, setLocalPet] = useState<PetData | null>(petData);
   const [birthdayNull, setBirthdayNull] = useState(petData?.birthday=='1900-01-01');
@@ -428,6 +429,8 @@ const ProfileScreen: React.FC = () => {
         onOkClick={()=>userDelete()}
         onCancelClick={()=>setUserDeletePopup(false)}
       />
+
+      <Loading visible={isPetLoading || isProfileLoading}></Loading>
 
       <Nav currentScreen={currentScreen} />
     </>

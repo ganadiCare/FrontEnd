@@ -10,6 +10,7 @@ import LiveBox from './components/LiveBox';
 import Controller from './components/Controller';
 import Move from './image_folder/Move.png';
 import Camera from './image_folder/Camera.png'
+import Loading from './components/Loading';
 
 //type CameraData = components['schemas']['CameraDTO'];
 
@@ -18,9 +19,10 @@ const LiveScreen: React.FC = () => {
   const location = useLocation();
   const currentScreen = 'camera';
 
-  const { cameraData } = useCamera();
+  const { cameraData, isCameraLoading } = useCamera();
 
   const [controlBar, setControlBar] = useState(() => {
+    if (isCameraLoading) return false;
     const stateData = location.state as { controlBar?: boolean } | null;
     return stateData?.controlBar ?? false;
   });
@@ -178,7 +180,7 @@ const LiveScreen: React.FC = () => {
         useBack={false}
       />
 
-      <main className={ cameraData?.deviceCode ? "main-content hide" : "main-content" }>
+      <main className={ isCameraLoading || cameraData?.deviceCode ? "main-content hide" : "main-content" }>
         <section className="full-section">
           <div>
             <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -195,7 +197,7 @@ const LiveScreen: React.FC = () => {
         </section>
       </main>
 
-      <main className={ cameraData?.deviceCode ? "main-content full" : "main-content hide" } onClick={clickScreen}>
+      <main className={ isCameraLoading || cameraData?.deviceCode ? "main-content full" : "main-content hide" } onClick={clickScreen}>
         <section className="full-section full">
           <div onClick={(e) => e.stopPropagation()}>
             <LiveBox 
@@ -214,13 +216,21 @@ const LiveScreen: React.FC = () => {
         <div className='control-menu'>
           <div
             className='control-menu-button'
-            onClick={()=>{setControlBar(true); setControl('controller');}}
+            onClick={() => {
+              if (isCameraLoading) return;
+              setControlBar(true); 
+              setControl('controller');
+            }}
           >
             <img className='icon' src={Move} alt="icon" />
           </div>
           <div
             className='control-menu-button'
-            onClick={()=>{setControlBar(true); setControl('button');}}
+            onClick={()=>{
+              if (isCameraLoading) return;
+              setControlBar(true);
+              setControl('button');
+            }}
           >
             <img className='icon' src={Camera} alt="icon" />
           </div>
@@ -274,9 +284,9 @@ const LiveScreen: React.FC = () => {
         </div>
       </section>
 
-      <Nav
-        currentScreen={currentScreen}
-      />
+      <Loading visible={isCameraLoading}></Loading>
+
+      <Nav currentScreen={currentScreen}/>
     </>
   );
 };

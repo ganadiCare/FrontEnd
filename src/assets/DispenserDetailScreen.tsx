@@ -3,12 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispenser } from "./store/useDispenser";
 import type { components } from './service/api';
 import './css/templete.css';
-import './css/dispenser.css'
+import './css/dispenser.css';
 
-import Header from "./components/Header"
-import Nav from "./components/Nav"
+import Header from "./components/Header";
+import Nav from "./components/Nav";
+import Loading from "./components/Loading";
 
-import feedIcon from './image_folder/Feed.png'
+import feedIcon from './image_folder/Feed.png';
 import waterIcon from './image_folder/Water.png';
 
 type UpdateDispenserData = components['schemas']['UpdateDispenserDTO'];
@@ -18,7 +19,7 @@ const DispenserDetailScreen: React.FC = () => {
   const location = useLocation();
   const currentScreen = 'dispenser';
   
-  const { dispenserData, updateDispenser, isUpdating } = useDispenser();
+  const { dispenserData, isDispenserLoading, updateDispenser, isUpdating } = useDispenser();
 
   const [prevData, setPrevData] = useState(dispenserData);
   const [type, setType] = useState(location.state.type ?? 'feed');
@@ -137,7 +138,7 @@ const DispenserDetailScreen: React.FC = () => {
     <>
       <Header title='DISPENSER' />
 
-      <main className={ dispenserData?.deviceCode ? "main-content hide" : "main-content" }>
+      <main className={ isDispenserLoading || dispenserData?.deviceCode ? "main-content hide" : "main-content" }>
         <section className="full-section">
           <div>
             <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -303,6 +304,8 @@ const DispenserDetailScreen: React.FC = () => {
           </div>
         </section>
       </main>
+
+      <Loading visible={isDispenserLoading}></Loading>
 
       <Nav currentScreen={currentScreen} />
     </>
