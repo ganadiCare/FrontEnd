@@ -23,7 +23,7 @@ const ProfileScreen: React.FC = () => {
   const currentScreen = 'profile';
 
   const { petData, isPetLoading, updatePet, isUpdatingPet } = usePet();
-  const { profileData, isProfileLoading, userLogout, userDelete } = useProfile();
+  const { profileData, isProfileLoading, userLogout } = useProfile();
 
   const [localPet, setLocalPet] = useState<PetData | null>(petData);
   const [birthdayNull, setBirthdayNull] = useState(petData?.birthday=='1900-01-01');
@@ -33,8 +33,7 @@ const ProfileScreen: React.FC = () => {
 
   const [targetPopup, setTargetPopup] = useState(false);
   const [logoutPopup, setLogoutPopup] = useState(false);
-  const [userDeletePopup, setUserDeletePopup] = useState(false);
-  
+
   if (!localPet && petData) {
     setLocalPet(petData);
   }
@@ -374,8 +373,8 @@ const ProfileScreen: React.FC = () => {
               >로그아웃</button>
 
               <button type="button" className='medium-button'
-                onClick={()=>setUserDeletePopup(true)}
-              >계정 삭제</button>
+                onClick={()=>navigate('/profile/delete')}
+              >회원탈퇴</button>
             </div>
           </form>
         </section>
@@ -415,19 +414,6 @@ const ProfileScreen: React.FC = () => {
         onBackgroundClick={()=>setLogoutPopup(false)}
         onOkClick={()=>logout()}
         onCancelClick={()=>setLogoutPopup(false)}
-      />
-
-      <Popup
-        popupMessage={
-          {
-            title: '정말로 계정을 삭제하시겠습니까?',
-            type: 'OX'
-          }
-        }
-        visible={userDeletePopup}
-        onBackgroundClick={()=>setUserDeletePopup(false)}
-        onOkClick={()=>userDelete()}
-        onCancelClick={()=>setUserDeletePopup(false)}
       />
 
       <Loading visible={isPetLoading || isProfileLoading}></Loading>

@@ -1,0 +1,83 @@
+/* profiledelete.css */
+
+.delete-icon {
+  display: flex;
+  justify-content: center;
+  margin: 32px 0 24px;
+}
+
+.delete-warning {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  margin: 0 0 20px;
+  white-space: pre-line;
+}
+
+.delete-warning .red {
+  color: #e53935;
+}
+
+.delete-notice-list {
+  margin: 0 0 24px;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.delete-notice-list li {
+  font-size: 12px;
+  color: #999;
+  line-height: 1.5;
+}
+
+.delete-agree {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.delete-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 15px 20px 25px 20px;
+  background-color: #fff;
+}
+
+.delete-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.delete-outline-button {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px 14px;
+  margin: 8px 0px;
+  border: 1px solid #ccc;
+  border-radius: 24px;
+  background-color: #fff;
+  color: #666;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.delete-outline-button:disabled {
+  color: #ccc;
+  border-color: #eee;
+  cursor: not-allowed;
+}
+
+.delete-footer .medium-button {
+  flex: 1;
+  margin: 8px 0px;
+}
