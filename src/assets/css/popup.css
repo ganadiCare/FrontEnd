@@ -34,3 +34,15 @@
   flex-direction: row;
   align-items: center;
 }
+
+.popup-buttons .medium-button{
+  flex: 1;
+}
+
+.popup-confirm{
+  background-color: #e53935;
+}
+
+.popup-confirm:hover{
+  background-color: #c62828;
+}
