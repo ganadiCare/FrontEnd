@@ -25,17 +25,33 @@
   line-height: 1.5;
 }
 
-/* SVG 전체 회전 */
 .loading-svg {
-  animation: spin 0.5s linear infinite;
+  animation: spin 1s linear infinite;
+}
+
+.loading-circle {
+  animation: dash 0.5s ease-in-out infinite; 
+  stroke-linecap: round; 
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 125;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 80, 125;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    stroke-dasharray: 1, 125;
+    stroke-dashoffset: -125;
   }
 }
 

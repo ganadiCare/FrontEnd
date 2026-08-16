@@ -11,7 +11,7 @@ const Loading: React.FC<LoadingProps> = (
   return (
     <div className={visible ? "loading-box" : "loading-box hide"}>
       <svg className={visible ? "loading-svg" : "hide"} width='50px' height='50px' viewBox="0 0 50 50">
-        <circle
+        <circle className={visible ? "loading-circle" : "hide"}
           cx="25"
           cy="25"
           r="20"
