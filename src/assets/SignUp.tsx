@@ -2,14 +2,17 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './css/signup.css';
 import { useSignupForm } from './hooks/useSignupForm';
+import { useBackGuard } from './hooks/useBackGuard';
 
 import Header from './components/Header';
-import Inputbox from './components/Inputbox'; 
-import NavigationButton from './components/NavigationButton'; 
+import Inputbox from './components/Inputbox';
+import NavigationButton from './components/NavigationButton';
+import Popup from './components/Popup';
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
-  
+  const { backPopup, setBackPopup } = useBackGuard();
+
   // Custom Hook에서 모든 데이터와 로직을 가져옵니다.
   const {
     email, authCode, password, confirmPassword, nickname,
@@ -19,29 +22,13 @@ const SignUp: React.FC = () => {
     setEmailError, setPasswordError, setConfirmPasswordError,
     validateEmail, handleSendAuthCode, handleVerifyCode,
     validatePassword, validateConfirmPassword,
-    handleAutoFill, isNextDisabled,
+    isNextDisabled,
   } = useSignupForm();
 
   return (
     <div className="signup-wrapper">
       {/* 1. 상단 헤더 */}
-      <Header title="회원가입" useNotification={false} />
-
-      {import.meta.env.DEV && (
-      <button 
-        onClick={handleAutoFill}
-        type="button"
-        style={{ 
-          position: 'absolute', 
-          right: '10px', 
-          top: '60px', 
-          zIndex: 100, 
-          fontSize: '10px', 
-          opacity: 0.5,
-          padding: '4px 8px',
-          cursor: 'pointer'
-        }}
-      >자동채우기</button>)}
+      <Header title="회원가입" useNotice={false} />
 
       <div className="signup-body">
         <div className="signup-form">
@@ -120,11 +107,25 @@ const SignUp: React.FC = () => {
         <div className="signup-footer">
           <NavigationButton
             text="NEXT"
-            onClick={() => navigate('/signup-step2', { state: { nickname, email, password } })}
+            onClick={() => navigate('/signup-step2', { state: { nickname, email, password }, replace: true })}
             disabled={isNextDisabled}
           />
         </div>
       </div>
+
+      <Popup
+        popupMessage={
+          {
+            title: '처음 화면으로 이동하시겠습니까?',
+            content: '회원가입을 다시 진행해야 합니다.',
+            type: 'OKC'
+          }
+        }
+        boxClassName="signup"
+        visible={backPopup}
+        onBackgroundClick={() => setBackPopup(false)}
+        onOkClick={() => navigate('/', { replace: true })}
+      />
     </div>
   );
 };

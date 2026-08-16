@@ -6,6 +6,7 @@ import './css/templete.css';
 
 import Header from "./components/Header";
 import Nav from "./components/Nav";
+import Loading from './components/Loading';
 
 type UpdateDispenserData = components['schemas']['UpdateDispenserDTO'];
 
@@ -13,7 +14,7 @@ const DispenserScreen: React.FC = () => {
   const navigate = useNavigate();
   const currentScreen = 'dispenser';
 
-  const { dispenserData, updateDispenser } = useDispenser();
+  const { dispenserData, isDispenserLoading, updateDispenser } = useDispenser();
 
   const [prevData, setPrevData] = useState(dispenserData);
   const [cleaningMode, setCleaningMode] = useState(dispenserData?.isCleaningMode ?? false);
@@ -47,7 +48,24 @@ const DispenserScreen: React.FC = () => {
     <>
       <Header title='DISPENSER' useBack={false} />
 
-      <main className="main-content">
+      <main className={ isDispenserLoading || dispenserData?.deviceCode ? "main-content hide" : "main-content" }>
+        <section className="full-section">
+          <div>
+            <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 8L16 16M16 8L8 16" />
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+          </div>
+          <p className="large-text">연결된 디스펜서가 없어요!</p>
+
+          <button
+            className='medium-button'
+            onClick={()=>navigate('/dispenser/connect')}
+          >+ 연결하기</button>
+        </section>
+      </main>
+
+      <main className={ dispenserData?.deviceCode ? "main-content" : "main-content hide" }>
         <section className="main-section line">
           <div className='heading-wrapper'>
             <h2 className="section-heading">급식</h2>
@@ -71,7 +89,7 @@ const DispenserScreen: React.FC = () => {
 
           <div className="section-box column">
             <span className="medium-text">마지막 급여 시간 : {dispenserData?.water?.latestWateringTime ?? '...'}</span>
-            <span className="medium-text">그릇 잔여량 : {dispenserData?.water?.leftovers ?? '...'}</span>
+            <span className="medium-text">그릇 잔여량 : { dispenserData?.water ? `${dispenserData?.water?.leftovers}ml` : '...'}</span>
           </div>
 
           <button
@@ -102,6 +120,8 @@ const DispenserScreen: React.FC = () => {
           </div>
         </section>
       </main>
+
+      <Loading visible={isDispenserLoading}></Loading>
 
       <Nav currentScreen={currentScreen} />
     </>

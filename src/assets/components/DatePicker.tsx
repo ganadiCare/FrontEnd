@@ -73,7 +73,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ selectedDate, onChange, disable
 
       // 팝업 너비 고정, 앱 프레임 오른쪽 끝에서 MARGIN만큼 안쪽으로 정렬
       const popupWidth = 300;
-      const frameWidth = Math.min(window.innerWidth, 300);
+      const frameWidth = Math.min(window.innerWidth, 412);
       const frameLeft = (window.innerWidth - frameWidth) / 2;
       const leftPos = frameLeft + frameWidth - popupWidth - MARGIN;
 

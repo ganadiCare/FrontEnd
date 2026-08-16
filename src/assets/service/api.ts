@@ -28,6 +28,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/recordings/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 파일 업로드
+         * @description 라즈베리파이에서 녹화/캡처 파일을 업로드합니다.
+         */
+        post: operations["upload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/members/signup": {
         parameters: {
             query?: never;
@@ -288,6 +308,26 @@ export interface paths {
         patch: operations["updateCamera"];
         trace?: never;
     };
+    "/api/v1/webrtc/turn-credentials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * TURN 자격증명 발급
+         * @description 로그인한 사용자 기준으로 TTL이 있는 임시 TURN 계정을 발급합니다. 하드코딩 대신 이 API를 호출하세요.
+         */
+        get: operations["getTurnCredentials"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/list": {
         parameters: {
             query?: never;
@@ -300,6 +340,56 @@ export interface paths {
          * @description 달력 뷰용 보고서 목록 (최신순)
          */
         get: operations["getReportList"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/recordings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 녹화/캡처 목록 조회 */
+        get: operations["getList"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/recordings/{recordingId}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 파일 다운로드/스트리밍 */
+        get: operations["download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["stream"];
         put?: never;
         post?: never;
         delete?: never;
@@ -385,6 +475,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports/{reportId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * 보고서 삭제 API
+         * @description 특정 보고서를 삭제합니다.
+         */
+        delete: operations["deleteReport"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/recordings/{recordingId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** 파일 삭제 */
+        delete: operations["delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * 계정 삭제 API
+         * @description 현재 로그인된 계정과 모든 연관 데이터를 삭제합니다.
+         */
+        delete: operations["deleteMember"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -437,9 +584,26 @@ export interface components {
             leftovers?: number;
             logs?: components["schemas"]["WateringLogSummary"][];
         };
+        ApiResponseUploadResultDTO: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["UploadResultDTO"];
+        };
+        UploadResultDTO: {
+            /** Format: int64 */
+            id?: number;
+            originalFileName?: string;
+            /** @enum {string} */
+            type?: "VIDEO" | "IMAGE";
+            /** Format: int64 */
+            fileSize?: number;
+            /** Format: date-time */
+            createdAt?: string;
+        };
         DeviceSettingDTO: {
             cameraCode: string;
-            dispenserCode: string;
+            dispenserCode?: string;
         };
         PetSettingDTO: {
             name: string;
@@ -532,6 +696,7 @@ export interface components {
             amount?: number;
             /** Format: int32 */
             leftovers?: number;
+            logType?: string;
         };
         CreateFeedingLogDTO: {
             /** Format: date-time */
@@ -555,6 +720,9 @@ export interface components {
             amount?: number;
             /** Format: int32 */
             leftovers?: number;
+            /** Format: int32 */
+            consumedAmount?: number;
+            logType?: string;
         };
         CreateScheduleDTO: {
             feedTime: string;
@@ -681,6 +849,19 @@ export interface components {
             isPrivateMode?: boolean;
             isAutoRecordMode?: boolean;
         };
+        ApiResponseTurnCredentialResponse: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["TurnCredentialResponse"];
+        };
+        TurnCredentialResponse: {
+            iceServers?: {
+                [key: string]: Record<string, never>;
+            }[];
+            /** Format: int64 */
+            expiresAt?: number;
+        };
         ApiResponseListReportListDTO: {
             isSuccess?: boolean;
             code?: string;
@@ -693,6 +874,30 @@ export interface components {
             /** Format: date */
             reportDate?: string;
             aiSummary?: string;
+        };
+        ApiResponseRecordingListDTO: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: components["schemas"]["RecordingListDTO"];
+        };
+        RecordingItemDTO: {
+            /** Format: int64 */
+            id?: number;
+            originalFileName?: string;
+            /** @enum {string} */
+            type?: "VIDEO" | "IMAGE";
+            /** Format: int64 */
+            fileSize?: number;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        RecordingListDTO: {
+            recordings?: components["schemas"]["RecordingItemDTO"][];
+        };
+        SseEmitter: {
+            /** Format: int64 */
+            timeout?: number;
         };
         ApiResponseProfileDTO: {
             isSuccess?: boolean;
@@ -756,6 +961,12 @@ export interface components {
             message?: string;
             result?: components["schemas"]["ActivityLogDTO"][];
         };
+        ApiResponseVoid: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: Record<string, never>;
+        };
     };
     responses: never;
     parameters: never;
@@ -805,6 +1016,35 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseReportDTO"];
+                };
+            };
+        };
+    };
+    upload: {
+        parameters: {
+            query: {
+                type: "VIDEO" | "IMAGE";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseUploadResultDTO"];
                 };
             };
         };
@@ -1287,6 +1527,26 @@ export interface operations {
             };
         };
     };
+    getTurnCredentials: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseTurnCredentialResponse"];
+                };
+            };
+        };
+    };
     getReportList: {
         parameters: {
             query?: never;
@@ -1303,6 +1563,68 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseListReportListDTO"];
+                };
+            };
+        };
+    };
+    getList: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseRecordingListDTO"];
+                };
+            };
+        };
+    };
+    download: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recordingId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    stream: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["SseEmitter"];
                 };
             };
         };
@@ -1392,6 +1714,70 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponseListActivityLogDTO"];
+                };
+            };
+        };
+    };
+    deleteReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reportId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
+    delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recordingId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
+    deleteMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseVoid"];
                 };
             };
         };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePet } from './store/usePet';
 import { useProfile } from './store/useProfile';
+import { calculatePetTargets } from './utils/petTarget';
 import type { components } from './service/api';
 import './css/templete.css';
 import './css/profile.css';
@@ -9,8 +10,10 @@ import './css/profile.css';
 import Header from './components/Header';
 import Nav from './components/Nav';
 import Popup from './components/Popup';
+import Loading from './components/Loading';
 
-import defaultProfile from './image_folder/DefaultProfile.png';
+import profile_dog from './image_folder/Profile_Dog.png';
+import profile_cat from './image_folder/Profile_Cat.png';
 
 type PetData = components['schemas']['PetDTO'];
 type UpdatePetData = components['schemas']['UpdatePetDTO'];
@@ -19,14 +22,16 @@ const ProfileScreen: React.FC = () => {
   const navigate = useNavigate();
   const currentScreen = 'profile';
 
-  const { petData, updatePet, isUpdatingPet } = usePet();
-  const { profileData, userLogout, userDelete } = useProfile();
+  const { petData, isPetLoading, updatePet, isUpdatingPet } = usePet();
+  const { profileData, isProfileLoading, userLogout } = useProfile();
 
   const [localPet, setLocalPet] = useState<PetData | null>(petData);
+  const [birthdayNull, setBirthdayNull] = useState(petData?.birthday=='1900-01-01');
   const [petNameError, setPetNameError] = useState('');
   const [petAgeError, setPetAgeError] = useState('');
   const [petWeightError, setPetWeightError] = useState('');
 
+  const [targetPopup, setTargetPopup] = useState(false);
   const [logoutPopup, setLogoutPopup] = useState(false);
 
   if (!localPet && petData) {
@@ -46,29 +51,46 @@ const ProfileScreen: React.FC = () => {
     });
   };
 
-  /* 생일 변경 함수 */
-  const changeBirthday = (type: 'month' | 'day' | 'unknown', e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  // 생년 설정 함수
+  const setBirthYear = () => {
     setLocalPet((prev) => {
       const currentData = prev || {} as PetData;
-      const currentBirthday = currentData.birthday || '2026-00-00';
+      const birthYear = currentData ? new Date().getFullYear() - (currentData.age ?? 0)+ 1 : null;
+
+      const currentBirthday = currentData.birthday ?? '1900-01-01';
+      const [year, month, day] = currentBirthday.split('-');
+
+      return {
+        ...prev,
+        birthday: `${birthYear}-${month}-${day}`,
+      } as PetData;
+    });
+  }
+
+  /* 생일 변경 함수 */
+  const changeBirthday = (type: 'MONTH' | 'DAY', e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    setLocalPet((prev) => {
+      const currentData = prev || {} as PetData;
+      const currentBirthday = currentData.birthday ?? '1900-01-01';
       
       const [year, month, day] = currentBirthday.split('-');
       let newBirthday = currentBirthday;
 
-      if (type === 'unknown') {
-        const isChecked = (e.target as HTMLInputElement).checked;
-        newBirthday = isChecked ? '2026-00-00' : currentBirthday;
-      } else {
-        const value = e.target.value;
-        newBirthday = type === 'month' ? `${year}-${value}-${day}` : `${year}-${month}-${value}`;
-      }
+      const value = e.target.value;
+      newBirthday = type === 'MONTH' ? `${year}-${value}-${day}` : `${year}-${month}-${value}`;
 
       return {
         ...prev,
         birthday: newBirthday,
       } as PetData;
     });
-  };
+  }
+
+  const handleBirthdayNull = () => {
+    const mode = !birthdayNull;
+    setBirthdayNull(mode);
+    if (!mode) setBirthYear();
+  }
 
   const savePet = async() => {
     let check = true;
@@ -100,6 +122,13 @@ const ProfileScreen: React.FC = () => {
       setPetWeightError('')
     }
 
+    let birthday;
+    if (birthdayNull) {
+      birthday = '1900-01-01';
+    } else {
+      birthday = localPet?.birthday ?? '1900-01-01';
+    }
+
     if (check && localPet) {
       const updateData: UpdatePetData = {
         name: localPet.name ?? "",
@@ -107,7 +136,7 @@ const ProfileScreen: React.FC = () => {
         gender: localPet.gender ?? "MALE",
         age: localPet.age ?? 0,
         weight: localPet.weight ?? 0,
-        birthday: localPet.birthday ?? "2026-00-00"
+        birthday: birthday
       };
       updatePet(updateData);
     }
@@ -123,6 +152,9 @@ const ProfileScreen: React.FC = () => {
     }
   }
 
+  //목표값 계산
+  const maxValue = calculatePetTargets(petData)
+
   return (
     <>
       <Header title='PROFILE'/>
@@ -136,37 +168,39 @@ const ProfileScreen: React.FC = () => {
           </div>
           
           <form className='input-form' action="">
+            {/*
+            <input
+              type="file"
+              id="pet-image"
+              className='file-input'
+              accept="image/*"
+            />
+            <label 
+              htmlFor="pet-image" 
+              className='small-button'
+            >이미지 변경</label>
+            */}
             <div className='input-box row'>
               <div className="profile-wrapper">
                 <img
                   className="profile-image" 
-                  src={defaultProfile}
+                  src={petData?.species=='CAT' ? profile_cat : profile_dog}
                   alt="profile image"
                 />
               </div>
-              <input
-                type="file"
-                id="pet-image"
-                className='file-input'
-                accept="image/*"
-              />
-              <label 
-                htmlFor="pet-image" 
-                className='small-button'
-              >이미지 변경</label>
-            </div>
 
-            <div className='input-box column'>
-              <label className='input-label'>이름
-                <input className='text-input'
-                type="text"
-                name="name"
-                value={localPet?.name}
-                placeholder='반려동물 이름'
-                onChange={changePet}
-                />
-              </label>
-              <span className='message error'>{petNameError}</span>
+              <div className='input-box column'>
+                <label className='input-label'>이름
+                  <input className='text-input'
+                  type="text"
+                  name="name"
+                  value={localPet?.name}
+                  placeholder='반려동물 이름'
+                  onChange={changePet}
+                  />
+                </label>
+                <span className='message error'>{petNameError}</span>
+              </div>
             </div>
 
             <div className='input-box column'>
@@ -233,7 +267,8 @@ const ProfileScreen: React.FC = () => {
                   className="select-input"
                   value={localPet?.birthday?.split('-')[1]}
                   aria-label='month'
-                  onChange={(e) => changeBirthday('month', e)}
+                  disabled={birthdayNull}
+                  onChange={(e) => changeBirthday('MONTH', e)}
                 >
                   {Array.from({ length: 12 }, (_, i) => {
                     const m = String(i + 1).padStart(2, '0');
@@ -244,7 +279,8 @@ const ProfileScreen: React.FC = () => {
                   className="select-input"
                   value={localPet?.birthday?.split('-')[2]}
                   aria-label='day'
-                  onChange={(e) => changeBirthday('day', e)}
+                  disabled={birthdayNull}
+                  onChange={(e) => changeBirthday('DAY', e)}
                 >
                   {Array.from({ length: 31 }, (_, i) => {
                     const d = String(i + 1).padStart(2, '0');
@@ -258,7 +294,8 @@ const ProfileScreen: React.FC = () => {
                       type="checkbox"
                       id="unknown-birthday"
                       className="checkbox-input"
-                      onChange={(e)=>changeBirthday('unknown', e)}
+                      checked={birthdayNull}
+                      onChange={handleBirthdayNull}
                     />
                     생일 불명
                   </label>
@@ -266,10 +303,17 @@ const ProfileScreen: React.FC = () => {
               </div>
             </div>
 
-            <button type="button"
-              className='medium-button'
-              onClick={()=>savePet()}
-            >{isUpdatingPet ? '저장 중...' : '저장하기'}</button>
+            <div className='input-box row'>
+              <button type="button"
+                className='medium-button'
+                onClick={()=>savePet()}
+              >{isUpdatingPet ? '저장 중...' : '저장하기'}</button>
+
+              <button type="button"
+                className='medium-button'
+                onClick={()=>setTargetPopup(true)}
+              >일일 권장 목표</button>
+            </div>
           </form>
         </section>
         <hr className="main-divider" />
@@ -327,11 +371,37 @@ const ProfileScreen: React.FC = () => {
               <button type="button" className='medium-button'
                 onClick={()=>setLogoutPopup(true)}
               >로그아웃</button>
-              <button type="button" className='medium-button'>계정 삭제</button>
+
+              <button type="button" className='medium-button'
+                onClick={()=>navigate('/profile/delete')}
+              >회원탈퇴</button>
             </div>
           </form>
         </section>
       </main>
+
+      <Popup
+        popupMessage={
+          {
+            title: '일일 권장 목표',
+            content: (
+              <>
+              <div className='section-box column'>
+                <span className="medium-text">활동량 : {petData ? `${maxValue.maxActivity}분` : '-'}</span>
+                <span className="medium-text">사료 섭취량 : {petData ? `${maxValue.maxFeed}g` : '-'}</span>
+                <span className="medium-text">수분 섭취량 : {petData ? `${maxValue.maxWater}ml` : '-'}</span>
+              </div>
+              <span className="message">* 본 권장량은 표준 계산식에 따른 가이드라인으로,
+                  아이의 건강 상태 및 수의사 진단에 따라 달라질 수 있습니다.</span>
+              </>
+            ),
+            type: 'OK'
+          }
+        }
+        visible={targetPopup}
+        onBackgroundClick={()=>setTargetPopup(false)}
+        onOkClick={()=>setTargetPopup(false)}
+      />
 
       <Popup
         popupMessage={
@@ -345,6 +415,8 @@ const ProfileScreen: React.FC = () => {
         onOkClick={()=>logout()}
         onCancelClick={()=>setLogoutPopup(false)}
       />
+
+      <Loading visible={isPetLoading || isProfileLoading}></Loading>
 
       <Nav currentScreen={currentScreen} />
     </>

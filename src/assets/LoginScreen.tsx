@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './css/login.css';
 import NavigationButton from './components/NavigationButton';
@@ -7,6 +7,16 @@ import Header from './components/Header';
 
 const LoginScreen: React.FC = () => {
   const navigate = useNavigate();
+
+  // 뒤로가기(헤더 아이콘 포함) 시 무조건 시작 화면으로 이동
+  useEffect(() => {
+    window.history.pushState(null, '', window.location.href);
+    const handlePopState = () => {
+      navigate('/', { replace: true });
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [navigate]);
 
   const [email, setEmail] = useState(() => localStorage.getItem('savedEmail') ?? '');
   const [password, setPassword] = useState('');
@@ -45,7 +55,7 @@ const LoginScreen: React.FC = () => {
 
   return (
     <>
-      <Header title="로그인" useNotification={false} />
+      <Header title="로그인" useNotice={false} />
 
       <div className="form-content">
         <form className="login-form">

@@ -17,15 +17,17 @@ api.interceptors.request.use(
       config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
-  }
+  },
+  (error) => Promise.reject(error)
 );
 
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
 
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+    if ((status === 401 || status === 403) && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true; // 플래그를 true로 설정
 
       try {
@@ -50,6 +52,7 @@ api.interceptors.response.use(
       } catch (error) {
         console.error('액세스 토큰 재발급 실패');
         localStorage.removeItem('accessToken');
+        window.location.href = '/';
         return Promise.reject(error);
       }
     }
@@ -333,6 +336,23 @@ export async function getReportList() {
   }
 }
 
+export async function getActivities(from: string, to: string) {
+  console.log('Activity 데이터를 가져오는 중...');
+  try {
+    const response = await api.get('/api/v1/activities', {
+      params: { from, to, },
+    });
+    console.log('Activity 데이터 가져오기 성공', response.data);
+    return response.data;
+  } catch (error) {
+    console.log('Activity 데이터 가져오기 실패');
+    console.error(error);
+    throw error; 
+  } finally {
+    console.log('로딩 종료');
+  }
+}
+
 export async function createReport(date?: string) {
   console.log('Report 데이터 생성 중...');
   try {
@@ -377,26 +397,25 @@ export async function updateMemo(
   } catch (error) {
     console.log('Report 메모 수정 실패');
     console.error(error);
-    throw error;
+    throw error; 
   } finally {
     console.log('로딩 종료');
   }
 }
 
-//Activity API 관련
-export async function getActivities(from: string, to: string) {
-  console.log('Activity 데이터를 가져오는 중...');
+//Notification API 관련
+export function createNotificationStream() {
+  console.log('Notification 스트림 연결 시도 중...');
   try {
-    const response = await api.get('/api/v1/activities', {
-      params: { from, to }
+    const url = `/api/v1/notifications/stream`;
+    const eventSource = new EventSource(url, {
+      withCredentials: true,
     });
-    console.log('Activity 데이터 가져오기 성공', response.data);
-    return response.data;
+    console.log('Notification 스트림 객체 생성 성공');
+    return eventSource;
   } catch (error) {
-    console.log('Activity 데이터 가져오기 실패');
+    console.log('Notification 스트림 연결 실패');
     console.error(error);
     throw error;
-  } finally {
-    console.log('로딩 종료');
   }
 }

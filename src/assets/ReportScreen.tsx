@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useReport } from './store/useReport';
-import { useActivity } from './store/useActivity';
 import './css/templete.css';
 import './css/report.css';
 
@@ -25,10 +24,27 @@ const logsToHourly = (logs: {time: string | undefined; amount: number | undefine
   });
   return hourly;
 };
-const day = new Date()
-const today = day.toISOString().split('T')[0]; // 오늘 날짜
-day.setDate(day.getDate() + 1);
-const tomorrow = day.toISOString().split('T')[0]; // 내일 날짜
+
+const activitiesToHourly = (activities: { detectedStartedAt: string | undefined; detectedSeconds: number | undefined }[]): number[] => {
+  const hourly = [...EMPTY_24];
+  activities.forEach(({ detectedStartedAt, detectedSeconds }) => {
+    if (!detectedStartedAt || detectedSeconds === undefined) return;
+
+    const timePart = detectedStartedAt.includes('T') ? detectedStartedAt.split('T')[1] : detectedStartedAt;
+    const hour = parseInt(timePart.split(':')[0], 10);
+    if (!isNaN(hour) && hour >= 0 && hour < 24) hourly[hour] += detectedSeconds;
+  });
+  return hourly;
+};
+
+// Date 객체를 로컬 시간 기준 YYYY-MM-DD 문자열로 변환 (toISOString은 UTC라 자정~오전9시 KST에 날짜가 하루 밀림)
+const toLocalDateStr = (d: Date): string => {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+const today = toLocalDateStr(new Date()); // 오늘 날짜
 
 
 const ReportScreen: React.FC = () => {
@@ -41,6 +57,8 @@ const ReportScreen: React.FC = () => {
 
   const {
     reportData,
+    reportList,
+    activityList,
     isReportLoading,
     isCreating,
     isUpdatingMemo,
@@ -49,7 +67,10 @@ const ReportScreen: React.FC = () => {
     updateMemo
   } = useReport(selectedDate);
 
-  const { activityLogs } = useActivity(selectedDate);
+  // 리포트가 존재하는 날짜 목록 (달력에 숫자 색 다르게 표시하기 위함)
+  const reportDates = reportList
+    .map(r => r.reportDate)
+    .filter((d): d is string => !!d);
 
   const currentReportId = reportData?.reportId;
   if (currentReportId !== prevReportId) {
@@ -87,13 +108,21 @@ const ReportScreen: React.FC = () => {
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
     const next = `${yyyy}-${mm}-${dd}`;
-    if (next > tomorrow) return; // 미래 날짜 이동 차단
+    if (next > today) return; // 미래 날짜 이동 차단
     setSelectedDate(next);
   };
 
+  // 섭취량 계산
+  const foodIntake = (reportData?.feeding?.totalAmount ?? 0) - (reportData?.feeding?.leftovers ?? 0);
+  const waterIntake = (reportData?.watering?.totalAmount ?? 0) - (reportData?.watering?.leftovers ?? 0);
+
+  // 활동 로그 시간 합산
+  const totalActivity = activityList && activityList.length > 0
+  ? activityList.reduce((acc, cur) => acc + (cur.detectedSeconds ?? 0), 0)
+  : 0;
+
   // ─── 그래프용 시간대별 데이터 변환 ───────────────────────────────────────
   // 리포트가 없으면 EMPTY_24(전부 0)를 사용하여 빈 그래프 표시
-  
   const foodData = reportData?.feeding?.logs
     ? logsToHourly(reportData.feeding.logs.map(l => ({ time: l.feedTime, amount: l.amount })))
     : EMPTY_24;
@@ -102,24 +131,19 @@ const ReportScreen: React.FC = () => {
     ? logsToHourly(reportData.watering.logs.map(l => ({ time: l.wateringTime, amount: l.amount })))
     : EMPTY_24;
 
-  // 활동량: Activity API 로그(감지 시작 시각, 감지 지속 시간)를 시간대별로 합산
-  const activityData = logsToHourly(
-    activityLogs.map(l => ({ time: l.detectedStartedAt, amount: l.detectedSeconds }))
-  );
-
-  // 활동 시간 합계(시:분)
-  const totalActivitySeconds = activityLogs.reduce((sum, l) => sum + (l.detectedSeconds ?? 0), 0);
-  const activityHours = String(Math.floor(totalActivitySeconds / 3600)).padStart(2, '0');
-  const activityMinutes = String(Math.floor((totalActivitySeconds % 3600) / 60)).padStart(2, '0');
+  // 활동량: 별도 센서 API 연동 전까지 빈 데이터
+  const activityData = activityList
+  ? activitiesToHourly(activityList.map(a => ({ detectedStartedAt: a.detectedStartedAt, detectedSeconds: a.detectedSeconds })))
+  : EMPTY_24;
 
   return (
     <>
-      <Header title="REPORT" useNotification={true} useBack={false} />
+      <Header title="REPORT" useNotice={true} useBack={false} />
 
       {/* 날짜 선택 바: < 이전 날 / 날짜 표시 / 다음 날 > + 달력 아이콘 */}
       <div className="report-date-bar">
         <button className="date-arrow" onClick={() => handleDateChange(-1)}>{'<'}</button>
-        <Calender selectedDate={selectedDate} onChange={setSelectedDate} maxDate={tomorrow} />
+        <Calender selectedDate={selectedDate} onChange={setSelectedDate} maxDate={today} reportDates={reportDates} />
         {/*<span className="date-text">{selectedDate.replace(/-/g, '.')}</span>*/}
         <button className={(today>selectedDate) ? "date-arrow" : "date-arrow-disable"}
         onClick={() => handleDateChange(1)}>{'>'}</button>
@@ -144,9 +168,9 @@ const ReportScreen: React.FC = () => {
                 </span>
               ))}
               <button
-                className="small-button"
+                className="medium-button"
                 onClick={()=>refreshReport()}
-                disabled={isCreating}
+                disabled={isReportLoading || isCreating}
               >
                 {isCreating ? '생성 중...' : '리포트 재생성'}
               </button>
@@ -161,9 +185,9 @@ const ReportScreen: React.FC = () => {
               <button
                 className="medium-button"
                 onClick={()=>handleCreateReport()}
-                disabled={isReportLoading}
+                disabled={isReportLoading || isCreating}
               >
-                {isReportLoading ? '생성 중...' : '리포트 생성'}
+                {isReportLoading || isCreating ? '생성 중...' : '리포트 생성'}
               </button>
             </div>
           )}
@@ -196,21 +220,21 @@ const ReportScreen: React.FC = () => {
 
           <span className="medium-text bold">활동</span>
           <div className='section-box column'>
-            <span className="medium-text">활동 시간 : {activityHours} : {activityMinutes}</span>
+            <span className="medium-text">활동 시간 : {activityList && activityList.length > 0 ? `${Math.floor(totalActivity/60)}분 ${totalActivity%60}초` : '-'}</span>
           </div>
 
           <span className="medium-text bold">급식</span>
           <div className='section-box column'>
             <span className="medium-text">급여량 : {reportData?.feeding ? `${reportData.feeding.totalAmount}g` : '-'}</span>
-            <span className="medium-text">섭취량 : {reportData?.feeding ? `${reportData.feeding.totalCount}g` : '-'}</span>
-            <span className="medium-text">섭취 횟수 : {reportData?.feeding ? `${reportData.feeding.leftovers}회` : '-'}</span>
+            <span className="medium-text">섭취량 : {reportData?.feeding ? `${foodIntake}g` : '-'}</span>
+            <span className="medium-text">섭취 횟수 : {reportData?.feeding ? `${reportData.feeding.totalCount}회` : '-'}</span>
           </div>
 
           <span className="medium-text bold">급수</span>
           <div className='section-box column'>
             <span className="medium-text">급여량 : {reportData?.watering ? `${reportData.watering.totalAmount}ml` : '-'}</span>
-            <span className="medium-text">섭취량 : {reportData?.watering ? `${reportData.watering.totalCount}ml` : '-'}</span>
-            <span className="medium-text">섭취 횟수 : {reportData?.watering ? `${reportData.watering.leftovers}회` : '-'}</span>
+            <span className="medium-text">섭취량 : {reportData?.watering ? `${waterIntake}ml` : '-'}</span>
+            <span className="medium-text">섭취 횟수 : {reportData?.watering ? `${reportData.watering.totalCount}회` : '-'}</span>
           </div>
         </section>
 

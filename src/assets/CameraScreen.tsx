@@ -6,6 +6,7 @@ import './css/templete.css';
 
 import Header from './components/Header';
 import Nav from './components/Nav';
+import Loading from './components/Loading';
 
 type UpdateCameraData = components['schemas']['UpdateCameraDTO'];
 type NightVisionType = "AUTO" | "ON" | "OFF" | undefined;
@@ -14,7 +15,7 @@ const CameraScreen: React.FC = () => {
   const navigate = useNavigate();
   const currentScreen = 'camera';
 
-  const { cameraData, updateCamera } = useCamera();
+  const { cameraData, isCameraLoading, updateCamera, isUpdatingCamera } = useCamera();
 
   //const [select, setSelect] = useState(camList?.[0]);
   const [prevData, setPrevData] = useState(cameraData);
@@ -101,7 +102,7 @@ const CameraScreen: React.FC = () => {
                     type='button'
                     className='small-button'
                     onClick={()=>saveDeviceName()}
-                  >저장</button>
+                  >{isUpdatingCamera ? '저장 중...' : '저장'}</button>
                 </div>
               </label>
               <p className='message error'>{nameError}</p>
@@ -139,7 +140,7 @@ const CameraScreen: React.FC = () => {
             </div>
 
             <div className='input-box column'>
-              <button type="button" className='medium-button'
+              <button type="button" className='medium-button hide'
               onClick={()=>navigate('/camera/schedule')}
               >녹화 스케줄</button>
               <button type="button" className='medium-button'
@@ -149,6 +150,8 @@ const CameraScreen: React.FC = () => {
           </form>
         </section>
       </main>
+
+      <Loading visible={isCameraLoading}></Loading>
 
       <Nav currentScreen={currentScreen} />
     </>

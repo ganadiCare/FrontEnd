@@ -4,8 +4,9 @@ import { useDispenser } from './store/useDispenser';
 import type { components } from './service/api';
 import './css/templete.css';
 
-import Header from "./components/Header"
-import Nav from "./components/Nav"
+import Header from "./components/Header";
+import Nav from "./components/Nav";
+import Loading from "./components/Loading";
 
 type UpdateDispenserData = components['schemas']['UpdateDispenserDTO'];
 
@@ -13,7 +14,7 @@ const DispenserSettingScreen: React.FC = () => {
   const navigate = useNavigate();
   const currentScreen = 'dispenser';
 
-  const { dispenserData, updateDispenser } = useDispenser();
+  const { dispenserData, isDispenserLoading, updateDispenser, isUpdating } = useDispenser();
 
   //const [select, setSelect] = useState('');
   const [prevData, setPrevData] = useState(dispenserData);
@@ -93,7 +94,7 @@ const DispenserSettingScreen: React.FC = () => {
                     type='button'
                     className='small-button'
                     onClick={()=>saveDeviceName()}
-                  >저장</button>
+                  >{isUpdating ? '저장 중...' : '저장'}</button>
                 </div>
               </label>
               <p className='message error'>{nameError}</p>
@@ -128,6 +129,8 @@ const DispenserSettingScreen: React.FC = () => {
           </form>
         </section>
       </main>
+
+      <Loading visible={isDispenserLoading}></Loading>
 
       <Nav currentScreen={currentScreen} />
     </>

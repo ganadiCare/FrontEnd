@@ -130,12 +130,12 @@ const CameraConnectScreen: React.FC<CameraScreenProps> = (
                 />
               </div>
               <p className='message error'>{nameError}</p>
-
-              <button type="button"
-                className='medium-button'
-                onClick={()=>connectDevice()}
-              >기기 연결</button>
             </div>
+
+            <button type="button"
+              className='medium-button'
+              onClick={()=>connectDevice()}
+            >기기 연결</button>
           </form>
         </section>
         <hr className="main-divider" />

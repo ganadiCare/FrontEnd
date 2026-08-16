@@ -3,12 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispenser } from "./store/useDispenser";
 import type { components } from './service/api';
 import './css/templete.css';
-import './css/dispenser.css'
+import './css/dispenser.css';
 
-import Header from "./components/Header"
-import Nav from "./components/Nav"
+import Header from "./components/Header";
+import Nav from "./components/Nav";
+import Loading from "./components/Loading";
 
-import feedIcon from './image_folder/Feed.png'
+import feedIcon from './image_folder/Feed.png';
 import waterIcon from './image_folder/Water.png';
 
 type UpdateDispenserData = components['schemas']['UpdateDispenserDTO'];
@@ -18,7 +19,7 @@ const DispenserDetailScreen: React.FC = () => {
   const location = useLocation();
   const currentScreen = 'dispenser';
   
-  const { dispenserData, updateDispenser, isUpdating } = useDispenser();
+  const { dispenserData, isDispenserLoading, updateDispenser, isUpdating } = useDispenser();
 
   const [prevData, setPrevData] = useState(dispenserData);
   const [type, setType] = useState(location.state.type ?? 'feed');
@@ -137,7 +138,24 @@ const DispenserDetailScreen: React.FC = () => {
     <>
       <Header title='DISPENSER' />
 
-      <div className="dispenser-control">
+      <main className={ isDispenserLoading || dispenserData?.deviceCode ? "main-content hide" : "main-content" }>
+        <section className="full-section">
+          <div>
+            <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 8L16 16M16 8L8 16" />
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+          </div>
+          <p className="large-text">연결된 디스펜서가 없어요!</p>
+
+          <button
+            className='medium-button'
+            onClick={()=>navigate('/dispenser/connect')}
+          >+ 연결하기</button>
+        </section>
+      </main>
+
+      <div className={ dispenserData?.deviceCode ? "dispenser-control" : "dispenser-control hide" }>
         <button
           className={type==='feed' ? "dispenser-control-button selected" : "dispenser-control-button"}
           onClick={()=>setType('feed')}
@@ -160,7 +178,7 @@ const DispenserDetailScreen: React.FC = () => {
         </button>
       </div>
 
-      <main className="main-content">
+      <main className={ dispenserData?.deviceCode ? "main-content" : "main-content hide" }>
         <section className={type==='feed' ? "main-section line" : "hide"}>
           <div className='heading-wrapper'>
             <h2 className="section-heading">현재 상태</h2>
@@ -185,11 +203,18 @@ const DispenserDetailScreen: React.FC = () => {
           </div>
 
           <div className="section-box column">
-            <span className="medium-text">다음 급여 시간 : { nextSchedule ?
+            <span className={ dispenserData?.feedingSchedules && dispenserData?.feedingSchedules?.length>0 ?
+              "medium-text hide": "medium-text"}
+            >예약된 스케줄이 없습니다.</span>
+            <span className={ dispenserData?.feedingSchedules && dispenserData?.feedingSchedules?.length>0 ?
+              "medium-text": "medium-text hide"}
+            >다음 급여 시간 : { nextSchedule ?
               `${String(nextSchedule?.scheduleHour).padStart(2, '0')} : ${String(nextSchedule.scheduleMinute).padStart(2, '0')}`
               : '...'}
             </span>
-            <span className="medium-text">다음 급여량 : { nextSchedule ?
+            <span className={ dispenserData?.feedingSchedules && dispenserData?.feedingSchedules?.length>0 ?
+              "medium-text": "medium-text hide"}
+            >다음 급여량 : { nextSchedule ?
               `${nextSchedule.scheduleAmount}g`
               : '...'}
             </span>
@@ -202,13 +227,11 @@ const DispenserDetailScreen: React.FC = () => {
 
           <span className="medium-text bold">수동 급여</span>
           <div className="section-box column">
-            <label className="medium-text"><input type="radio" name="feeding-amount"/> 추천 : </label>
             <div className='input-box row'>
-              <label className="medium-text"><input type="radio" name="feeding-amount"/> 사용자 지정 : </label>
+              <label className="medium-text">사료량 : </label>
               <input className='number-input small'
                 type='number'
                 name="feed-amount"
-                placeholder='사료량'
               />
               <span className='medium-text'>g</span>
             </div>
@@ -273,22 +296,23 @@ const DispenserDetailScreen: React.FC = () => {
           <hr className="section-divider" />
           <span className="medium-text bold">수동 급여</span>
           <div className="section-box column">
-            <label className="medium-text"><input type="radio" name="watering-amount"/> 추천 : </label>
             <div className='input-box row'>
-              <label className="medium-text"><input type="radio" name="watering-amount"/> 사용자 지정 : </label>
+              <label className="medium-text">급수량 : </label>
               <input className='number-input small'
                 type='number'
                 name="water-amount"
-                placeholder='급수량'
               />
               <span className='medium-text'>ml</span>
             </div>
+
             <button
               className="medium-button"
             >급여</button>
           </div>
         </section>
       </main>
+
+      <Loading visible={isDispenserLoading}></Loading>
 
       <Nav currentScreen={currentScreen} />
     </>

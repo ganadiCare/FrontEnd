@@ -1,9 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getReport, getReportList, createReport, updateMemo, deleteReport } from '../service/ApiGet';
+import { getReport, getReportList, getActivities, createReport, updateMemo, deleteReport } from '../service/ApiGet';
 import type { components } from '../service/api';
 
 type ReportData = components['schemas']['ReportDTO'];
 type ReportListData = components['schemas']['ReportListDTO'];
+type ActivityLogData = components['schemas']['ActivityLogDTO'];
 type UpdateMemoData = components['schemas']['UpdateMemoDTO'];
 
 export const REPORT_KEYS = {
@@ -12,8 +13,17 @@ export const REPORT_KEYS = {
   detail: (date?: string) => [...REPORT_KEYS.all, 'detail', date ?? 'latest'] as const,
 };
 
+export const ACTIVITY_KEYS = {
+  all: ['activity'] as const,
+  range: (from: string, to: string) => [...ACTIVITY_KEYS.all, { from, to }] as const,
+};
+
 export const useReport = (date?: string) => {
   const queryClient = useQueryClient();
+
+  const baseDate = date ? new Date(date) : new Date();
+  const from = new Date(baseDate.setHours(0, 0, 0, 0)).toISOString();
+  const to = new Date(baseDate.setHours(23, 59, 59, 999)).toISOString();
 
   const reportQuery = useQuery<ReportData, Error>({
     queryKey: REPORT_KEYS.detail(date),
@@ -23,12 +33,21 @@ export const useReport = (date?: string) => {
     },
   });
 
-  const reportListQuery = useQuery<ReportListData, Error>({
+  const reportListQuery = useQuery<ReportListData[], Error>({
     queryKey: REPORT_KEYS.lists(),
     queryFn: async () => {
       const response = await getReportList();
       return response.result ?? [];
     },
+  });
+
+  const activityQuery = useQuery<ActivityLogData[], Error>({
+    queryKey: ACTIVITY_KEYS.range(from, to),
+    queryFn: async () => {
+      const response = await getActivities(from, to);
+      return response.result ?? [];
+    },
+    enabled: !!from && !!to,
   });
 
   const createReportMutation = useMutation({
@@ -71,8 +90,10 @@ export const useReport = (date?: string) => {
     // 조회 데이터
     reportData: reportQuery.data ?? null,
     reportList: reportListQuery.data ?? [],
-    isReportLoading: reportQuery.isLoading && reportListQuery.isLoading,
-    isReportError: reportQuery.isError && reportListQuery.isError,
+    activityList: activityQuery.data ?? [],
+    
+    isReportLoading: reportQuery.isLoading && reportListQuery.isLoading && activityQuery.isLoading,
+    isReportError: reportQuery.isError && reportListQuery.isError && activityQuery.isError,
 
     // 기능 함수
     createReport: createReportMutation.mutate,

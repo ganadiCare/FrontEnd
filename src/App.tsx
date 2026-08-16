@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, Navigate, Outlet } from 'react-router-dom';
 import './assets/css/app.css'
 
 import StartScreen from './assets/start';
@@ -10,6 +10,7 @@ import LoginScreen from './assets/LoginScreen';
 
 import MainScreen from './assets/MainScreen';
 import ProfileScreen from './assets/ProfileScreen'
+import ProfileDeleteScreen from './assets/ProfileDeleteScreen'
 
 import GalleryScreen from './assets/GalleryScreen';
 import GalleryDetailScreen from './assets/GalleryDetailScreen';
@@ -28,12 +29,20 @@ import DispenserConnectScreen from './assets/DispenserConnectScreen.tsx';
 
 import ReportScreen from './assets/ReportScreen.tsx';
 
+const ProtectedRoute = () => {
+  const token = localStorage.getItem('accessToken');
+  if (!token) {
+    return <Navigate to="/" replace />;
+  }
+  return <Outlet/>;
+};
 
 function App() {
   return (
     <div className = "mobile-wrapper">
       <div className='app-container'>
         <Routes>
+          {/* 비인증 라우트 */}
           <Route path='/' element = {<StartScreen/>}></Route>
           <Route path='/signup' element = {<SignUp/>}></Route>
           <Route path='/signup-step2' element = {<SignUpStep2/>}></Route>
@@ -41,31 +50,35 @@ function App() {
           <Route path='/signup-complete' element = {<SignUpComplete/>}></Route>
           <Route path='/login' element = {<LoginScreen/>}></Route>
 
-          <Route path='/main' element = {<MainScreen/>}></Route>
-          <Route path='/profile' element = {<ProfileScreen/>}></Route>
+          {/* 인증 라우트 */}
+          <Route element={<ProtectedRoute />}>
+            <Route path='/main' element = {<MainScreen/>}></Route>
+            <Route path='/profile' element = {<ProfileScreen/>}></Route>
+            <Route path='/profile/delete' element = {<ProfileDeleteScreen/>}></Route>
 
-          <Route path='/gallery'>
-            <Route index element = {<GalleryScreen/>}></Route>
-            <Route path="detail" element={<GalleryDetailScreen />}></Route>
-          </Route>
+            <Route path='/gallery'>
+              <Route index element = {<GalleryScreen/>}></Route>
+              <Route path="detail" element={<GalleryDetailScreen />}></Route>
+            </Route>
 
-          <Route path='/camera'>
-            <Route index element = {<CameraScreen/>}></Route>
-            <Route path='schedule' element = {<CameraScheduleScreen/>}></Route>
-            <Route path='connect' element = {<CameraConnectScreen/>}></Route>
-            <Route path='live' element = {<LiveScreen/>}></Route>
-            <Route path='full' element = {<LiveFullScreen/>}></Route>
-          </Route>
+            <Route path='/camera'>
+              <Route index element = {<CameraScreen/>}></Route>
+              <Route path='schedule' element = {<CameraScheduleScreen/>}></Route>
+              <Route path='connect' element = {<CameraConnectScreen/>}></Route>
+              <Route path='live' element = {<LiveScreen/>}></Route>
+              <Route path='full' element = {<LiveFullScreen/>}></Route>
+            </Route>
 
-          <Route path='/dispenser'>
-            <Route index element = {<DispenserScreen/>}></Route>
-            <Route path='setting' element = {<DispenserSettingScreen/>}></Route>
-            <Route path='detail' element = {<DispenserDetailScreen/>}></Route>
-            <Route path='schedule' element = {<DispenserScheduleScreen/>}></Route>
-            <Route path='connect' element = {<DispenserConnectScreen/>}></Route>
+            <Route path='/dispenser'>
+              <Route index element = {<DispenserScreen/>}></Route>
+              <Route path='setting' element = {<DispenserSettingScreen/>}></Route>
+              <Route path='detail' element = {<DispenserDetailScreen/>}></Route>
+              <Route path='schedule' element = {<DispenserScheduleScreen/>}></Route>
+              <Route path='connect' element = {<DispenserConnectScreen/>}></Route>
+            </Route>
+            
+            <Route path='/report' element = {<ReportScreen/>}></Route>
           </Route>
-          
-          <Route path='/report' element = {<ReportScreen/>}></Route>
         </Routes>
       </div>
     </div>

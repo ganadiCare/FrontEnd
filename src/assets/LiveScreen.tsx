@@ -10,16 +10,19 @@ import LiveBox from './components/LiveBox';
 import Controller from './components/Controller';
 import Move from './image_folder/Move.png';
 import Camera from './image_folder/Camera.png'
+import Loading from './components/Loading';
 
 //type CameraData = components['schemas']['CameraDTO'];
 
 const LiveScreen: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const currentScreen = 'live';
-  const { cameraData } = useCamera();
+  const currentScreen = 'camera';
+
+  const { cameraData, isCameraLoading } = useCamera();
 
   const [controlBar, setControlBar] = useState(() => {
+    if (isCameraLoading) return false;
     const stateData = location.state as { controlBar?: boolean } | null;
     return stateData?.controlBar ?? false;
   });
@@ -29,6 +32,7 @@ const LiveScreen: React.FC = () => {
   });
   const [direction, setDirection] = useState('center');
   const [isManual, setIsManual] = useState(false);
+
   useEffect(() => {
     window.history.replaceState(
       {
@@ -48,63 +52,48 @@ const LiveScreen: React.FC = () => {
   const dcRef = useRef<RTCDataChannel | null>(null);
   const sessionIdRef = useRef<string>('');
 
-  // WebRTC 시그널링 및 커넥션 수립 함수
+  //WebRTC 시그널링 및 커넥션 수립 함수
   const startWebRTC = async () => {
-    const url = import.meta.env.VITE_SIGNALING_URL;
-    if (!url) {
-      console.error('VITE_SIGNALING_URL이 설정되지 않았습니다.');
-      return;
-    }
-    // TURN 서버 정보는 .env에서 가져옴
+    const signalingUrl = import.meta.env.VITE_SIGNALING_URL;
     const turnUrls = [
       import.meta.env.VITE_TURN_URL_UDP,
       import.meta.env.VITE_TURN_URL_TCP,
     ].filter((url): url is string => Boolean(url));
-
     const turnUsername = import.meta.env.VITE_TURN_USERNAME;
     const turnCredential = import.meta.env.VITE_TURN_CREDENTIAL;
 
-    // TURN 설정이 모두 존재하는지 확인
+    if (!signalingUrl) {
+      console.error('VITE_SIGNALING_URL이 설정되지 않았습니다.');
+      return;
+    }
+
     const hasTurnConfig = Boolean(
-      turnUrls.length > 0 &&
-      turnUsername &&
-      turnCredential
+      turnUrls.length > 0 && turnUsername && turnCredential,
     );
 
-    // TURN 주소만 있고 ID/PW가 없는 등의 잘못된 설정 방지
     if (turnUrls.length > 0 && !hasTurnConfig) {
-      console.error(
-        'TURN 서버 주소, 사용자 이름, 자격 증명을 모두 설정해야 합니다.'
-      );
+      console.error('TURN 서버 주소, 사용자 이름, 자격 증명을 모두 설정해야 합니다.');
       return;
     }
 
     sessionIdRef.current = crypto.randomUUID();
 
-    wsRef.current = new WebSocket(url);
+    wsRef.current = new WebSocket(signalingUrl);
 
     wsRef.current.onopen = async () => {
       wsRef.current?.send(JSON.stringify({
-        type: 'register',
-        role: 'browser',
-        sessionId: sessionIdRef.current
+        type: 'register', role: 'browser', sessionId: sessionIdRef.current
       }));
 
-      // TURN 정보가 있으면 TURN 서버 등록
-      // 없으면 빈 배열 -> 로컬망 직접 연결
       const iceServers: RTCIceServer[] = hasTurnConfig
-        ? [
-          {
+        ? [{
             urls: turnUrls,
             username: turnUsername,
             credential: turnCredential,
-          }
-        ]
+          }]
         : [];
 
       pcRef.current = new RTCPeerConnection({
-        // TURN 설정 있으면 TURN(relay)만 사용
-        // 없으면 host candidate 등 직접 연결 허용
         iceTransportPolicy: hasTurnConfig ? 'relay' : 'all',
         iceServers,
       });
@@ -117,7 +106,6 @@ const LiveScreen: React.FC = () => {
       pcRef.current.onicecandidate = (e) => {
         if (!e.candidate) {
           console.log('ICE candidate 수집 완료, Offer 전송!');
-
           wsRef.current?.send(JSON.stringify({
             type: 'offer',
             sdp: pcRef.current?.localDescription?.sdp,
@@ -125,31 +113,19 @@ const LiveScreen: React.FC = () => {
           }));
         }
       };
-
       // 서보모터 제어용 데이터 채널 오픈
       dcRef.current = pcRef.current.createDataChannel('control');
 
-      const offer = await pcRef.current.createOffer({
-        offerToReceiveVideo: true
-      });
-
+      const offer = await pcRef.current.createOffer({ offerToReceiveVideo: true });
       await pcRef.current.setLocalDescription(offer);
     };
 
     wsRef.current.onmessage = async (e) => {
       const msg = JSON.parse(e.data);
-
-      if (
-        msg.type === 'answer' &&
-        msg.sessionId === sessionIdRef.current
-      ) {
+      if (msg.type === 'answer' && msg.sessionId === sessionIdRef.current) {
         console.log('Answer 수신 및 설정');
-
         await pcRef.current?.setRemoteDescription(
-          new RTCSessionDescription({
-            type: 'answer',
-            sdp: msg.sdp
-          })
+          new RTCSessionDescription({ type: 'answer', sdp: msg.sdp })
         );
       }
     };
@@ -186,33 +162,48 @@ const LiveScreen: React.FC = () => {
     sendControl({ cmd: 'mode', val: manual ? 'manual' : 'auto' });
     sendControl({ cmd: 'stop' }); // 안전을 위한 즉시 정지 패킷 송신
   };
-
-  const clickScreen = () => {
+  
+  const clickScreen = () =>{
     setControlBar(!controlBar);
-    if (control == 'control')
+    if (control=='control')
       setControl('controller');
   }
+
   useEffect(() => {
     return () => stopWebRTC();
   }, []);
 
   return (
     <>
-      <Header
+      <Header 
         title='CAMERA'
         useBack={false}
       />
 
-      <main
-        className="main-content full"
-        onClick={clickScreen}
-      >
+      <main className={ isCameraLoading || cameraData?.deviceCode ? "main-content hide" : "main-content" }>
+        <section className="full-section">
+          <div>
+            <svg width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 8L16 16M16 8L8 16" />
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+          </div>
+          <p className="medium-text">연결된 카메라가 없어요!</p>
+
+          <button
+            className='medium-button'
+            onClick={()=>navigate('/camera/connect')}
+          >+ 연결하기</button>
+        </section>
+      </main>
+
+      <main className={ isCameraLoading || cameraData?.deviceCode ? "main-content full" : "main-content hide" } onClick={clickScreen}>
         <section className="full-section full">
           <div onClick={(e) => e.stopPropagation()}>
-            <LiveBox
+            <LiveBox 
               isLive={true}
               camera={cameraData}
-              stream={stream}
+              stream={stream} 
               onStartLive={startWebRTC}
             />
           </div>
@@ -225,24 +216,33 @@ const LiveScreen: React.FC = () => {
         <div className='control-menu'>
           <div
             className='control-menu-button'
-            onClick={() => { setControlBar(true); setControl('controller'); }}
+            onClick={() => {
+              if (isCameraLoading) return;
+              setControlBar(true); 
+              setControl('controller');
+            }}
           >
             <img className='icon' src={Move} alt="icon" />
           </div>
           <div
             className='control-menu-button'
-            onClick={() => { setControlBar(true); setControl('button'); }}
-          ><img className='icon' src={Camera} alt="icon" />
+            onClick={()=>{
+              if (isCameraLoading) return;
+              setControlBar(true);
+              setControl('button');
+            }}
+          >
+            <img className='icon' src={Camera} alt="icon" />
           </div>
         </div>
         {/* 컨트롤러 영역 */}
-        <div className={controlBar && control == 'controller' ? 'control-component' : 'control-component hide'}>
+        <div className={controlBar && control=='controller' ? 'control-component' : 'control-component hide'}>
           <div className='control-manual'>
-            <label htmlFor="manual-toggle" className='input-label'>수동 조작</label>
-            <input type="checkbox" id="manual-toggle" className="toggle-input"
-              checked={isManual} onChange={handleToggleMode} />
+            <label htmlFor="manual-toggle"className='input-label'>수동 조작</label>
+            <input type="checkbox" id="manual-toggle" className="toggle-input" 
+            checked={isManual} onChange={handleToggleMode}/>
             <label htmlFor="manual-toggle" className="toggle-input-button">
-              <span className="toggle-input-switch" />
+              <span className="toggle-input-switch"/>
             </label>
           </div>
           <Controller
@@ -256,14 +256,16 @@ const LiveScreen: React.FC = () => {
           >초기화</button>
         </div>
         {/* 버튼 영역 */}
-        <div className={controlBar && control == 'button' ? 'control-component' : 'control-component hide'}>
+        <div className={controlBar && control=='button' ? 'control-component' : 'control-component hide'}>
           <div className='control-buttons'>
+            {/*
             <button
               className='medium-button'
             >화면 녹화</button>
             <button
               className='medium-button'
             >화면 캡처</button>
+            */}
             <button
               className='medium-button'
             >카메라 차단</button>
@@ -272,19 +274,19 @@ const LiveScreen: React.FC = () => {
             >야간 모드</button>
             <button
               className='medium-button'
-              onClick={() => navigate('/camera/schedule')}
+              onClick={()=>navigate('/camera/schedule')}
             >스케줄 설정</button>
             <button
               className='medium-button'
-              onClick={() => navigate('/camera')}
+              onClick={()=>navigate('/camera')}
             >카메라 설정</button>
           </div>
         </div>
       </section>
 
-      <Nav
-        currentScreen={currentScreen}
-      />
+      <Loading visible={isCameraLoading}></Loading>
+
+      <Nav currentScreen={currentScreen}/>
     </>
   );
 };

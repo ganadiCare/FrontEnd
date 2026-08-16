@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePet } from './store/usePet';
 import { useCamera } from './store/useCamera';
 import { useReport } from './store/useReport';
+import { calculatePetTargets } from './utils/petTarget';
 import './css/templete.css';
 import './css/profile.css';
 
@@ -10,8 +11,10 @@ import Header from './components/Header';
 import Nav from './components/Nav';
 import RingGraph from './components/RingGraph';
 import LiveBox from './components/LiveBox';
+import Loading from './components/Loading';
 
-import defaultProfile from './image_folder/DefaultProfile.png'
+import profile_dog from './image_folder/Profile_Dog.png';
+import profile_cat from './image_folder/Profile_Cat.png';
 import acivityIcon from './image_folder/Activity.png'
 import feedIcon from './image_folder/Feed.png'
 import waterIcon from './image_folder/Water.png';
@@ -19,15 +22,39 @@ import waterIcon from './image_folder/Water.png';
 const MainScreen: React.FC = () => {
   const navigate = useNavigate();
   const currentScreen = 'main';
-  const today = new Date().toISOString().split('T')[0];
 
-  const { petData } = usePet();
-  const { cameraData } = useCamera();
-  const { reportData } = useReport(today);
+  // Date 객체를 로컬 시간 기준 YYYY-MM-DD 문자열로 변환 (toISOString은 UTC라 자정~오전9시 KST에 날짜가 하루 밀림)
+  const toLocalDateStr = (d: Date): string => {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+  const today = toLocalDateStr(new Date()); // 오늘 날짜
 
+  const { petData, isPetLoading } = usePet();
+  const { cameraData, isCameraLoading } = useCamera();
+  const { reportData, activityList, isReportLoading } = useReport(today);
+
+  // AI 요약 추출
   const setAiSummary = () => {
-    return reportData?.aiSummary?.split("요약")[1]?.trim();
-  }
+    const summary = reportData?.aiSummary;
+    if (!summary) return "";
+    const match = summary.match(/\[오늘의 한눈 요약\]\s*\n([\s\S]*?)(?=\n\s*\[|$)/);
+    return match ? match[1].trim() : "";
+  };
+
+  // 활동 로그 시간 합산
+  const totalActivity = activityList && activityList.length > 0
+  ? Math.floor(activityList.reduce((acc, cur) => acc + (cur.detectedSeconds ?? 0), 0) / 60)
+  : 0;
+
+  // 섭취량 계산
+  const foodIntake = (reportData?.feeding?.totalAmount ?? 0) - (reportData?.feeding?.leftovers ?? 0);
+  const waterIntake = (reportData?.watering?.totalAmount ?? 0) - (reportData?.watering?.leftovers ?? 0);
+
+  //목표값 계산
+  const maxValue = calculatePetTargets(petData)
 
   return (
     <>
@@ -47,28 +74,28 @@ const MainScreen: React.FC = () => {
               <div className="profile-wrapper">
                 <img
                     className="profile-image" 
-                    src={defaultProfile}
+                    src={petData?.species=='CAT' ? profile_cat : profile_dog}
                     alt="profile image"
                 />
               </div>
               <span className="medium-text">{petData?.name ?? '???'}</span>
             </div>
             <RingGraph
-              currentValue={reportData?.feeding?.totalAmount}
-              fullValue={100}
-              text={reportData ? `${reportData?.feeding?.totalAmount}분` : '...'}
+              currentValue={totalActivity}
+              fullValue={maxValue.maxActivity}
+              text={activityList && activityList.length > 0 ? `${totalActivity}분` : '...'}
               icon={acivityIcon}
             />
             <RingGraph
-              currentValue={reportData?.feeding?.totalAmount}
-              fullValue={100}
-              text={reportData ? `${reportData?.feeding?.totalAmount}g` : '...'}
+              currentValue={foodIntake}
+              fullValue={maxValue.maxFeed}
+              text={reportData ? `${foodIntake}g` : '...'}
               icon={feedIcon}
             />
             <RingGraph
-              currentValue={reportData?.watering?.totalAmount}
-              fullValue={100}
-              text={reportData ? `${reportData?.watering?.totalAmount}ml` : '...'}
+              currentValue={waterIntake}
+              fullValue={maxValue.maxWater}
+              text={reportData ? `${waterIntake}ml` : '...'}
               icon={waterIcon}
             />
           </div>
@@ -80,16 +107,17 @@ const MainScreen: React.FC = () => {
           <div className='heading-wrapper'>
             <h2 className="section-heading">LIVE</h2>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="10" cy="10" r="5" fill={cameraData ? "#f00" : "#aaa"}/>
+              <circle cx="10" cy="10" r="5" fill={!cameraData?.isPrivateMode ? "#f00" : "#aaa"}/>
             </svg>
             <p className={cameraData ? 'message hide' : 'message error'}
             >카메라와 연결되지 않았습니다</p>
           </div>
           <LiveBox camera={cameraData} isLive={false}/>
-          <p
-            className={!cameraData ? "medium-text text-button" : "medium-text hide"}
+          <p></p>
+          <button 
+            className={!cameraData ? "small-button" : "small-button hide"}
             onClick={()=>navigate('/camera/connect')}
-          >카메라 연결 →</p>
+          >+ 카메라 연결</button>
         </section>
         <hr className="main-divider" />
 
@@ -99,7 +127,7 @@ const MainScreen: React.FC = () => {
             <h2 className="section-heading">AI 요약</h2>
           </div>
           <p className="small-text">
-            {reportData ? setAiSummary() : '오늘의 리포트가 아직 존재하지 않아요!'}
+            {reportData?.aiSummary ? setAiSummary() : '오늘의 리포트가 아직 존재하지 않아요!'}
           </p>
 
           <button 
@@ -107,8 +135,9 @@ const MainScreen: React.FC = () => {
             onClick={()=>navigate('/report')}
           >+ 더보기</button>
         </section>
-
       </main>
+
+      <Loading visible={isPetLoading || isCameraLoading || isReportLoading}></Loading>
 
       <Nav currentScreen={currentScreen} />
     </>
