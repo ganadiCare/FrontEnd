@@ -33,6 +33,7 @@ const ProfileScreen: React.FC = () => {
 
   const [targetPopup, setTargetPopup] = useState(false);
   const [logoutPopup, setLogoutPopup] = useState(false);
+  const [passwordPopup, setPasswordPopup] = useState(false);
 
   if (!localPet && petData) {
     setLocalPet(petData);
@@ -359,7 +360,9 @@ const ProfileScreen: React.FC = () => {
 
             <div className='input-box row'>
               <label className='input-label'>비밀번호 변경</label>
-              <button type="button" className='small-button'>변경하기</button>
+              <button type="button" className='small-button'
+                onClick={()=>setPasswordPopup(true)}
+              >변경하기</button>
             </div>
 
             <div className='input-box row'>
@@ -414,6 +417,18 @@ const ProfileScreen: React.FC = () => {
         onBackgroundClick={()=>setLogoutPopup(false)}
         onOkClick={()=>logout()}
         onCancelClick={()=>setLogoutPopup(false)}
+      />
+
+      <Popup
+        popupMessage={
+          {
+            title: '관리자에게 문의하세요.',
+            type: 'OK'
+          }
+        }
+        boxClassName="forgot"
+        visible={passwordPopup}
+        onOkClick={()=>setPasswordPopup(false)}
       />
 
       <Loading visible={isPetLoading || isProfileLoading}></Loading>
