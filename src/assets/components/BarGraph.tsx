@@ -40,9 +40,13 @@ const BarGraph: React.FC<BarGraphProps> = (
             </svg>
             <svg className='bar-stamp' width='266px' height='8px' viewBox='0 0 264 8'>
                 <text x={0*11} y='10'>0</text>
+                <text x={3*11} y='10'>3</text>
                 <text x={6*11} y='10'>6</text>
+                <text x={9*11} y='10'>9</text>
                 <text x={12*11} y='10'>12</text>
+                <text x={15*11} y='10'>15</text>
                 <text x={18*11} y='10'>18</text>
+                <text x={21*11} y='10'>21</text>
                 <text x={24*11} y='10'>24</text>
             </svg>
         </div>

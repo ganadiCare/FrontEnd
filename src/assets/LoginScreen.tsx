@@ -4,9 +4,11 @@ import './css/login.css';
 import NavigationButton from './components/NavigationButton';
 import { login } from '../api/auth';
 import Header from './components/Header';
+import Popup from './components/Popup';
 
 const LoginScreen: React.FC = () => {
   const navigate = useNavigate();
+  const [forgotPopup, setForgotPopup] = useState(false);
 
   // 뒤로가기(헤더 아이콘 포함) 시 무조건 시작 화면으로 이동
   useEffect(() => {
@@ -99,7 +101,11 @@ const LoginScreen: React.FC = () => {
               <span className="custom-checkbox"></span>
               <span>remember me</span>
             </label>
-            <a href="#" className="forgot-password">Forgot password?</a>
+            <a
+              className="forgot-password"
+              style={{ cursor: 'pointer' }}
+              onClick={(e) => { e.preventDefault(); setForgotPopup(true); }}
+            >Forgot password?</a>
           </div>
 
           <NavigationButton
@@ -112,6 +118,18 @@ const LoginScreen: React.FC = () => {
 
         </form>
       </div>
+
+      <Popup
+        popupMessage={
+          {
+            title: '관리자에게 문의하세요.',
+            type: 'OK'
+          }
+        }
+        boxClassName="forgot"
+        visible={forgotPopup}
+        onOkClick={() => setForgotPopup(false)}
+      />
     </>
   );
 };

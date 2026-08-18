@@ -10,6 +10,7 @@ import LoginScreen from './assets/LoginScreen';
 
 import MainScreen from './assets/MainScreen';
 import ProfileScreen from './assets/ProfileScreen'
+import ProfileDeleteScreen from './assets/ProfileDeleteScreen'
 
 import GalleryScreen from './assets/GalleryScreen';
 import GalleryDetailScreen from './assets/GalleryDetailScreen';
@@ -53,6 +54,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path='/main' element = {<MainScreen/>}></Route>
             <Route path='/profile' element = {<ProfileScreen/>}></Route>
+            <Route path='/profile/delete' element = {<ProfileDeleteScreen/>}></Route>
 
             <Route path='/gallery'>
               <Route index element = {<GalleryScreen/>}></Route>

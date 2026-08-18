@@ -18,12 +18,24 @@ export const ACTIVITY_KEYS = {
   range: (from: string, to: string) => [...ACTIVITY_KEYS.all, { from, to }] as const,
 };
 
+// Date를 로컬 시간 그대로의 문자열로 변환 (UTC 변환 없이, 서버가 저장한 naive KST 값과 비교 기준을 맞추기 위함)
+const toLocalDateTimeStr = (d: Date): string => {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  const ms = String(d.getMilliseconds()).padStart(3, '0');
+  return `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}.${ms}`;
+};
+
 export const useReport = (date?: string) => {
   const queryClient = useQueryClient();
 
   const baseDate = date ? new Date(date) : new Date();
-  const from = new Date(baseDate.setHours(0, 0, 0, 0)).toISOString();
-  const to = new Date(baseDate.setHours(23, 59, 59, 999)).toISOString();
+  const from = toLocalDateTimeStr(new Date(baseDate.setHours(0, 0, 0, 0)));
+  const to = toLocalDateTimeStr(new Date(baseDate.setHours(23, 59, 59, 999)));
 
   const reportQuery = useQuery<ReportData, Error>({
     queryKey: REPORT_KEYS.detail(date),

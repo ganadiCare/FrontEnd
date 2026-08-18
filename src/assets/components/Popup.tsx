@@ -23,7 +23,6 @@ const Popup: React.FC<PopupProps> = (
     return (
         <div
             className={`popup-background${boxClassName ? ' ' + boxClassName : ''}${visible ? '' : ' hide'}`}
-            onClick={onBackgroundClick}
         >
             <div className={`popup-box${boxClassName ? ' ' + boxClassName : ''}${visible ? '' : ' hide'}`}>
                 <h2 className='section-heading'>{popupMessage?.title}</h2>
@@ -43,7 +42,7 @@ const Popup: React.FC<PopupProps> = (
                 </div>
                 
                 <div className={popupMessage?.type=='OX' ? 'popup-buttons' : 'popup-buttons hide'}>
-                    <button type="button" className='medium-button'
+                    <button type="button" className='medium-button popup-confirm'
                     onClick={onOkClick}>예</button>
                     <button type="button" className='medium-button'
                     onClick={onCancelClick}>아니오</button>
