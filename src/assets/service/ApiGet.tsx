@@ -83,6 +83,9 @@ export async function initAccessToken() {
 
 //Member API 관련
 type LoginData = components['schemas']['LoginDTO'];
+type UpdateNicknameData = components['schemas']['UpdateNicknameDTO'];
+type ChangePasswordData = components['schemas']['ChangePasswordDTO'];
+type ApiResponseVoid = components['schemas']['ApiResponseVoid'];
 
 export async function getProfile() {
   console.log('Profile 데이터를 가져오는 중...');
@@ -139,6 +142,36 @@ export async function deleteMember() {
     console.log('계정 삭제 실패');
     console.error(error);
     throw error; 
+  } finally {
+    console.log('로딩 종료');
+  }
+}
+
+export async function updateNickname(requestBody: UpdateNicknameData | undefined) {
+  console.log('닉네임 수정 중...');
+  try {
+    const response = await api.patch(`/api/v1/members/me/nickname`, requestBody);
+    console.log('닉네임 수정 성공', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('닉네임 수정 실패', error);
+    throw error;
+  } finally {
+    console.log('로딩 종료');
+  }
+}
+
+export async function updatePassword(requestBody: ChangePasswordData | undefined): Promise<ApiResponseVoid>{
+  console.log('비밀번호 수정 중...');
+  try {
+    const response = await api.patch<ApiResponseVoid>(`/api/v1/members/me/password`, requestBody);
+    console.log('비밀번호 수정 성공', response.data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('비밀번호 변경에 실패했습니다.');
   } finally {
     console.log('로딩 종료');
   }

@@ -23,7 +23,7 @@ const ProfileScreen: React.FC = () => {
   const currentScreen = 'profile';
 
   const { petData, isPetLoading, updatePet, isUpdatingPet } = usePet();
-  const { profileData, isProfileLoading, userLogout } = useProfile();
+  const { profileData, isProfileLoading, userLogout, updateNickname, isUpdatingNickname } = useProfile();
 
   const [localPet, setLocalPet] = useState<PetData | null>(petData);
   const [birthdayNull, setBirthdayNull] = useState(petData?.birthday=='1900-01-01');
@@ -31,12 +31,21 @@ const ProfileScreen: React.FC = () => {
   const [petAgeError, setPetAgeError] = useState('');
   const [petWeightError, setPetWeightError] = useState('');
 
+  const [prevUser, setPrevUser] = useState(profileData);
+  const [userName, setUserName] = useState(profileData?.nickname ?? '');
+  const [userNameError, setUserNameError] = useState('');
+
   const [targetPopup, setTargetPopup] = useState(false);
   const [logoutPopup, setLogoutPopup] = useState(false);
-  const [passwordPopup, setPasswordPopup] = useState(false);
 
   if (!localPet && petData) {
     setLocalPet(petData);
+    setBirthdayNull(petData?.birthday=='1900-01-01')
+  }
+
+  if (profileData !== prevUser) {
+    setPrevUser(profileData);
+    setUserName(profileData?.nickname ?? '');
   }
 
   /* 데이터 변경 함수 */
@@ -144,6 +153,22 @@ const ProfileScreen: React.FC = () => {
     return;
   }
 
+  // 닉네임 변경 함수
+  const changeUserName = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setUserName(e.target.value);
+  }
+
+  const saveUserName = () => {
+    if (!userName?.trim()) {
+      setUserNameError('이름을 입력해주세요.');
+    }
+    else {
+      setUserNameError('');
+      updateNickname({nickname: userName})
+    }
+  }
+
+  // 로그아웃
   const logout = async() => {
     try{
       userLogout();
@@ -340,17 +365,17 @@ const ProfileScreen: React.FC = () => {
                   <input className='text-input'
                     type="text"
                     name="userName"
-                    value={profileData?.nickname}
+                    value={userName}
                     placeholder='사용자 이름'
-                    //onChange={changeUserName}
+                    onChange={changeUserName}
                   />
-                  {/*<button type='button'
+                  <button type='button'
                     className='small-button'
-                    //onClick={()=>saveUserName()}
-                  >저장</button>*/}
+                    onClick={()=>saveUserName()}
+                  >{isUpdatingNickname ? '저장 중...' : '저장'}</button>
                 </div>
               </label>
-              {/* <p className='message error'>{userNameError}</p> */}
+              <p className='message error'>{userNameError}</p>
             </div>
 
             <div className='input-box row'>
@@ -361,7 +386,7 @@ const ProfileScreen: React.FC = () => {
             <div className='input-box row'>
               <label className='input-label'>비밀번호 변경</label>
               <button type="button" className='small-button'
-                onClick={()=>setPasswordPopup(true)}
+                onClick={()=>navigate('/profile/password')}
               >변경하기</button>
             </div>
 
@@ -417,18 +442,6 @@ const ProfileScreen: React.FC = () => {
         onBackgroundClick={()=>setLogoutPopup(false)}
         onOkClick={()=>logout()}
         onCancelClick={()=>setLogoutPopup(false)}
-      />
-
-      <Popup
-        popupMessage={
-          {
-            title: '관리자에게 문의하세요.',
-            type: 'OK'
-          }
-        }
-        boxClassName="forgot"
-        visible={passwordPopup}
-        onOkClick={()=>setPasswordPopup(false)}
       />
 
       <Loading visible={isPetLoading || isProfileLoading}></Loading>

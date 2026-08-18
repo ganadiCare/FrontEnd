@@ -1,9 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getProfile, loginMember, logoutMember, deleteMember } from '../service/ApiGet';
+import { getProfile, loginMember, logoutMember, deleteMember, updateNickname, updatePassword } from '../service/ApiGet';
 import type { components } from '../service/api';
 
 type ProfileData = components['schemas']['ProfileDTO'];
 type LoginData = components['schemas']['LoginDTO'];
+type UpdateNicknameData = components['schemas']['UpdateNicknameDTO'];
+type ChangePasswordData = components['schemas']['ChangePasswordDTO'];
+type ApiResponseVoid = components['schemas']['ApiResponseVoid'];
 
 export const PROFILE_KEYS = {
     all: ['profile'] as const,
@@ -51,7 +54,6 @@ export const useProfile = () => {
     },
     });
 
-    // 4. 회원 탈퇴 Mutation
     const deleteMemberMutation = useMutation({
     mutationFn: async () => {
         await deleteMember();
@@ -66,6 +68,40 @@ export const useProfile = () => {
     },
     });
 
+    const updateNicknameMutation = useMutation({
+    mutationFn: async (requestBody: UpdateNicknameData) => {
+        return await updateNickname(requestBody);
+    },
+    onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: PROFILE_KEYS.all });
+    },
+    });
+
+    const updatePasswordMutation = useMutation<ApiResponseVoid, Error, ChangePasswordData>({
+    mutationFn: async (requestBody: ChangePasswordData) => {
+        return await updatePassword(requestBody);
+    },
+    });
+
+    const updatePasswordResult = async (requestBody: ChangePasswordData) => {
+        try {
+            const res = await updatePasswordMutation.mutateAsync(requestBody);
+            return { 
+                isSuccess: true, 
+                message: res.message || '비밀번호가 성공적으로 변경되었습니다.' 
+            };
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error 
+                ? error.message 
+                : '비밀번호 변경 중 오류가 발생했습니다.';
+
+            return { 
+                isSuccess: false, 
+                message: errorMessage
+            }
+      };
+    };
+
     return {
     // 조회 데이터
     profileData: profileQuery.data ?? null,
@@ -76,10 +112,14 @@ export const useProfile = () => {
     userLogin: loginMutation.mutate,
     userLogout: logoutMutation.mutate,
     userDelete: deleteMemberMutation.mutate,
+    updateNickname: updateNicknameMutation.mutate,
+    updatePassword: updatePasswordResult,
 
     // Mutation 진행 상태
     isLoggingIn: loginMutation.isPending,
     isLoggingOut: logoutMutation.isPending,
     isDeletingMember: deleteMemberMutation.isPending,
+    isUpdatingNickname: updateNicknameMutation.isPending,
+    isUpdatingPassword: updatePasswordMutation.isPending,
     };
 };

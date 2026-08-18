@@ -9,8 +9,9 @@ import SignUpComplete from './assets/SignUpComplete';
 import LoginScreen from './assets/LoginScreen';
 
 import MainScreen from './assets/MainScreen';
-import ProfileScreen from './assets/ProfileScreen'
-import ProfileDeleteScreen from './assets/ProfileDeleteScreen'
+import ProfileScreen from './assets/ProfileScreen';
+import PasswordScreen from './assets/PasswordScreen.tsx';
+import ProfileDeleteScreen from './assets/ProfileDeleteScreen';
 
 import GalleryScreen from './assets/GalleryScreen';
 import GalleryDetailScreen from './assets/GalleryDetailScreen';
@@ -53,8 +54,12 @@ function App() {
           {/* 인증 라우트 */}
           <Route element={<ProtectedRoute />}>
             <Route path='/main' element = {<MainScreen/>}></Route>
-            <Route path='/profile' element = {<ProfileScreen/>}></Route>
-            <Route path='/profile/delete' element = {<ProfileDeleteScreen/>}></Route>
+
+            <Route path='/profile'>
+              <Route index element = {<ProfileScreen/>}></Route>
+              <Route path='password' element = {<PasswordScreen/>}></Route>
+              <Route path='delete' element = {<ProfileDeleteScreen/>}></Route>
+            </Route>
 
             <Route path='/gallery'>
               <Route index element = {<GalleryScreen/>}></Route>

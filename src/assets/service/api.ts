@@ -249,6 +249,40 @@ export interface paths {
         patch: operations["updatePet"];
         trace?: never;
     };
+    "/api/v1/members/me/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** 비밀번호 변경 API */
+        patch: operations["changePassword"];
+        trace?: never;
+    };
+    "/api/v1/members/me/nickname": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** 닉네임 변경 API */
+        patch: operations["updateNickname"];
+        trace?: never;
+    };
     "/api/v1/dispensers": {
         parameters: {
             query?: never;
@@ -779,6 +813,19 @@ export interface components {
             /** Format: date */
             birthday?: string;
         };
+        ChangePasswordDTO: {
+            currentPassword: string;
+            newPassword: string;
+        };
+        ApiResponseVoid: {
+            isSuccess?: boolean;
+            code?: string;
+            message?: string;
+            result?: Record<string, never>;
+        };
+        UpdateNicknameDTO: {
+            nickname: string;
+        };
         UpdateDispenserDTO: {
             deviceName?: string;
             isAutoFeed?: boolean;
@@ -960,12 +1007,6 @@ export interface components {
             code?: string;
             message?: string;
             result?: components["schemas"]["ActivityLogDTO"][];
-        };
-        ApiResponseVoid: {
-            isSuccess?: boolean;
-            code?: string;
-            message?: string;
-            result?: Record<string, never>;
         };
     };
     responses: never;
@@ -1347,6 +1388,54 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ApiResponsePetDTO"];
+                };
+            };
+        };
+    };
+    changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseVoid"];
+                };
+            };
+        };
+    };
+    updateNickname: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNicknameDTO"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ApiResponseString"];
                 };
             };
         };

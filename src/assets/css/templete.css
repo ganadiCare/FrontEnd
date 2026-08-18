@@ -206,10 +206,6 @@
   cursor: pointer;
 }
 
-.medium-button:hover {
-  background-color: #0077cc;
-}
-
 .text-button{
   cursor: pointer;
 }
@@ -222,6 +218,46 @@
   width: 28px;
   height: 28px;
   object-fit: contain;
+}
+
+/* 하단 버튼 요소 */
+.bar-button-box {
+  width: 100%;
+  padding: 20px 0px;
+  display: flex;
+  justify-content: center;
+  background-color: #fff;
+}
+
+.bar-button {
+  width: 300px;
+  padding: 15px;
+  border: none;
+  border-radius: 24px;
+  background-color: #0099FF;
+
+  color: #FFFFFF; 
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.bar-button:hover {
+  background-color: #0077cc; 
+}
+
+.bar-button:disabled {
+  background-color: #ddd;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.bar-button:disabled:hover {
+  background-color: #ddd;
 }
 
 /* 텍스트 */
@@ -358,6 +394,18 @@
   height: 30px;
   padding: 0px 8px;
   font-size: 12px;
+}
+
+.password-input{
+  display: block;
+  width: 300px;
+  height: 40px;
+  padding: 0 16px;
+  margin: 4px 0px;
+  border: 1px solid #aaa;
+  border-radius: 12px;
+  font-size: 14px;
+  outline: none;
 }
 
 .radio-input{
@@ -690,6 +738,6 @@
 }
 
 /* 요소 숨기기 */
-.hide{
+.hide {
   display: none;
 }
